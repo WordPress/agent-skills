@@ -64,13 +64,22 @@ cd agent-skills
 node shared/scripts/skillpack-build.mjs --clean
 
 # Install into your WordPress project
-node shared/scripts/skillpack-install.mjs --dest=../your-wp-project --targets=codex,vscode,claude
+node shared/scripts/skillpack-install.mjs --dest=../your-wp-project --targets=codex,vscode,claude,cursor
 ```
 
 This copies skills into:
 - `.codex/skills/` for OpenAI Codex
 - `.github/skills/` for VS Code / GitHub Copilot
 - `.claude/skills/` for Claude Code (project-level)
+- `.cursor/skills/` for Cursor (project-level)
+
+### Install globally for Cursor
+
+```bash
+node shared/scripts/skillpack-install.mjs --targets=cursor-global
+```
+
+This installs skills to `~/.cursor/skills/` where Cursor will discover them.
 
 ### Available options
 
@@ -81,8 +90,8 @@ node shared/scripts/skillpack-install.mjs --list
 # Dry run (preview without installing)
 node shared/scripts/skillpack-install.mjs --global --dry-run
 
-# Install specific skills to a project
-node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude --skills=wp-wpcli-and-ops
+# Install specific skills to a project (e.g. Claude + Cursor)
+node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude,cursor --skills=wp-wpcli-and-ops
 ```
 
 ### Manual installation

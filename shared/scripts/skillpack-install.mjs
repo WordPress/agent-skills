@@ -11,7 +11,7 @@ function usage() {
       "Options:",
       "  --dest=<path>       Destination repo root (required, unless using --global)",
       "  --from=<path>       Source directory (default: dist)",
-      "  --targets=<list>    Comma-separated targets: codex, vscode, claude, claude-global (default: codex,vscode)",
+      "  --targets=<list>    Comma-separated targets: codex, vscode, claude, claude-global, cursor, cursor-global (default: codex,vscode)",
       "  --skills=<list>     Comma-separated skill names to install (default: all)",
       "  --mode=<mode>       'replace' (default) or 'merge'",
       "  --global            Shorthand for --targets=claude-global (installs to ~/.claude/skills)",
@@ -23,20 +23,25 @@ function usage() {
       "  vscode              Install to <dest>/.github/skills/",
       "  claude              Install to <dest>/.claude/skills/ (project-level)",
       "  claude-global       Install to ~/.claude/skills/ (user-level, ignores --dest)",
+      "  cursor              Install to <dest>/.cursor/skills/",
+      "  cursor-global       Install to ~/.cursor/skills/ (user-level, ignores --dest)",
       "",
       "Examples:",
       "  # Build and install to a WordPress project",
       "  node shared/scripts/skillpack-build.mjs --clean",
-      "  node shared/scripts/skillpack-install.mjs --dest=../my-wp-repo --targets=codex,vscode,claude",
+      "  node shared/scripts/skillpack-install.mjs --dest=../my-wp-repo --targets=codex,vscode,claude,cursor",
       "",
       "  # Install globally for Claude Code (all skills)",
       "  node shared/scripts/skillpack-install.mjs --global",
+      "",
+      "  # Install globally for Cursor (all skills)",
+      "  node shared/scripts/skillpack-install.mjs --targets=cursor-global",
       "",
       "  # Install specific skills globally",
       "  node shared/scripts/skillpack-install.mjs --global --skills=wp-playground,wp-block-development",
       "",
       "  # Install to project with specific skills",
-      "  node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude --skills=wp-wpcli-and-ops",
+      "  node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude,cursor --skills=wp-wpcli-and-ops",
       "",
     ].join("\n")
   );
@@ -128,25 +133,30 @@ function listSkillDirs(skillsRoot) {
     .filter((d) => fs.existsSync(path.join(d, "SKILL.md")));
 }
 
-const VALID_TARGETS = ["codex", "vscode", "claude", "claude-global"];
+const VALID_TARGETS = ["codex", "vscode", "claude", "claude-global", "cursor", "cursor-global"];
 
 // Map target to source subdirectory in dist
 function getSourceDir(fromDir, target) {
-  // claude-global uses the same source as claude
-  const sourceTarget = target === "claude-global" ? "claude" : target;
+  // claude-global uses the same source as claude; cursor-global uses the same as cursor
+  const sourceTarget =
+    target === "claude-global" ? "claude" : target === "cursor-global" ? "cursor" : target;
   const targetDirMap = {
     codex: path.join(fromDir, "codex", ".codex", "skills"),
     vscode: path.join(fromDir, "vscode", ".github", "skills"),
     claude: path.join(fromDir, "claude", ".claude", "skills"),
+    cursor: path.join(fromDir, "cursor", ".cursor", "skills"),
   };
   return targetDirMap[sourceTarget];
 }
 
 // Map target to destination directory
 function getDestDir(destRepoRoot, target) {
-  // claude-global doesn't need destRepoRoot
+  // claude-global and cursor-global don't need destRepoRoot
   if (target === "claude-global") {
     return path.join(os.homedir(), ".claude", "skills");
+  }
+  if (target === "cursor-global") {
+    return path.join(os.homedir(), ".cursor", "skills");
   }
 
   // Other targets require destRepoRoot
@@ -154,6 +164,7 @@ function getDestDir(destRepoRoot, target) {
     codex: path.join(destRepoRoot, ".codex", "skills"),
     vscode: path.join(destRepoRoot, ".github", "skills"),
     claude: path.join(destRepoRoot, ".claude", "skills"),
+    cursor: path.join(destRepoRoot, ".cursor", "skills"),
   };
   return destDirMap[target];
 }
@@ -202,13 +213,16 @@ function installTarget({ fromDir, destRepoRoot, target, skillsFilter, mode, dryR
     copyDir({ srcDir: srcSkillDir, destDir: destSkillDir });
   }
 
-  const location = target === "claude-global" ? destSkillsRoot : path.relative(destRepoRoot, destSkillsRoot) || ".";
+  const isGlobal = target === "claude-global" || target === "cursor-global";
+  const location = isGlobal ? destSkillsRoot : path.relative(destRepoRoot, destSkillsRoot) || ".";
   process.stdout.write(`OK: installed ${skillDirs.length} skill(s) to ${location}\n`);
 }
 
 function listAvailableSkills(fromDir) {
   // Check all possible target sources
-  const sources = ["codex", "vscode", "claude"].map((t) => getSourceDir(fromDir, t)).filter((p) => fs.existsSync(p));
+  const sources = ["codex", "vscode", "claude", "cursor"]
+    .map((t) => getSourceDir(fromDir, t))
+    .filter((p) => fs.existsSync(p));
 
   if (sources.length === 0) {
     process.stderr.write("No built skills found. Run skillpack-build.mjs first.\n");
@@ -244,8 +258,8 @@ function main() {
     assert(VALID_TARGETS.includes(t), `Invalid target: ${t}. Valid targets: ${VALID_TARGETS.join(", ")}`);
   }
 
-  // --dest is required unless only using claude-global
-  const needsDest = targets.some((t) => t !== "claude-global");
+  // --dest is required unless only using global targets (claude-global, cursor-global)
+  const needsDest = targets.some((t) => t !== "claude-global" && t !== "cursor-global");
   if (needsDest && !args.dest) {
     process.stderr.write("Error: --dest is required for non-global targets.\n\n");
     usage();

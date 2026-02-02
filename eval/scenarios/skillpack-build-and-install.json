@@ -1,11 +1,11 @@
 {
   "name": "Build and install skillpacks",
   "skills": [],
-  "query": "Package this repo's skills for Codex and VS Code and install them into another repository.",
+  "query": "Package this repo's skills for Codex, VS Code, Claude, and Cursor and install them into another repository.",
   "expected_behavior": [
-    "Step 1: Run build command: node shared/scripts/skillpack-build.mjs --clean --targets=codex,vscode",
+    "Step 1: Run build command: node shared/scripts/skillpack-build.mjs --clean --targets=codex,vscode,claude,cursor",
     "Step 2: Verify build output in dist/ directory",
-    "Step 3: Run install command: node shared/scripts/skillpack-install.mjs --from=dist --dest=<repo-root> --targets=codex,vscode",
+    "Step 3: Run install command: node shared/scripts/skillpack-install.mjs --from=dist --dest=<repo-root> --targets=codex,vscode,claude,cursor",
     "Step 4: Verify skills installed in target repository",
     "Step 5: Confirm no symlinks in installed skills (files are copied)"
   ],
@@ -14,6 +14,6 @@
     "Output created in dist/ directory",
     "Install command copies to target repository",
     "No symlinks in installed skills",
-    "Both codex and vscode targets supported"
+    "Codex, vscode, claude, and cursor targets supported"
   ]
 }
