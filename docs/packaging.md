@@ -14,13 +14,15 @@ Outputs:
 
 - `dist/codex/.codex/skills/*` (OpenAI Codex repo layout)
 - `dist/vscode/.github/skills/*` (VS Code / Copilot repo layout)
+- `dist/claude/.claude/skills/*` (Claude Code repo layout)
+- `dist/cursor/.cursor/skills/*` (Cursor repo layout)
 
 ## Install into another repo
 
 1. Build dist (above).
 2. Install into a destination repo:
 
-- `node shared/scripts/skillpack-install.mjs --dest=../some-repo --targets=codex,vscode`
+- `node shared/scripts/skillpack-install.mjs --dest=../some-repo --targets=codex,vscode,claude,cursor`
 
 By default, install mode is `replace` (it replaces only the skill directories it installs).
 
