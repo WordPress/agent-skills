@@ -13,7 +13,8 @@ Use this skill when the user mentions:
 - Interactivity API, `@wordpress/interactivity`,
 - `data-wp-interactive`, `data-wp-on--*`, `data-wp-bind--*`, `data-wp-context`,
 - block `viewScriptModule` / module-based view scripts,
-- hydration issues or “directives don’t fire”.
+- hydration issues or "directives don't fire",
+- **client-side navigation**, `@wordpress/interactivity-router`, `data-wp-router-region`.
 
 ## Inputs required
 
@@ -134,16 +135,55 @@ Verify the repo supports the required module build path:
 - if it uses `@wordpress/scripts`, prefer its conventions.
 - if it uses custom bundling, confirm module output is supported.
 
-### 6) Debug common failure modes
+### 6) Client-side navigation with the Router
 
-If “nothing happens” on interaction:
+**CRITICAL: The router automatically intercepts `<a>` links. Do NOT add custom click handlers.**
+
+When using `@wordpress/interactivity-router` for SPA-like navigation:
+
+1. Enqueue the router: `wp_enqueue_script_module('my-nav', '...', ['@wordpress/interactivity', '@wordpress/interactivity-router'])`
+2. **Mark module as compatible (WordPress 6.9+ REQUIRED):**
+   ```php
+   wp_interactivity()->add_client_navigation_support_to_script_module('my-nav');
+   ```
+3. Add `data-wp-router-region="region-id"` to the content area to be swapped
+4. Use **plain `<a href="...">` links** - NO `data-wp-on--click` handlers!
+
+The router automatically:
+- Intercepts all same-origin link clicks
+- Fetches the target page
+- Swaps ONLY the matching router region content
+- Updates browser URL via History API
+
+**WordPress 6.9+ CRITICAL:** Script modules must be marked as compatible with client-side navigation:
+- For blocks: use `"supports": { "interactivity": { "clientNavigation": true } }` in block.json
+- For manual modules: call `wp_interactivity()->add_client_navigation_support_to_script_module('module-id')`
+
+Without this, the router will NOT intercept link clicks. The script tag must have `data-wp-router-options` attribute.
+
+Reference: https://make.wordpress.org/core/2025/11/12/interactivity-apis-client-navigation-improvements-in-wordpress-6-9/
+
+**Common mistake:** Adding `data-wp-on--click="actions.navigate"` to nav elements. This breaks the router. Remove it.
+
+See `references/router.md` for full details.
+
+### 7) Debug common failure modes
+
+If "nothing happens" on interaction:
 
 - confirm the `viewScriptModule` is enqueued/loaded,
 - confirm the DOM element has `data-wp-interactive`,
-- confirm the store namespace matches the directive’s value,
+- confirm the store namespace matches the directive's value,
 - confirm there are no JS errors before hydration.
 
-See `references/debugging.md`.
+If client-side **navigation** isn't working:
+- confirm `@wordpress/interactivity-router` is enqueued,
+- confirm `data-wp-router-region` exists on both source and target pages with SAME ID,
+- **confirm script module has `data-wp-router-options` attribute** (WP 6.9+) - if missing, call `wp_interactivity()->add_client_navigation_support_to_script_module('your-module')`,
+- **remove any custom `data-wp-on--click` handlers from navigation links**,
+- links should be plain `<a href>` tags.
+
+See `references/debugging.md` and `references/router.md`.
 
 ## Verification
 
@@ -174,6 +214,7 @@ See `references/debugging.md`.
 
 - If repo build constraints are unclear, ask: "Is this using `@wordpress/scripts` or a custom bundler (webpack/vite)?"
 - Consult:
+  - `references/router.md` - **READ THIS FIRST for navigation issues**
   - `references/server-side-rendering.md`
   - `references/directives-quickref.md`
   - `references/debugging.md`
