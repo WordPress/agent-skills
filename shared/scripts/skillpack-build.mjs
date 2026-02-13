@@ -5,16 +5,17 @@ function usage() {
   process.stderr.write(
     [
       "Usage:",
-      "  node shared/scripts/skillpack-build.mjs [--out=dist] [--targets=codex,vscode,claude,cursor] [--skills=skill1,skill2] [--clean]",
+      "  node shared/scripts/skillpack-build.mjs [--out=dist] [--targets=codex,vscode,claude,cursor,gemini] [--skills=skill1,skill2] [--clean]",
       "",
       "Outputs:",
       "  - <out>/codex/.codex/skills/<skill>/SKILL.md",
       "  - <out>/vscode/.github/skills/<skill>/SKILL.md",
       "  - <out>/claude/.claude/skills/<skill>/SKILL.md",
       "  - <out>/cursor/.cursor/skills/<skill>/SKILL.md",
+      "  - <out>/gemini/.gemini/skills/<skill>/SKILL.md",
       "",
       "Options:",
-      "  --targets    Comma-separated list of targets (codex, vscode, claude, cursor). Default: codex,vscode,claude,cursor",
+      "  --targets    Comma-separated list of targets (codex, vscode, claude, cursor, gemini). Default: codex,vscode,claude,cursor,gemini",
       "  --skills     Comma-separated list of skill names to build. Default: all skills",
       "  --clean      Remove target directories before building",
       "",
@@ -26,7 +27,7 @@ function usage() {
 }
 
 function parseArgs(argv) {
-  const args = { out: "dist", targets: ["codex", "vscode", "claude", "cursor"], skills: [], clean: false };
+  const args = { out: "dist", targets: ["codex", "vscode", "claude", "cursor", "gemini"], skills: [], clean: false };
   for (const a of argv) {
     if (a === "--help" || a === "-h") args.help = true;
     else if (a === "--clean") args.clean = true;
@@ -101,6 +102,7 @@ function buildTarget({ repoRoot, outDir, target, skillDirs }) {
     vscode: path.join(outDir, "vscode", ".github", "skills"),
     claude: path.join(outDir, "claude", ".claude", "skills"),
     cursor: path.join(outDir, "cursor", ".cursor", "skills"),
+    gemini: path.join(outDir, "gemini", ".gemini", "skills"),
   };
   const destSkillsRoot = rootByTarget[target];
   assert(destSkillsRoot, `Unknown target: ${target}`);
@@ -117,7 +119,7 @@ function buildTarget({ repoRoot, outDir, target, skillDirs }) {
   process.stdout.write(`OK: built ${target} skillpack at ${rel}\n`);
 }
 
-const VALID_TARGETS = ["codex", "vscode", "claude", "cursor"];
+const VALID_TARGETS = ["codex", "vscode", "claude", "cursor", "gemini"];
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
