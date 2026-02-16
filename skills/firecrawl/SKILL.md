@@ -1,7 +1,7 @@
 ---
 name: firecrawl
 description: "Use when a task requires fetching web content, searching the web, scraping pages, extracting documentation, researching topics online, or discovering URLs on a site. Provides clean LLM-optimized markdown output via the firecrawl CLI."
-compatibility: "Requires Node.js and npm. Install globally with npm install -g firecrawl-cli. Works on macOS, Linux, and Windows."
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires Node.js and npm. Install globally with npm install -g firecrawl-cli."
 ---
 
 # Firecrawl CLI
