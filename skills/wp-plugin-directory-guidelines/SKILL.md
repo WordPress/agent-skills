@@ -1,7 +1,6 @@
 ---
 name: wp-plugin-directory-guidelines
-description: "WordPress.org Plugin Directory guidelines reference including GPL licensing compliance and the 18 Detailed Plugin Guidelines. Use when reviewing WordPress plugins for GPL compliance, checking license headers, evaluating license compatibility, verifying plugin directory guideline adherence, or answering questions about WordPress.org plugin policies."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Reference-only skill, no runtime dependencies."
+description: "WordPress.org Plugin Directory guidelines reference including GPL licensing compliance, trialware/freemium compliance, and the 18 Detailed Plugin Guidelines. Use when reviewing WordPress plugins for GPL compliance, checking license headers, evaluating license compatibility, validating upsells or premium add-ons, verifying plugin directory guideline adherence, or answering questions about WordPress.org plugin policies."
 ---
 
 # WP Plugin Directory Guidelines
@@ -14,6 +13,8 @@ Use this skill when you need to:
 - Verify license headers in plugin files
 - Identify common guideline violations before submission
 - Answer questions about what is or is not allowed on WordPress.org
+- Evaluate premium/upsell flows, license checks, or freemium positioning
+- Review “teaser” or “preview” UI for trialware violations
 
 ## Inputs required
 
@@ -23,9 +24,10 @@ Use this skill when you need to:
 
 1. Check the plugin's license header against the **Valid License Headers** section below.
 2. Walk through the **18 Guidelines** checklist, paying special attention to Guidelines 1, 4, 5, 7, 8, and 17 (most common rejection reasons).
-3. For any bundled third-party code, verify license compatibility against the **GPL-Compatible Licenses** table.
-4. Flag any matches from the **Common GPL Violations** section.
-5. For detailed GPL questions, consult [GPL License FAQ](references/gpl-license-faq.md).
+3. Confirm trialware/freemium compliance using **Guideline 5: No Trialware** and the **Trialware & Upsell Checks** section below.
+4. For any bundled third-party code, verify license compatibility against the **GPL-Compatible Licenses** table.
+5. Flag any matches from the **Common GPL Violations** section.
+6. For detailed GPL questions, consult [GPL License FAQ](references/gpl-license-faq.md).
 
 ## Verification
 
@@ -61,6 +63,79 @@ Code obfuscation is prohibited (packer, uglify mangle, unclear naming like `$z12
 
 ### Guideline 5: No Trialware
 Plugins may not contain functionality restricted/locked behind payment or upgrade. No disabling after trial period or quota. No sandbox-only API access. Paid functionality in external services IS permitted if all plugin code is fully available. Add-on plugins hosted outside WordPress.org are recommended for premium code.
+
+#### Trialware & Upsell Checks (Guideline 5 Focus)
+
+**Core rule:** Anything shipped on WordPress.org must work fully without a license key or payment.
+
+**Not allowed (trialware patterns):**
+- Time-based or usage-based cutoffs for local features
+- “Free but crippled” behavior intended to force upgrades
+- License key checks to unlock local-only functionality
+- Artificial quotas for features that would otherwise work locally
+
+**Allowed (freemium patterns):**
+- Informational upsell UI that does not block use
+- Premium functionality provided by a separate add-on plugin
+- External SaaS integrations where the service itself provides the value
+- Preview/teaser UI that is clearly non-blocking and optional
+
+**Pattern guidance (keep free functional):**
+
+```php
+// Bad: blocks local feature
+if ( ! $this->has_paid_access() ) {
+    echo 'Upgrade required';
+    return;
+}
+```
+
+```php
+// Good: free feature works, premium enhances
+$this->render_basic_export();
+if ( $this->has_premium_addon() ) {
+    do_action( 'myplugin_premium_export_options' );
+}
+```
+
+```php
+// Bad: artificial limit
+$limit = $this->has_paid_access() ? 10000 : 100;
+```
+
+```php
+// Good: consistent limit, allow extension via add-on/filter
+$limit = 10000;
+$limit = apply_filters( 'myplugin_event_limit', $limit );
+```
+
+**Upsell UI principles:**
+- Keep upsells contextual and dismissible
+- Avoid blocking screens or repeated nags
+- Use comparison tables or subtle notices instead of hard gates
+- If you show a disabled preview UI for a premium feature, make sure it never prevents the free feature from working
+
+**Review questions (ask per feature):**
+1. Does this feature run end-to-end without a license key?
+2. Is any code path gated solely by “paid” checks for local behavior?
+3. Are there time/usage caps that reduce free functionality?
+4. Would a free user feel blocked or tricked?
+5. Does the free version still provide standalone value?
+
+**Trialware compliance checklist (pre-submission):**
+- [ ] All free features work without a license key
+- [ ] No time-based expirations or usage quotas
+- [ ] No “locked” UI that blocks normal use
+- [ ] Upsell prompts are informational and dismissible
+- [ ] Premium functionality lives in a separate add-on or external service
+- [ ] Free version provides real, standalone value
+
+**Common trialware violations:**
+- Constant upgrade popups or blocking screens
+- Intentionally crippled workflows to force upgrades
+- Expiring features after X days
+- Usage caps added solely to pressure upgrades
+- License validation for features that are purely local
 
 ### Guideline 6: SaaS Is Permitted
 Plugins acting as interfaces to external third-party services are allowed (even paid). The service must provide real functionality and be documented in the readme. NOT allowed:
