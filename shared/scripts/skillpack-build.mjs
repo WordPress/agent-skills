@@ -1,32 +1,37 @@
 import fs from "node:fs";
 import path from "node:path";
+import http from "node:http";
+import https from "node:https";
 
 function usage() {
   process.stderr.write(
     [
       "Usage:",
-      "  node shared/scripts/skillpack-build.mjs [--out=dist] [--targets=codex,vscode,claude,cursor] [--skills=skill1,skill2] [--clean]",
+      "  node shared/scripts/skillpack-build.mjs [--out=dist] [--targets=codex,vscode,claude,cursor,junie] [--skills=skill1,skill2] [--clean]",
       "",
       "Outputs:",
       "  - <out>/codex/.codex/skills/<skill>/SKILL.md",
       "  - <out>/vscode/.github/skills/<skill>/SKILL.md",
       "  - <out>/claude/.claude/skills/<skill>/SKILL.md",
       "  - <out>/cursor/.cursor/skills/<skill>/SKILL.md",
+      "  - <out>/junie/.junie/skills/<skill>/SKILL.md",
+      "  - <out>/junie/.junie/wordpress_guidelines.md",
       "",
       "Options:",
-      "  --targets    Comma-separated list of targets (codex, vscode, claude, cursor). Default: codex,vscode,claude,cursor",
+      "  --targets    Comma-separated list of targets (codex, vscode, claude, cursor, junie). Default: codex,vscode,claude,cursor,junie",
       "  --skills     Comma-separated list of skill names to build. Default: all skills",
       "  --clean      Remove target directories before building",
       "",
       "Notes:",
       "- Avoids symlinks (Codex ignores symlinked directories).",
+      "","  - junie target also downloads WordPress guidelines into the .junie folder.",
       "",
     ].join("\n")
   );
 }
 
 function parseArgs(argv) {
-  const args = { out: "dist", targets: ["codex", "vscode", "claude", "cursor"], skills: [], clean: false };
+  const args = { out: "dist", targets: ["codex", "vscode", "claude", "cursor", "junie"], skills: [], clean: false };
   for (const a of argv) {
     if (a === "--help" || a === "-h") args.help = true;
     else if (a === "--clean") args.clean = true;
@@ -101,6 +106,7 @@ function buildTarget({ repoRoot, outDir, target, skillDirs }) {
     vscode: path.join(outDir, "vscode", ".github", "skills"),
     claude: path.join(outDir, "claude", ".claude", "skills"),
     cursor: path.join(outDir, "cursor", ".cursor", "skills"),
+    junie: path.join(outDir, "junie", ".junie", "skills"),
   };
   const destSkillsRoot = rootByTarget[target];
   assert(destSkillsRoot, `Unknown target: ${target}`);
@@ -117,9 +123,22 @@ function buildTarget({ repoRoot, outDir, target, skillDirs }) {
   process.stdout.write(`OK: built ${target} skillpack at ${rel}\n`);
 }
 
-const VALID_TARGETS = ["codex", "vscode", "claude", "cursor"];
+const VALID_TARGETS = ["codex", "vscode", "claude", "cursor", "junie"];
 
-function main() {
+async function downloadGuidelines(destRoot) {
+  // Download the WordPress guidelines markdown and save it into destRoot
+  const url = "https://github.com/user-attachments/files/25775597/wordpress_guidelines.md";
+  const destPath = path.join(destRoot, "wordpress_guidelines.md");
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Failed to download guidelines: ${res.status} ${res.statusText}`);
+  }
+  const content = await res.text();
+  fs.writeFileSync(destPath, content);
+}
+
+async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
     usage();
@@ -160,8 +179,21 @@ function main() {
 
   for (const target of targets) {
     buildTarget({ repoRoot, outDir, target, skillDirs });
+    if (target === "junie") {
+      // ensure guidelines file is present in the root of the .junie folder
+      const junieRoot = path.join(outDir, "junie", ".junie");
+      try {
+        await downloadGuidelines(junieRoot);
+        process.stdout.write(`OK: downloaded guidelines to ${path.relative(repoRoot, junieRoot)}\n`);
+      } catch (err) {
+        process.stderr.write(`Warning: could not download guidelines: ${err.message}\n`);
+      }
+    }
   }
 }
 
-main();
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
 
