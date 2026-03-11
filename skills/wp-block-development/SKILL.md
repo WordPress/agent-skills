@@ -110,6 +110,9 @@ Read:
 - `references/supports-and-wrappers.md`
 - `references/dynamic-rendering.md` (if dynamic)
 
+If the block reads per-post data (content, meta, title, excerpt, etc.), read the context reference to ensure the editor component works inside Query Loop:
+- `references/context-and-query-loop.md`
+
 ### 7) Inner blocks (block composition)
 
 If your block is a “container” that nests other blocks, treat Inner Blocks as a first-class feature:
