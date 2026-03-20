@@ -30,6 +30,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-abilities-api** | Capability-based permissions and REST API authentication |
 | **wp-wpcli-and-ops** | WP-CLI commands, automation, multisite, search-replace |
 | **wp-performance** | Profiling, caching, database optimization, Server-Timing |
+| **wp-performance-review** | Performance code review: anti-pattern detection, severity-rated findings with line numbers |
 | **wp-phpstan** | PHPStan static analysis for WordPress projects (config, baselines, WP-specific typing) |
 | **wp-playground** | WordPress Playground for instant local environments |
 | **local-studio-env** | WordPress Studio and Local by Flywheel: site routing, ports, WP-CLI, Xdebug, Playwright |
