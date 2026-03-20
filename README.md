@@ -32,6 +32,10 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-performance** | Profiling, caching, database optimization, Server-Timing |
 | **wp-phpstan** | PHPStan static analysis for WordPress projects (config, baselines, WP-specific typing) |
 | **wp-playground** | WordPress Playground for instant local environments |
+| **local-studio-env** | WordPress Studio and Local by Flywheel: site routing, ports, WP-CLI, Xdebug, Playwright |
+| **security-researcher** | WordPress security research and vulnerability analysis |
+| **wordpress-runbook-ops** | Operations runbooks with WP-CLI steps, verification, rollback, and escalation |
+| **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation |
 | **wpds** | WordPress Design System |
 
 ## Quick Start
@@ -107,10 +111,11 @@ Each skill contains:
 ```
 skills/wp-block-development/
 ├── SKILL.md              # Main instructions (when to use, procedure, verification)
-├── references/           # Deep-dive docs on specific topics
-│   ├── block-json.md
-│   ├── deprecations.md
-│   └── ...
+├── agents/               # Editor-specific agent configs
+│   ├── claude.yaml
+│   └── openai.yaml
+├── references/           # Deep-dive docs, canonical source links
+│   └── canonical-sources.md
 └── scripts/              # Deterministic helpers (detection, validation)
     └── list_blocks.mjs
 ```
