@@ -204,38 +204,7 @@ npx wp-env stop
 
 ## Xdebug
 
-Studio bundles its own PHP. Xdebug configuration must target Studio's PHP, not a system PHP.
-
-### Check Xdebug Status
-
-```bash
-# Using Studio's PHP
-/Applications/WordPress\ Studio.app/Contents/Resources/php -m | grep xdebug
-
-# Check configuration
-/Applications/WordPress\ Studio.app/Contents/Resources/php -i | grep xdebug
-```
-
-### Conflict: Global php.ini Xdebug Settings
-
-If another tool installed Xdebug system-wide and configured it in a global `php.ini`, Studio's PHP may pick up conflicting settings. Check:
-
-```bash
-# Find which ini files Studio's PHP is loading
-/Applications/WordPress\ Studio.app/Contents/Resources/php --ini
-```
-
-If extra `.ini` files from `/usr/local/etc/php/` or Homebrew paths appear, they may override Studio's intended configuration. Studio's PHP should only load its own bundled config.
-
-### IDE Configuration
-
-Configure your IDE (VS Code, PhpStorm) to listen on port 9003 and set path mappings:
-
-| IDE path | Server path |
-|---|---|
-| `/path/to/your-plugin` | `/path/to/studio-site/wp-content/plugins/your-plugin` |
-
-For symlinked plugins, the path mapping must use the **symlink target** (your repo), not the symlink itself.
+For Xdebug setup, step debugging, stack trace reading, and resolving port 9003 conflicts, use the **`studio-xdebug`** skill. It covers Studio's WASM PHP specifics, VS Code launch.json configuration, and conflict resolution for competing Xdebug configs.
 
 ## Troubleshooting Checklist
 
@@ -247,7 +216,7 @@ When a Studio site isn't working:
 4. **WP-CLI wrong output** — Check for global `~/.wp-cli/config.yml` conflicts. Use Studio's bundled WP-CLI explicitly.
 5. **Port occupied** — Run the port scan from the Port Conflicts section above.
 6. **DNS oddity** — Check `/etc/hosts` for stale entries from other tools.
-7. **Xdebug not connecting** — Verify Studio's PHP has Xdebug loaded, not a different PHP binary.
+7. **Xdebug not connecting** — Use `studio-xdebug` skill for diagnosis.
 
 ## Done Criteria
 
