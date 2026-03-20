@@ -1,0 +1,6 @@
+# OpenAI Codex agent configuration for wp-block-themes
+# Load SKILL.md as system prompt when this agent is active.
+agent:
+  name: "wp-block-themes"
+  instructions: "./SKILL.md"
+  model: "o3"

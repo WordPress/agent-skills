@@ -1,0 +1,6 @@
+# OpenAI Codex agent configuration for wordpress-router
+# Load SKILL.md as system prompt when this agent is active.
+agent:
+  name: "wordpress-router"
+  instructions: "./SKILL.md"
+  model: "o3"

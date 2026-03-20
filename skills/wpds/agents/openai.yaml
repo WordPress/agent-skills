@@ -1,0 +1,6 @@
+# OpenAI Codex agent configuration for wpds
+# Load SKILL.md as system prompt when this agent is active.
+agent:
+  name: "wpds"
+  instructions: "./SKILL.md"
+  model: "o3"

@@ -1,0 +1,6 @@
+# Claude Code agent configuration for wpds
+# Load SKILL.md as system context when this skill is active.
+agent:
+  name: "wpds"
+  instructions: "./SKILL.md"
+  model: "claude-sonnet-4-6"

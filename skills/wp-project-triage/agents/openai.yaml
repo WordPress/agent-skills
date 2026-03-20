@@ -1,0 +1,6 @@
+# OpenAI Codex agent configuration for wp-project-triage
+# Load SKILL.md as system prompt when this agent is active.
+agent:
+  name: "wp-project-triage"
+  instructions: "./SKILL.md"
+  model: "o3"

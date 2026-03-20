@@ -1,0 +1,6 @@
+# OpenAI Codex agent configuration for wp-abilities-api
+# Load SKILL.md as system prompt when this agent is active.
+agent:
+  name: "wp-abilities-api"
+  instructions: "./SKILL.md"
+  model: "o3"

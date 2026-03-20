@@ -1,0 +1,6 @@
+# Claude Code agent configuration for wp-project-triage
+# Load SKILL.md as system context when this skill is active.
+agent:
+  name: "wp-project-triage"
+  instructions: "./SKILL.md"
+  model: "claude-sonnet-4-6"

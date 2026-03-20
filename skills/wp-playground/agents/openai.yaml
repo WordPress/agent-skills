@@ -1,0 +1,6 @@
+# OpenAI Codex agent configuration for wp-playground
+# Load SKILL.md as system prompt when this agent is active.
+agent:
+  name: "wp-playground"
+  instructions: "./SKILL.md"
+  model: "o3"

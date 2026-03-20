@@ -1,0 +1,6 @@
+# Claude Code agent configuration for wp-phpstan
+# Load SKILL.md as system context when this skill is active.
+agent:
+  name: "wp-phpstan"
+  instructions: "./SKILL.md"
+  model: "claude-sonnet-4-6"
