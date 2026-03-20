@@ -1,6 +1,7 @@
 ---
 name: "wordpress-runbook-ops"
 description: "Create, revise, and validate WordPress operations runbooks with deterministic WP-CLI steps, metadata, verification, rollback, and escalation criteria."
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node. Requires WP-CLI."
 ---
 
 # WordPress Runbook Ops

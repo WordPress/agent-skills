@@ -1,6 +1,7 @@
 ---
 name: "wordpress-security-doc-editor"
 description: "Draft, revise, and fact-check WordPress security documentation using authority hierarchy, terminology rules, and cross-document consistency checks."
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node."
 ---
 
 # WordPress Security Doc Editor

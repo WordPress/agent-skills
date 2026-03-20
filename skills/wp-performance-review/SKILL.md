@@ -1,6 +1,7 @@
 ---
 name: wp-performance-review
 description: WordPress performance code review and optimization analysis. Use when reviewing WordPress PHP code for performance issues, auditing themes/plugins for scalability, optimizing WP_Query, analyzing caching strategies, checking code before launch, or detecting anti-patterns, or when user mentions "performance review", "optimization audit", "slow WordPress", "slow queries", "high-traffic", "scale WordPress", "code review", "timeout", "500 error", "out of memory", or "site won't load". Detects anti-patterns in database queries, hooks, object caching, AJAX, and template loading.
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node."
 ---
 
 # WordPress Performance Review Skill

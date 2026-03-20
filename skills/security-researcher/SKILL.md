@@ -1,3 +1,9 @@
+---
+name: "security-researcher"
+description: "Produce source-grounded internal research briefs about vendor-specific WordPress security products, hosting stacks, or platform guidance. Separates verified vendor claims from editorial implications and portability limits."
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node."
+---
+
 # Skill: security-researcher
 
 - Purpose: Produce source-grounded internal research briefs about vendor-specific WordPress security products, hosting stacks, or platform guidance so editors can decide what, if anything, belongs in the canonical docs.

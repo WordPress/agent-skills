@@ -1,6 +1,7 @@
 ---
 name: "local-studio-env"
 description: "Manage WordPress Studio and Local by Flywheel development environments: site routing, port conflicts, plugin syncing, SSL certs, WP-CLI access, Mailpit, and Playwright E2E testing against local sites."
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires WordPress Studio and/or Local by Flywheel on macOS. Some workflows require WP-CLI."
 ---
 
 # Local & Studio Environments

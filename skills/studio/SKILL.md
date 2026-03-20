@@ -1,6 +1,7 @@
 ---
 name: "studio"
 description: "WordPress Studio development environment: site creation, WP-CLI, plugin/theme development, SQLite databases, Playwright E2E testing, Xdebug, and resolving environmental conflicts (port collisions, stale DNS, conflicting PHP/WP-CLI configs). Use when working in WordPress Studio or troubleshooting Studio site issues."
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires WordPress Studio on macOS. Some workflows require WP-CLI (bundled with Studio)."
 ---
 
 # WordPress Studio
