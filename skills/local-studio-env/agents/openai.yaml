@@ -1,0 +1,6 @@
+# OpenAI Codex agent configuration for local-studio-env
+# Load SKILL.md as system prompt when this agent is active.
+agent:
+  name: "local-studio-env"
+  instructions: "./SKILL.md"
+  model: "o3"
