@@ -1,6 +1,7 @@
 ---
 name: "studio-xdebug"
 description: "Debug WordPress with Xdebug in WordPress Studio. Read error logs, parse stack traces, configure VS Code step debugging, and resolve environmental conflicts (port 9003 contention, stale php.ini Xdebug configs, wrong PHP binary on PATH). Use when debugging PHP in Studio or when Xdebug won't connect to a Studio site."
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires WordPress Studio on macOS with Xdebug enabled via Studio UI. VS Code with PHP Debug extension for step debugging."
 ---
 
 # Xdebug in WordPress Studio
