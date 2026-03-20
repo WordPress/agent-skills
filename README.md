@@ -33,6 +33,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-performance-review** | Performance code review: anti-pattern detection, severity-rated findings with line numbers |
 | **wp-phpstan** | PHPStan static analysis for WordPress projects (config, baselines, WP-specific typing) |
 | **wp-playground** | WordPress Playground for instant local environments |
+| **studio** | WordPress Studio: site management, WP-CLI, SQLite, Playwright, environmental conflict resolution |
 | **local-studio-env** | WordPress Studio and Local by Flywheel: site routing, ports, WP-CLI, Xdebug, Playwright |
 | **security-researcher** | WordPress security research and vulnerability analysis |
 | **wordpress-runbook-ops** | Operations runbooks with WP-CLI steps, verification, rollback, and escalation |
