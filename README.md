@@ -1,22 +1,21 @@
 # Agent Skills for WordPress
 
-**Teach AI coding assistants how to build WordPress the right way.**
+Fork of [WordPress/agent-skills](https://github.com/WordPress/agent-skills) with additional skills from [Dan Knauss](https://github.com/dknauss) and other sources.
 
-Agent Skills are portable bundles of instructions, checklists, and scripts that help AI assistants (Claude, Copilot, Codex, Cursor, etc.) understand WordPress development patterns, avoid common mistakes, and follow best practices.
+This is the canonical skill repo for all WordPress agent work in this environment. Any AI agent (Claude, Codex, Cursor, Copilot) working on WordPress code or docs pulls skill definitions from here.
 
-> **AI Authorship Disclosure:** These skills were generated using GPT-5.2 Codex (High Reasoning) from official Gutenberg and WordPress documentation, then reviewed and edited by WordPress contributors. We tested skills with AI assistants and iterated based on results. This is v1, and skills will improve as the community uses them and contributes fixes. See [docs/ai-authorship.md](docs/ai-authorship.md) for details. ([WordPress AI Guidelines](https://make.wordpress.org/ai/handbook/ai-guidelines/))
+## Sources
 
-## Why Agent Skills?
-
-AI coding assistants are powerful, but they often:
-- Generate outdated WordPress patterns (pre-Gutenberg, pre-block themes)
-- Miss critical security considerations in plugin development
-- Skip proper block deprecations, causing "Invalid block" errors
-- Ignore existing tooling in your repo
-
-Agent Skills solve this by giving AI assistants **expert-level WordPress knowledge** in a format they can actually use.
+| Source | Skills | Notes |
+|--------|--------|-------|
+| [WordPress/agent-skills](https://github.com/WordPress/agent-skills) | 17 upstream skills | Tracked on `main`; fork additions on `trunk` |
+| [Joost de Valk](https://github.com/jdevalk/skills) | wp-github-actions, wp-readme-optimizer, github-repo, github-profile | Ported and adapted |
+| [dknauss/claude-wordpress-skills](https://github.com/dknauss/claude-wordpress-skills) | wp-performance-review | Ported from standalone Claude plugin |
+| This fork | studio, studio-xdebug, wp-accessibility | Original skills written here |
 
 ## Available Skills
+
+### WordPress Development
 
 | Skill | What it teaches |
 |-------|-----------------|
@@ -28,20 +27,36 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-rest-api** | REST API routes/endpoints, schema, auth, and response shaping |
 | **wp-interactivity-api** | Frontend interactivity with `data-wp-*` directives and stores |
 | **wp-abilities-api** | Capability-based permissions and REST API authentication |
+| **wpds** | WordPress Design System components and tokens |
+
+### Operations and Tooling
+
+| Skill | What it teaches |
+|-------|-----------------|
 | **wp-wpcli-and-ops** | WP-CLI commands, automation, multisite, search-replace |
-| **wp-performance** | Profiling, caching, database optimization, Server-Timing |
-| **wp-performance-review** | Performance code review: anti-pattern detection, severity-rated findings with line numbers |
-| **wp-phpstan** | PHPStan static analysis for WordPress projects (config, baselines, WP-specific typing) |
+| **wp-phpstan** | PHPStan static analysis for WordPress projects |
 | **wp-playground** | WordPress Playground for instant local environments |
-| **studio** | WordPress Studio: site management, WP-CLI, SQLite, Playwright, environmental conflict resolution |
-| **studio-xdebug** | Xdebug in Studio: step debugging, stack traces, port 9003 conflict resolution |
-| **local-studio-env** | WordPress Studio and Local by Flywheel: site routing, ports, WP-CLI, Xdebug, Playwright |
-| **security-researcher** | WordPress security research and vulnerability analysis |
-| **wordpress-runbook-ops** | Operations runbooks with WP-CLI steps, verification, rollback, and escalation |
-| **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation |
 | **wp-github-actions** | GitHub Actions CI/CD for WP plugins: WPCS, PHPUnit, PHPStan, Playground previews, deploy to .org |
 | **wp-readme-optimizer** | Audit and rewrite WordPress.org plugin readme.txt for visibility and conversions |
-| **wpds** | WordPress Design System |
+
+### Quality and Security
+
+| Skill | What it teaches |
+|-------|-----------------|
+| **wp-accessibility** | WCAG 2.2 AA compliance: semantic HTML, focus management, ARIA, screen-reader-text, testing |
+| **wp-performance** | Profiling, caching, database optimization, Server-Timing |
+| **wp-performance-review** | Performance code review: anti-pattern detection, severity-rated findings |
+| **security-researcher** | WordPress security research and vulnerability analysis |
+| **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation |
+| **wordpress-runbook-ops** | Operations runbooks with WP-CLI steps, verification, rollback, escalation |
+
+### Local Development Environments
+
+| Skill | What it teaches |
+|-------|-----------------|
+| **studio** | WordPress Studio: site management, appdata-v1.json, SQLite, Playwright, conflict resolution |
+| **studio-xdebug** | Xdebug in Studio: step debugging, stack traces, port 9003 conflicts |
+| **local-studio-env** | Studio + Local by Flywheel coexistence: ports, SSL, MySQL sockets, custom domains |
 
 ### Developer Tools
 
@@ -49,121 +64,84 @@ General-purpose skills not specific to WordPress.
 
 | Skill | What it teaches |
 |-------|-----------------|
-| **github-repo** | Audit and improve GitHub repo quality: README, templates, community health files, releases |
-| **github-profile** | Optimize GitHub profile pages: profile README, pinned repos, stats widgets, bio |
+| **github-repo** | Audit and improve GitHub repo quality: README, templates, community health files |
+| **github-profile** | Optimize GitHub profile pages: profile README, pinned repos, bio |
 
-## Quick Start
+## Repo Structure
 
-### Install globally for Claude Code
-
-```bash
-# Clone agent-skills
-git clone https://github.com/WordPress/agent-skills.git
-cd agent-skills
-
-# Build the distribution
-node shared/scripts/skillpack-build.mjs --clean
-
-# Install all skills globally (available across all projects)
-node shared/scripts/skillpack-install.mjs --global
-
-# Or install specific skills only
-node shared/scripts/skillpack-install.mjs --global --skills=wp-playground,wp-block-development
+```
+agent-skills/
+├── skills/
+│   └── <skill-name>/
+│       ├── SKILL.md              # Main instructions (when to use, procedure, verification)
+│       ├── agents/               # Editor-specific agent configs
+│       │   ├── claude.yaml
+│       │   └── openai.yaml
+│       ├── references/           # Canonical source links and deep-dive docs
+│       │   └── canonical-sources.md
+│       └── scripts/              # Deterministic helpers (some skills)
+├── eval/
+│   ├── README.md                 # Eval harness documentation
+│   ├── harness/                  # Test runner
+│   └── scenarios/                # BDD-style pass/fail test cases per skill
+├── shared/
+│   └── scripts/
+│       ├── skillpack-build.mjs   # Build distribution packages
+│       ├── skillpack-install.mjs # Install skills globally or into a project
+│       └── scaffold-skill.mjs    # Scaffold a new skill directory
+└── docs/
+    ├── authoring-guide.md        # How to create and improve skills
+    ├── principles.md             # Design philosophy
+    ├── packaging.md              # Build and distribution
+    └── compatibility-policy.md   # Version targeting
 ```
 
-This installs skills to `~/.claude/skills/` where Claude Code will automatically discover them.
+## Installation
 
-### Install into your repo
+### Global install for Claude Code
 
 ```bash
-# Clone agent-skills
-git clone https://github.com/WordPress/agent-skills.git
-cd agent-skills
-
-# Build the distribution
 node shared/scripts/skillpack-build.mjs --clean
+node shared/scripts/skillpack-install.mjs --global
+```
 
-# Install into your WordPress project
+Installs to `~/.claude/skills/` where Claude Code discovers them automatically.
+
+### Install into a project
+
+```bash
 node shared/scripts/skillpack-install.mjs --dest=../your-wp-project --targets=codex,vscode,claude,cursor
 ```
 
-This copies skills into:
-- `.codex/skills/` for OpenAI Codex
-- `.github/skills/` for VS Code / GitHub Copilot
-- `.claude/skills/` for Claude Code (project-level)
-- `.cursor/skills/` for Cursor (project-level)
-
-### Install globally for Cursor
-
-```bash
-node shared/scripts/skillpack-install.mjs --targets=cursor-global
-```
-
-This installs skills to `~/.cursor/skills/` where Cursor will discover them.
-
-### Available options
+### Other options
 
 ```bash
 # List available skills
 node shared/scripts/skillpack-install.mjs --list
 
-# Dry run (preview without installing)
+# Install specific skills only
+node shared/scripts/skillpack-install.mjs --global --skills=wp-playground,wp-block-development
+
+# Global install for Cursor
+node shared/scripts/skillpack-install.mjs --targets=cursor-global
+
+# Dry run
 node shared/scripts/skillpack-install.mjs --global --dry-run
-
-# Install specific skills to a project (e.g. Claude + Cursor)
-node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude,cursor --skills=wp-wpcli-and-ops
 ```
 
-### Manual installation
+## Branches
 
-Copy any skill folder from `skills/` into your project's instructions directory for your AI assistant.
-
-## How It Works
-
-Each skill contains:
-
-```
-skills/wp-block-development/
-├── SKILL.md              # Main instructions (when to use, procedure, verification)
-├── agents/               # Editor-specific agent configs
-│   ├── claude.yaml
-│   └── openai.yaml
-├── references/           # Deep-dive docs, canonical source links
-│   └── canonical-sources.md
-└── scripts/              # Deterministic helpers (detection, validation)
-    └── list_blocks.mjs
-```
-
-When you ask your AI assistant to work on WordPress code, it reads these skills and follows the documented procedures rather than guessing.
+| Branch | Purpose |
+|--------|---------|
+| `main` | Tracks upstream `WordPress/agent-skills` |
+| `trunk` | Working branch with all fork additions |
+| Feature branches | PRs to upstream go from feature branches against `main` |
 
 ## Compatibility
 
-- **WordPress 6.9+** (PHP 7.2.24+)
+- WordPress 6.9+ (PHP 7.2.24+)
 - Works with any AI assistant that supports project-level instructions
-
-## Contributing
-
-**We welcome contributions!** This project is a great way to share your WordPress expertise—you don't need to be a coding wizard. Most skills are written in Markdown, focusing on clear procedures and best practices.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get started.
-
-Quick commands:
-
-```bash
-# Scaffold a new skill
-node shared/scripts/scaffold-skill.mjs <skill-name> "<description>"
-
-# Validate skills
-node eval/harness/run.mjs
-```
-
-## Documentation
-
-- [Authoring Guide](docs/authoring-guide.md) - How to create and improve skills
-- [Principles](docs/principles.md) - Design philosophy
-- [Packaging](docs/packaging.md) - Build and distribution
-- [Compatibility Policy](docs/compatibility-policy.md) - Version targeting
 
 ## License
 
-GPL-2.0-or-later
+GPL-2.0-or-later — same as upstream.
