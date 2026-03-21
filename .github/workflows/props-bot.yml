@@ -40,6 +40,9 @@ concurrency:
 # Any needed permissions should be configured at the job level.
 permissions: {}
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   # Compiles a list of props for a pull request.
   #

@@ -5,13 +5,16 @@ on:
   schedule:
     - cron: "17 4 * * 1" # Mondays
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -31,4 +34,3 @@ jobs:
             - WordPress ↔ Gutenberg mapping (from developer.wordpress.org docs)
           branch: chore/upstream-indices
           delete-branch: true
-

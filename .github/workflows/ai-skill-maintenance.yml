@@ -16,6 +16,9 @@ on:
   repository_dispatch:
     types: [upstream-release]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   # Step 1: Refresh upstream indices first
   refresh-indices:
@@ -23,9 +26,9 @@ jobs:
     outputs:
       has_index_changes: ${{ steps.check.outputs.has_changes }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -73,7 +76,7 @@ jobs:
           name: workspace-with-indices
           path: .
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -114,7 +117,7 @@ jobs:
           name: workspace-with-updates
           path: .
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
 
