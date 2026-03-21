@@ -1,0 +1,4 @@
+agent:
+  name: wp-vip-standards
+  model: o3
+  skill: ../SKILL.md

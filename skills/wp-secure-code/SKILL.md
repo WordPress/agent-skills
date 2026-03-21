@@ -1,6 +1,6 @@
 ---
 name: "wp-secure-code"
-description: "WordPress secure code analysis and authoring: sanitization, escaping, validation, nonces, capability checks, $wpdb->prepare(), wp_kses, REST permission callbacks, OWASP top 10 in WordPress context. Supports WordPress Coding Standards (WPCS), VIP Coding Standards, and PHPCompatibility. Use when writing, reviewing, or auditing WordPress PHP code for security."
+description: "WordPress secure code analysis and authoring: sanitization, escaping, validation, nonces, capability checks, $wpdb->prepare(), wp_kses, REST permission callbacks, OWASP top 10 in WordPress context. Supports WordPress Coding Standards (WPCS) and PHPCompatibility. Use when writing, reviewing, or auditing WordPress PHP code for security. For VIP platform-specific standards, use wp-vip-standards."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Applies to plugins, themes, blocks, and custom code. PHPCS with WPCS 3.1+ and VIP Coding Standards for automated enforcement."
 ---
 
@@ -11,7 +11,8 @@ compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Applies to plugins, themes
 - Use this skill when writing, reviewing, or auditing WordPress PHP code for security.
 - Covers the WordPress Security API: sanitization, escaping, validation, nonces, capability checks, and database safety.
 - Covers common vulnerabilities: SQL injection, XSS, CSRF, privilege escalation, file inclusion, open redirect, object injection.
-- Covers automated enforcement via WPCS and VIP Coding Standards PHPCS rulesets.
+- Covers automated enforcement via WPCS PHPCS rulesets.
+- For VIP platform-specific coding standards, use `wp-vip-standards`.
 - For security documentation and editorial work, use `security-researcher` and `wordpress-security-doc-editor` instead.
 - For PHPStan static analysis (type safety, not security-specific), use `wp-phpstan`.
 - For REST API route registration and schema, combine with `wp-rest-api`.
@@ -439,25 +440,6 @@ Key WPCS security sniffs:
 - `WordPress.DB.PreparedSQL` — flags unprepared database queries
 - `WordPress.DB.DirectDatabaseQuery` — flags direct `$wpdb` when API exists
 
-### VIP Coding Standards
-
-Stricter ruleset from Automattic for WordPress VIP platform. Extends WPCS with additional checks for performance-sensitive and high-security environments.
-
-```bash
-composer require --dev automattic/vipwpcs
-vendor/bin/phpcs --standard=WordPress-VIP-Go your-plugin/
-```
-
-Two rulesets available:
-- `WordPressVIPMinimum` — legacy VIP platform
-- `WordPress-VIP-Go` — current VIP Go platform
-
-VIP standards flag additional patterns like:
-- File operations without VIP-approved alternatives
-- Uncached database queries
-- `eval()` and `create_function()` usage
-- Remote HTTP requests without timeouts
-
 ### PHPCompatibility
 
 Not security-specific but catches PHP version compatibility issues that can create vulnerabilities:
@@ -473,12 +455,13 @@ vendor/bin/phpcs --standard=PHPCompatibilityWP --runtime-set testVersion 7.4- yo
 {
     "require-dev": {
         "wp-coding-standards/wpcs": "^3.1",
-        "automattic/vipwpcs": "^3.0",
         "phpcompatibility/phpcompatibility-wp": "^2.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
     }
 }
 ```
+
+For VIP projects, add `automattic/vipwpcs` — see `wp-vip-standards` skill.
 
 ## Security Review Checklist
 

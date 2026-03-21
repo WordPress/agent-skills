@@ -1,0 +1,4 @@
+agent:
+  name: wp-vip-standards
+  model: claude-sonnet-4-6
+  skill: ../SKILL.md

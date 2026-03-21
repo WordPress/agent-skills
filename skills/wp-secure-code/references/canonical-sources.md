@@ -13,13 +13,10 @@
 - **WordPress Coding Standards (WPCS)** — https://github.com/WordPress/WordPress-Coding-Standards
   PHPCS ruleset enforcing WordPress security and code quality standards.
 
-- **VIP Coding Standards** — https://github.com/Automattic/VIP-Coding-Standards
-  Stricter PHPCS ruleset from Automattic for WordPress VIP platform. Two rulesets:
-  `WordPressVIPMinimum` (legacy) and `WordPress-VIP-Go` (current).
-  Documentation: https://docs.wpvip.com/technical-references/code-review/
-
 - **WordPress Accessibility Coding Standards** — https://developer.wordpress.org/coding-standards/wordpress-coding-standards/accessibility/
   WCAG 2.2 AA requirement for all WordPress code. See `wp-accessibility` skill.
+
+- **VIP Coding Standards** — see `wp-vip-standards` skill for VIP platform-specific rules.
 
 ## Standards and references
 
