@@ -9,8 +9,8 @@ This is the canonical skill repo for all WordPress agent work in this environmen
 | Source | Skills | Notes |
 |--------|--------|-------|
 | [WordPress/agent-skills](https://github.com/WordPress/agent-skills) | 17 upstream skills | Tracked on `main`; fork additions on `trunk` |
-| [Joost de Valk](https://github.com/jdevalk/skills) | wp-github-actions, wp-readme-optimizer, github-repo, github-profile | Ported and adapted |
-| [elvismdev/claude-wordpress-skills](https://github.com/elvismdev/claude-wordpress-skills) | wp-performance-review | Created by [Elvis Morales](https://github.com/elvismdev); ported and adapted |
+| [jdevalk/skills](https://github.com/jdevalk/skills) | wp-github-actions, wp-readme-optimizer, github-repo, github-profile | Ported and adapted from Joost de Valk. |
+| [elvismdev/claude-wordpress-skills](https://github.com/elvismdev/claude-wordpress-skills) | wp-performance-review | Created by [Elvis Morales](https://github.com/elvismdev); ported and adapted. |
 | This fork | studio, studio-xdebug, wp-accessibility, wp-secure-code, wp-vip-standards | Original skills by Dan Knauss |
 
 ## Available Skills
@@ -48,8 +48,8 @@ This is the canonical skill repo for all WordPress agent work in this environmen
 | **wp-vip-standards** | WordPress VIP platform-specific standards: banned functions, required alternatives, caching requirements, read-only filesystem constraints, `WordPress-VIP-Go` PHPCS ruleset. Builds on `wp-secure-code` as a prerequisite |
 | **wp-performance** | Profiling, caching, database optimization, Server-Timing |
 | **wp-performance-review** | Performance code review: anti-pattern detection, severity-rated findings |
-| **security-researcher** | Produces source-grounded internal research briefs about vendor-specific WordPress security products, hosting stacks, and platform guidance. Separates verified vendor claims from editorial implications. Output is editorial input (what should our docs say?), not code analysis. Uses [Veloria](https://veloria.dev) to cross-reference vendor claims against actual WordPress source |
-| **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation and the code it contains |
+| **security-researcher** | Produces source-grounded internal research briefs about vendor-specific WordPress security products, hosting stacks, and platform guidance. Separates verified vendor claims from editorial implications. Output is editorial input (what should our docs say?), not code analysis. Uses [Veloria](https://veloria.dev) to check code against actual WordPress source. |
+| **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation and the code it contains. |
 | **wordpress-runbook-ops** | Operations runbooks with WP-CLI steps, verification, rollback, escalation |
 
 ### Local Development Environments
