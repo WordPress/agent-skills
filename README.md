@@ -39,16 +39,16 @@ This is the canonical skill repo for all WordPress agent work in this environmen
 | **wp-github-actions** | GitHub Actions CI/CD for WP plugins: WPCS, PHPUnit, PHPStan, Playground previews, deploy to .org |
 | **wp-readme-optimizer** | Audit and rewrite WordPress.org plugin readme.txt for visibility and conversions |
 
-### Quality and Security
+### Quality: Accessibility, Security, Performance, and Documentation
 
 | Skill | What it teaches |
 |-------|-----------------|
 | **wp-accessibility** | WCAG 2.2 AA compliance: semantic HTML, focus management, ARIA, screen-reader-text, testing |
-| **wp-secure-code** | Secure code analysis: sanitization, escaping, nonces, capability checks, $wpdb->prepare(), WPCS/VIP standards |
+| **wp-secure-code** | Secure code analysis: sanitization, escaping, nonces, capability checks, $wpdb->prepare(), WPCS and VIP standards |
 | **wp-performance** | Profiling, caching, database optimization, Server-Timing |
 | **wp-performance-review** | Performance code review: anti-pattern detection, severity-rated findings |
 | **security-researcher** | Security research briefs: vendor product analysis for editorial teams |
-| **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation |
+| **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation and the code it contains |
 | **wordpress-runbook-ops** | Operations runbooks with WP-CLI steps, verification, rollback, escalation |
 
 ### Local Development Environments
