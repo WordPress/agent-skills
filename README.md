@@ -169,6 +169,8 @@ That keeps these user-level installs in sync:
 - `~/.claude/skills`
 - `~/.cursor/skills`
 
+Skill updates become active for those tools on the next new session or task. Existing chats do not hot-reload skills mid-thread.
+
 GitHub Copilot / VS Code skills stay repo-local, not global. If you also want this repo to mirror updated `.github/skills` into specific repos:
 
 ```bash

@@ -7,6 +7,20 @@ and this project aims to use semantic versioning for published releases.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-03-21
+
+### Added
+
+- Local workflow policy enforcement for GitHub Actions runtime and action-version drift
+- Automatic local skill sync hooks for Codex, Claude Code, and Cursor
+- Optional mirroring of repo-local `.github/skills` into selected VS Code / Copilot repositories
+
+### Changed
+
+- Workflow actions updated for the Node 24 JavaScript runtime transition
+- Release workflow no longer depends on `softprops/action-gh-release`
+- Installation docs now explain automatic sync behavior and the new-session activation boundary
+
 ## [0.1.1] - 2026-03-21
 
 ### Added

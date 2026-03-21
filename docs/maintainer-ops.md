@@ -30,6 +30,8 @@ To keep user-level Codex, Claude Code, and Cursor skills synced after local repo
 node shared/scripts/install-auto-sync-hooks.mjs
 ```
 
+Those updates are consumed on the next new Codex, Claude Code, or Cursor session. Existing sessions do not hot-reload skill content.
+
 To mirror Copilot / VS Code skills into specific repos at the same time:
 
 ```bash
