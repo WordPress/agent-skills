@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Validate workflow policy
+        run: node shared/scripts/check-workflows.mjs
+
       - name: Run local eval harness
         run: node eval/harness/run.mjs
 
