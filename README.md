@@ -1,5 +1,9 @@
 # Agent Skills for WordPress
 
+[![CI](https://github.com/dknauss/agent-skills/actions/workflows/ci.yml/badge.svg?branch=trunk)](https://github.com/dknauss/agent-skills/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/dknauss/agent-skills)](https://github.com/dknauss/agent-skills/releases/latest)
+[![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL--2.0--or--later-0f7c6b.svg)](LICENSE)
+
 Fork of [WordPress/agent-skills](https://github.com/WordPress/agent-skills) with additional skills from [Dan Knauss](https://github.com/dknauss) and other sources.
 
 This is the canonical skill repo for all WordPress agent work in this environment. Any AI agent (Claude, Codex, Cursor, Copilot) working on WordPress code or docs pulls skill definitions from here.

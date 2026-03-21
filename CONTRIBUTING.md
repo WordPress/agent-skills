@@ -107,11 +107,13 @@ See any existing skill for examples.
 ## Submitting Changes
 
 1. Fork the repo
-2. Create a branch (`git checkout -b improve-block-dev-skill`)
+2. Create a focused branch such as `feature/<topic>`, `fix/<topic>`, or `docs/<topic>`
 3. Make your changes
-4. Run validation: `node eval/harness/run.mjs`
-5. Commit with a clear message
-6. Open a pull request
+4. Update scenarios when behavior changes, and update references when source guidance changes
+5. Run validation: `node eval/harness/run.mjs`
+6. Run scenario checks: `bash eval/harness/run-scenarios.sh eval/scenarios/`
+7. Commit with a clear message using a simple prefix like `feat:`, `fix:`, `docs:`, `chore:`, or `test:`
+8. Open a pull request with a concise summary and validation notes
 
 For significant changes, consider opening an issue first to discuss the approach.
 
