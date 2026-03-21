@@ -1,0 +1,4 @@
+agent:
+  name: wp-accessibility
+  model: o3
+  skill: ../SKILL.md
