@@ -7,6 +7,21 @@ and this project aims to use semantic versioning for published releases.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-03-21
+
+### Added
+
+- Tag-driven GitHub release automation
+- Additional edge-case scenarios for plugin lifecycle, REST responses and schemas, performance bottlenecks, secure output, and GitHub Actions release setup
+- Maintainer operations runbook
+
+### Changed
+
+- README now surfaces CI, release, and license badges
+- CONTRIBUTING now documents branch naming, commit prefixes, and when to update scenarios versus references
+- Repository surface tightened by disabling wiki and projects
+- License text adjusted so GitHub recognizes the repository license correctly
+
 ## [0.1.0] - 2026-03-21
 
 ### Added
