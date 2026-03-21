@@ -1,0 +1,6 @@
+# OpenAI Codex agent configuration for wp-github-actions
+# Load SKILL.md as system context when this skill is active.
+agent:
+  name: "wp-github-actions"
+  instructions: "./SKILL.md"
+  model: "o3"

@@ -1,0 +1,139 @@
+{
+  "skill_name": "wp-github-actions",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I have a simple WordPress plugin — it's just PHP files, no Composer, no JavaScript. The plugin slug is 'simple-seo-tweaks' and it's hosted on GitHub at github.com/developer/simple-seo-tweaks. The main branch is called 'main'. It supports PHP 7.4+ and WordPress 6.0+. Can you set up GitHub Actions for it? It's not on WordPress.org yet.",
+      "expected_output": "Should create WPCS workflow, PHP lint workflow, and playground preview workflow. Should NOT create JS/CSS lint, Composer-related workflows, PHPStan, or deploy workflow. Workflows should reference 'main' branch, not 'trunk'.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "wpcs-workflow-created",
+          "text": "Creates a .github/workflows WPCS/PHPCS workflow YAML file",
+          "type": "file_exists"
+        },
+        {
+          "id": "php-lint-workflow-created",
+          "text": "Creates a .github/workflows PHP lint workflow YAML file",
+          "type": "file_exists"
+        },
+        {
+          "id": "playground-preview-created",
+          "text": "Creates a .github/workflows playground preview workflow YAML file",
+          "type": "file_exists"
+        },
+        {
+          "id": "correct-branch-name",
+          "text": "Workflow files reference 'main' branch, not 'trunk' or 'master'",
+          "type": "content_check"
+        },
+        {
+          "id": "no-deploy-workflow",
+          "text": "Does NOT create a deploy-to-WordPress.org workflow (plugin is not on WordPress.org)",
+          "type": "absence_check"
+        },
+        {
+          "id": "no-composer-workflows",
+          "text": "Does NOT create Composer diff or Composer security workflows (no Composer usage)",
+          "type": "absence_check"
+        },
+        {
+          "id": "no-js-css-lint",
+          "text": "Does NOT create a JS/CSS lint workflow (no JavaScript/CSS in the plugin)",
+          "type": "absence_check"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "My WordPress plugin 'advanced-forms-pro' uses Composer for dependencies, has a webpack build process for JS/CSS assets, includes PHPUnit tests in a tests/ directory, and is listed on WordPress.org. The default branch is 'trunk'. It targets PHP 8.0+ and WordPress 6.2+. I want the full CI/CD treatment — coding standards, linting, tests, security, deployment, the works. Set up all the GitHub Actions I need.",
+      "expected_output": "Should create a comprehensive set of workflows: WPCS, PHP lint, JS/CSS lint, PHPUnit, Composer diff, security scanning, playground preview, and deploy to WordPress.org. Should also create supporting config files like .distignore. Workflows should use 'trunk' branch. Deploy workflow should include build step. Should mention SVN secrets setup.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "wpcs-workflow",
+          "text": "Creates a WPCS/PHPCS workflow",
+          "type": "file_exists"
+        },
+        {
+          "id": "php-lint-workflow",
+          "text": "Creates a PHP lint workflow",
+          "type": "file_exists"
+        },
+        {
+          "id": "js-css-lint-workflow",
+          "text": "Creates a JS/CSS lint workflow",
+          "type": "file_exists"
+        },
+        {
+          "id": "phpunit-workflow",
+          "text": "Creates a PHPUnit testing workflow with database service",
+          "type": "file_exists"
+        },
+        {
+          "id": "security-workflow",
+          "text": "Creates a Composer security scanning workflow",
+          "type": "file_exists"
+        },
+        {
+          "id": "deploy-workflow",
+          "text": "Creates a deploy-to-WordPress.org workflow",
+          "type": "file_exists"
+        },
+        {
+          "id": "distignore-file",
+          "text": "Creates a .distignore file for WordPress.org deployment",
+          "type": "file_exists"
+        },
+        {
+          "id": "trunk-branch",
+          "text": "Workflows reference 'trunk' as the default branch",
+          "type": "content_check"
+        },
+        {
+          "id": "deploy-has-build-step",
+          "text": "Deploy workflow includes a build step (npm ci / npm run build)",
+          "type": "content_check"
+        },
+        {
+          "id": "svn-secrets-mentioned",
+          "text": "Response mentions SVN_USERNAME and SVN_PASSWORD secrets that need to be configured",
+          "type": "content_check"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I just want two things for my WordPress plugin 'quick-redirects': a Playground preview on my PRs so reviewers can test changes live, and automatic deployment to WordPress.org when I push a tag. The plugin is pure PHP, no build step needed. Default branch is 'main'. Can you set those up?",
+      "expected_output": "Should create exactly a playground preview workflow and a deploy workflow. Should NOT create WPCS, linting, PHPUnit, or other workflows the user didn't ask for (though mentioning them as recommendations is fine). Deploy workflow should be the simple version without build step. Should create .distignore.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "playground-workflow",
+          "text": "Creates a playground preview workflow",
+          "type": "file_exists"
+        },
+        {
+          "id": "deploy-workflow",
+          "text": "Creates a deploy workflow triggered by tags",
+          "type": "file_exists"
+        },
+        {
+          "id": "distignore",
+          "text": "Creates a .distignore file",
+          "type": "file_exists"
+        },
+        {
+          "id": "no-build-step",
+          "text": "Deploy workflow does NOT include npm/node build steps (pure PHP plugin)",
+          "type": "content_check"
+        },
+        {
+          "id": "respects-scope",
+          "text": "Does not create unrequested workflow files (WPCS, PHPUnit, etc.) — may recommend them in text but doesn't force-create them",
+          "type": "absence_check"
+        }
+      ]
+    }
+  ]
+}
