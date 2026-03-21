@@ -162,6 +162,7 @@ Automation signals engineering maturity.
 
 - **Releases** — Are there tagged releases with changelogs? Is semantic versioning used?
 - **Branch hygiene** — Are there stale branches that should be cleaned up? Dozens of stale branches signal loss of control.
+- **Web-edit patch branches** — Check for leftover `*-patch-*` branches created by GitHub web edits and remove them if they no longer back an active PR.
 - **`.gitattributes`** — Does it define `export-ignore` for clean release archives?
 - **Auto-release** — Is semantic-release or release-please configured for automatic versioning?
 

@@ -106,14 +106,18 @@ See any existing skill for examples.
 
 ## Submitting Changes
 
-1. Fork the repo
+`trunk` is branch-protected. Do not push directly to `trunk`; all normal changes should land through a pull request.
+
+1. Fork the repo if needed
 2. Create a focused branch such as `feature/<topic>`, `fix/<topic>`, or `docs/<topic>`
 3. Make your changes
 4. Update scenarios when behavior changes, and update references when source guidance changes
 5. Run validation: `node eval/harness/run.mjs`
 6. Run scenario checks: `bash eval/harness/run-scenarios.sh eval/scenarios/`
 7. Commit with a clear message using a simple prefix like `feat:`, `fix:`, `docs:`, `chore:`, or `test:`
-8. Open a pull request with a concise summary and validation notes
+8. Push the branch and open a pull request with a concise summary and validation notes
+
+The required `validate` check must pass before merge, and branch protection applies to admins as well.
 
 For significant changes, consider opening an issue first to discuss the approach.
 
