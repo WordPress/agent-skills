@@ -10,7 +10,7 @@ This is the canonical skill repo for all WordPress agent work in this environmen
 |--------|--------|-------|
 | [WordPress/agent-skills](https://github.com/WordPress/agent-skills) | 17 upstream skills | Tracked on `main`; fork additions on `trunk` |
 | [Joost de Valk](https://github.com/jdevalk/skills) | wp-github-actions, wp-readme-optimizer, github-repo, github-profile | Ported and adapted |
-| [elvismdev/claude-wordpress-skills](https://github.com/elvismdev/claude-wordpress-skills) | wp-performance-review | Created by [Elvis Developer](https://github.com/elvismdev); ported and adapted |
+| [elvismdev/claude-wordpress-skills](https://github.com/elvismdev/claude-wordpress-skills) | wp-performance-review | Created by [Elvis Morales](https://github.com/elvismdev); ported and adapted |
 | This fork | studio, studio-xdebug, wp-accessibility, wp-secure-code | Original skills by Dan Knauss |
 
 ## Available Skills
