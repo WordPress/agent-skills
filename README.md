@@ -39,7 +39,18 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **security-researcher** | WordPress security research and vulnerability analysis |
 | **wordpress-runbook-ops** | Operations runbooks with WP-CLI steps, verification, rollback, and escalation |
 | **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation |
+| **wp-github-actions** | GitHub Actions CI/CD for WP plugins: WPCS, PHPUnit, PHPStan, Playground previews, deploy to .org |
+| **wp-readme-optimizer** | Audit and rewrite WordPress.org plugin readme.txt for visibility and conversions |
 | **wpds** | WordPress Design System |
+
+### Developer Tools
+
+General-purpose skills not specific to WordPress.
+
+| Skill | What it teaches |
+|-------|-----------------|
+| **github-repo** | Audit and improve GitHub repo quality: README, templates, community health files, releases |
+| **github-profile** | Optimize GitHub profile pages: profile README, pinned repos, stats widgets, bio |
 
 ## Quick Start
 

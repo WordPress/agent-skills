@@ -1,0 +1,23 @@
+{
+  "skill_name": "github-repo",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I just open-sourced a Python CLI tool called 'taskflow' that helps manage task pipelines. The repo has a basic README and a LICENSE but nothing else. Can you make it look professional? Here's what it does: it reads YAML task definitions and runs them in dependency order with parallel execution. Main audience is DevOps engineers. We use pytest for testing and ruff for linting.",
+      "expected_output": "Audit of the existing repo state, improved README.md with badges/quickstart/usage, plus generated CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md, issue templates, and PR template. All files should be tailored to a Python CLI tool for DevOps engineers.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "We're setting up our company's GitHub org (called 'acme-dev'). We need default community health files, issue templates, and a nice org profile page. We build developer tools — our main products are an API gateway and a monitoring SDK. We have about 15 public repos.",
+      "expected_output": "Complete .github repo setup including: profile/README.md for the org page, default CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md, SUPPORT.md, FUNDING.yml, YAML-based issue templates, PR template, and dependabot.yml. Plus recommendations for domain verification and repository rulesets.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Review my repo and tell me what I'm missing. It's a React component library called 'ui-primitives'. We have a README with install instructions and a basic API reference, a LICENSE (MIT), and a CI workflow. No other community files or templates.",
+      "expected_output": "Detailed audit with scores across all categories, identifying missing CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md, issue/PR templates, topics, social preview. Should generate all missing files tailored to a React component library.",
+      "files": []
+    }
+  ]
+}

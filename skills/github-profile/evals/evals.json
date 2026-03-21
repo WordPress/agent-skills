@@ -1,0 +1,23 @@
+{
+  "skill_name": "github-profile",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to set up my GitHub profile to look good for recruiters. My username is 'jchen-dev'. I'm a full-stack developer at a fintech startup, working mostly with React, Node.js, and PostgreSQL. I've been coding for 4 years and have a few open source projects with ~50 stars each. I want to seem professional but approachable.",
+      "expected_output": "A polished profile README.md for the jchen-dev/jchen-dev repo with greeting, tech stack badges, GitHub stats widgets, featured projects section, and social links. Plus specific recommendations for bio text, pinned repos strategy, and metadata settings.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Help me create an organization profile README for our startup 'NebulaDev'. We make developer tools — our main product is an open-source deployment platform called 'nebula-deploy' with 2k stars. We also have a CLI tool and a VS Code extension. We're hiring and want the profile to attract both contributors and potential hires.",
+      "expected_output": "Organization profile README at .github/profile/README.md that describes NebulaDev, showcases key products with links, includes hiring/contributing CTAs, and has social links. Plus recommendations for member-only README, domain verification, and pinned repos.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "My GitHub profile looks bare — username is 'maria-codes'. I've been coding for 3 years, mostly Python and data science stuff (pandas, scikit-learn, pytorch). I have a few Jupyter notebook repos but no profile README at all. I want something that shows I'm serious about ML/AI work.",
+      "expected_output": "Profile README.md with data science/ML focus, appropriate tech stack badges, stats widgets, section highlighting ML projects, and recommendations for improving pinned repos. Should include specific advice on making Jupyter notebook repos more presentable.",
+      "files": []
+    }
+  ]
+}
