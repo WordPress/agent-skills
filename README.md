@@ -61,10 +61,12 @@ This is the canonical skill repo for all WordPress agent work in this environmen
 
 ### Documentation
 
+_The following skills were developed for a series of references connected to [dknauss/ai-assisted-docs/](https://github.com/dknauss/ai-assisted-docs/)._ 
+
 | Skill | What it teaches |
 |-------|-----------------|
 | **security-researcher** | Produces source-grounded internal research briefs about vendor-specific WordPress security products, hosting stacks, and platform guidance. Separates verified vendor claims from editorial implications. Output is editorial input (what should our docs say?), not code analysis. Uses [Veloria](https://veloria.dev) to check code against actual WordPress source |
-| **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation and the code it contains |
+| **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation and the code it contains. Ensure adherence to an associated style guide reference. |
 | **wordpress-runbook-ops** | Operations runbooks with WP-CLI steps, verification, rollback, escalation |
 
 ### Local Development Environments
