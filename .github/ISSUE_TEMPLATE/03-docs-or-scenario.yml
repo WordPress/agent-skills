@@ -1,0 +1,24 @@
+name: Docs or scenario gap
+description: Report missing references, unclear instructions, or missing eval coverage.
+title: "[Docs]: "
+labels: ["documentation", "triage"]
+body:
+  - type: input
+    id: area
+    attributes:
+      label: Area
+      description: Which file, skill, or scenario directory needs work?
+      placeholder: docs/authoring-guide.md or wp-secure-code
+    validations:
+      required: true
+  - type: textarea
+    id: gap
+    attributes:
+      label: What is missing or unclear?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: If you know what should be added or changed, describe it here.

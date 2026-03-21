@@ -7,7 +7,7 @@ description: >
   Also trigger when the user says things like "make my plugin page better", "optimize my readme",
   "help me rank higher on WordPress.org", or "review my plugin listing". Always run the full
   audit + rewrite workflow unless the user explicitly asks for only one part.
-compatibility: "Targets WordPress.org plugin directory. No runtime dependencies — text analysis and rewriting only."
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+) plugin ecosystems and WordPress.org plugin directory content. No local runtime dependencies — text analysis and rewriting only."
 ---
 
 # WordPress Plugin readme.txt Optimizer

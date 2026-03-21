@@ -31,14 +31,34 @@ function parseFrontmatter(markdown) {
   const fmLines = lines.slice(1, endIndex);
   const metadata = {};
 
-  // Minimal YAML mapping parser (supports only "key: value" one-liners).
-  for (const line of fmLines) {
+  // Minimal YAML mapping parser with support for one-line scalars and `>` / `|` blocks.
+  for (let i = 0; i < fmLines.length; i += 1) {
+    const line = fmLines[i];
     if (!line.trim()) continue;
     const m = line.match(/^\s*([A-Za-z0-9_-]+)\s*:\s*(.*)\s*$/);
     if (!m) continue;
     const key = m[1];
     const raw = m[2];
-    const value = raw.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1").trim();
+    let value = raw.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1").trim();
+
+    if (value === ">" || value === "|") {
+      const folded = value === ">";
+      const block = [];
+      for (i += 1; i < fmLines.length; i += 1) {
+        const blockLine = fmLines[i];
+        if (!blockLine.trim()) {
+          block.push("");
+          continue;
+        }
+        if (!/^\s+/.test(blockLine)) {
+          i -= 1;
+          break;
+        }
+        block.push(blockLine.replace(/^\s+/, ""));
+      }
+      value = folded ? block.join(" ").replace(/\s+/g, " ").trim() : block.join("\n").trim();
+    }
+
     metadata[key] = value;
   }
 
@@ -62,6 +82,17 @@ function validateSkillName(name) {
   const ok = /^[\p{Ll}\p{Nd}]+(?:-[\p{Ll}\p{Nd}]+)*$/u.test(name);
   if (!ok) return "Skill name contains invalid characters";
   return null;
+}
+
+function validateCompatibility(compatibility) {
+  const normalized = compatibility.toLowerCase();
+  if (compatibility.includes("WordPress 6.9") && compatibility.includes("PHP 7.2.24")) {
+    return null;
+  }
+  if (normalized.includes("platform-agnostic") && normalized.includes("no wordpress runtime assumptions")) {
+    return null;
+  }
+  return "Compatibility must either declare the WordPress 6.9+/PHP 7.2.24+ baseline or be explicitly platform-agnostic with no WordPress runtime assumptions";
 }
 
 function runJsonCommand(command, args, cwd) {
@@ -111,9 +142,18 @@ function main() {
       compatibility.length <= 500,
       `Compatibility too long in ${path.relative(repoRoot, skillPath)} (${compatibility.length} chars)`
     );
+
+    const compatibilityError = validateCompatibility(compatibility);
+    assert(!compatibilityError, `Compatibility contract mismatch in ${path.relative(repoRoot, skillPath)} (${compatibilityError})`);
+
+    const scenarioDir = path.join(repoRoot, "eval", "scenarios", expectedName);
+    assert(fs.existsSync(scenarioDir), `Missing scenario directory for ${expectedName}: ${path.relative(repoRoot, scenarioDir)}`);
+    const scenarioFiles = fs
+      .readdirSync(scenarioDir, { withFileTypes: true })
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".md"));
     assert(
-      compatibility.includes("WordPress 6.9") && compatibility.includes("PHP 7.2.24"),
-      `Compatibility contract mismatch in ${path.relative(repoRoot, skillPath)} (expected WP 6.9 + PHP 7.2.24+)`
+      scenarioFiles.length > 0,
+      `Missing required markdown scenarios for ${expectedName}: ${path.relative(repoRoot, scenarioDir)}`
     );
   }
 

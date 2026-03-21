@@ -8,7 +8,7 @@ This repo is built for **AI-assisted authoring** with **deterministic guardrails
 - Prefer deterministic scripts for anything the agent would otherwise “guess” (repo detection, version checks, lint/test command discovery).
 - Don’t add a new skill without at least one scenario in `eval/scenarios/`.
 - Keep file references 1 hop from `SKILL.md` (avoid deep chains).
-- Include a `compatibility:` frontmatter line matching `docs/compatibility-policy.md`.
+- Include a `compatibility:` frontmatter line matching one of the approved patterns in `docs/compatibility-policy.md`.
 
 ## Workflow: draft → harden → ship
 
@@ -27,6 +27,7 @@ This repo is built for **AI-assisted authoring** with **deterministic guardrails
    - Add at least 1 prompt-style scenario under `eval/scenarios/` describing expected behavior.
 6. **Validate**
    - Run `node eval/harness/run.mjs`.
+   - Run `bash eval/harness/run-scenarios.sh eval/scenarios/`.
    - Optionally validate frontmatter using `skills-ref validate` (see `docs/upstream-sync.md` for CI guidance).
 
 ## Scaffolding a new skill

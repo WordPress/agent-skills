@@ -1,0 +1,43 @@
+name: Bug report
+description: Report incorrect guidance, broken packaging, or a validation problem.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting a problem. Please include concrete reproduction details.
+  - type: input
+    id: skill
+    attributes:
+      label: Affected skill or workflow
+      description: Name the skill, script, or workflow involved.
+      placeholder: wp-rest-api, skillpack-install.mjs, CI workflow
+    validations:
+      required: true
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Prompt or task shape
+      description: What request or scenario triggered the issue?
+      placeholder: "When I asked the agent to..."
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: References or reproduction details
+      description: Include file paths, commands, logs, screenshots, or docs.

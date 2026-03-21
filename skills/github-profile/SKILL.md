@@ -8,7 +8,7 @@ description: >
   someone says things like "make my GitHub look good", "I want a better GitHub profile",
   "help me stand out on GitHub", "set up my GitHub page", or "optimize my developer profile".
   Works for both personal profiles and organization profile pages.
-compatibility: "Platform-agnostic. Works with any GitHub account. Uses gh CLI when available."
+compatibility: "Platform-agnostic. Works with any GitHub account. No WordPress runtime assumptions. Uses gh CLI when available."
 ---
 
 # GitHub Profile Optimizer

@@ -26,7 +26,7 @@ Have expertise in a WordPress area we don't cover yet? Consider adding a new ski
 Before starting:
 1. Check [existing skills](skills/) to avoid overlap
 2. Review the [Authoring Guide](docs/authoring-guide.md) for structure requirements
-3. Open an issue to discuss scope (optional but recommended for larger skills)
+3. Open an issue to discuss scope (recommended for larger skills) or open a draft PR if you already have a concrete proposal
 
 Scaffold a new skill:
 
@@ -49,6 +49,7 @@ Found a skill giving bad advice? AI following a procedure that doesn't work? Ope
 - Which skill
 - What went wrong
 - What the correct behavior should be
+- Reproduction details or references when possible
 
 ## Skill Structure
 
@@ -95,6 +96,7 @@ See any existing skill for examples.
 
 - Add at least one eval scenario for new skills
 - Run `node eval/harness/run.mjs` before submitting
+- Run `bash eval/harness/run-scenarios.sh eval/scenarios/` before submitting
 
 ### Keep It Small
 
@@ -115,7 +117,7 @@ For significant changes, consider opening an issue first to discuss the approach
 
 ## Questions?
 
-Open an issue or start a discussion. We're happy to help you get started.
+Open an issue or a draft PR with your question or proposal. For security issues, follow [SECURITY.md](SECURITY.md) instead of filing a public issue.
 
 ---
 

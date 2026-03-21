@@ -1,7 +1,6 @@
 ---
 name: wp-github-actions
-description: |
-  Sets up GitHub Actions CI/CD workflows for WordPress plugins — coding standards (WPCS/PHPCS), PHP/JS/CSS linting, PHPUnit testing, static analysis (PHPStan), Composer security scanning, WordPress Playground PR previews, and automated deployment to WordPress.org. ALWAYS use this skill when a user wants to create, add, set up, or configure GitHub Actions, CI/CD, automated checks, or deployment workflows for a WordPress plugin — even if they don't use the exact phrase "GitHub Actions". This includes any request to: add automated coding standards or PHPCS/WPCS checks to a WP plugin repo; set up linting (PHP, JS, CSS) for a WordPress plugin; configure PHPUnit testing in CI for a plugin; auto-deploy a plugin to WordPress.org from GitHub; add Playground previews to pull requests; add security scanning or static analysis to a plugin pipeline; or generally "add CI", "add automated checks", "set up workflows", or "automate" anything related to a WordPress plugin's GitHub repository. Also trigger when someone mentions wanting to stop doing manual SVN deploys, wants quality gates on PRs, or is setting up a new WordPress plugin repo and wants best practices for automation. If the user is inside a WordPress plugin repository and mentions anything about automated testing, code quality, deployment, or GitHub workflows, use this skill.
+description: "Set up GitHub Actions CI/CD for WordPress plugins: WPCS/PHPCS, linting, PHPUnit, PHPStan, Playground previews, Composer security checks, and WordPress.org deploy workflows."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires GitHub Actions. Some workflows use 10up actions, Composer, and Node.js."
 ---
 

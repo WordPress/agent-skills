@@ -1,7 +1,7 @@
 ---
 name: "wp-accessibility"
 description: "WordPress accessibility: auditing, WCAG 2.2 AA compliance, semantic HTML, focus management, ARIA landmarks, screen-reader-text, wp.a11y.speak(), form accessibility, theme accessibility-ready requirements, and automated/manual testing workflows. Use when building, reviewing, or testing WordPress themes, plugins, or blocks for accessibility."
-compatibility: "Targets WordPress 6.9+ (WCAG 2.2 AA). Applies to themes, plugins, blocks, and admin UI. Testing workflows assume macOS with VoiceOver; adapt for other screen readers."
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+, WCAG 2.2 AA). Applies to themes, plugins, blocks, and admin UI. Testing workflows assume macOS with VoiceOver; adapt for other screen readers."
 ---
 
 # WordPress Accessibility

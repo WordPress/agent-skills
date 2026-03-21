@@ -10,7 +10,7 @@ description: >
   the user asks about best practices for documentation, community files, or repository structure.
   If the user is in a repo directory and mentions README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT,
   LICENSE, .github, templates, or release tags, use this skill.
-compatibility: "Platform-agnostic. Works with any GitHub repository. Uses gh CLI when available."
+compatibility: "Platform-agnostic. Works with any GitHub repository. No WordPress runtime assumptions. Uses gh CLI when available."
 ---
 
 # GitHub Repository Optimizer

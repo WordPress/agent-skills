@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose a new skill, scenario, automation, or repo-quality improvement.
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What gap or friction are you trying to address?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the skill, scenario, or workflow you want.
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints and references
+      description: Include target repos, version constraints, docs, or non-goals.

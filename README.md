@@ -148,6 +148,12 @@ node shared/scripts/skillpack-install.mjs --targets=cursor-global
 node shared/scripts/skillpack-install.mjs --global --dry-run
 ```
 
+## Quality Gates
+
+- `node eval/harness/run.mjs` validates skill metadata, compatibility declarations, and required scenario coverage.
+- `bash eval/harness/run-scenarios.sh eval/scenarios/` validates scenario file structure.
+- `node shared/scripts/skillpack-build.mjs --clean --out=dist --targets=codex,vscode,claude,cursor` verifies distributable skillpacks can be produced.
+
 ## Branches
 
 | Branch | Purpose |
