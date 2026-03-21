@@ -22,6 +22,20 @@ node shared/scripts/skillpack-build.mjs --clean --out=dist --targets=codex,vscod
 node shared/scripts/skillpack-install.mjs --from=dist --dest=/tmp/agent-skills-review-smoke --targets=codex,vscode,claude,cursor
 ```
 
+### Optional local auto-sync
+
+To keep user-level Codex, Claude Code, and Cursor skills synced after local repo updates:
+
+```bash
+node shared/scripts/install-auto-sync-hooks.mjs
+```
+
+To mirror Copilot / VS Code skills into specific repos at the same time:
+
+```bash
+node shared/scripts/install-auto-sync-hooks.mjs --vscode-repos=/abs/path/repo-one,/abs/path/repo-two
+```
+
 ### 2. Keep scenarios and references aligned
 
 - Update `eval/scenarios/` when skill behavior or quality bars change.

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+node shared/scripts/auto-sync-on-git-update.mjs post-merge "$@" || true

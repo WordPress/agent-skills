@@ -148,8 +148,31 @@ node shared/scripts/skillpack-install.mjs --global --skills=wp-playground,wp-blo
 # Global install for Cursor
 node shared/scripts/skillpack-install.mjs --targets=cursor-global
 
+# Global install for Codex, Claude Code, and Cursor
+node shared/scripts/skillpack-install.mjs --global-all
+
 # Dry run
 node shared/scripts/skillpack-install.mjs --global --dry-run
+```
+
+### Automatic local sync after repo updates
+
+If you want this repo to refresh installed skills automatically after local commits, pulls, or branch checkouts:
+
+```bash
+node shared/scripts/install-auto-sync-hooks.mjs
+```
+
+That keeps these user-level installs in sync:
+
+- `$CODEX_HOME/skills` or `~/.codex/skills`
+- `~/.claude/skills`
+- `~/.cursor/skills`
+
+GitHub Copilot / VS Code skills stay repo-local, not global. If you also want this repo to mirror updated `.github/skills` into specific repos:
+
+```bash
+node shared/scripts/install-auto-sync-hooks.mjs --vscode-repos=/abs/path/repo-one,/abs/path/repo-two
 ```
 
 ## Quality Gates
