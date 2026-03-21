@@ -51,7 +51,6 @@ This is the canonical skill repo for all WordPress agent work in this environmen
 |-------|-----------------|
 | **wp-secure-code** | Secure code baseline analysis for all WordPress projects: sanitization, escaping, nonces, capability checks, `$wpdb->prepare()`, REST permission callbacks, OWASP top 10 in WP context, WPCS security sniffs, PHP compatibility |
 | **wp-vip-standards** | WordPress VIP platform-specific standards: banned functions, required alternatives, caching requirements, read-only filesystem constraints, `WordPress-VIP-Go` PHPCS ruleset. Builds on `wp-secure-code` as a prerequisite |
-| **security-researcher** | Produces source-grounded internal research briefs about vendor-specific WordPress security products, hosting stacks, and platform guidance. Separates verified vendor claims from editorial implications. Output is editorial input (what should our docs say?), not code analysis. Uses [Veloria](https://veloria.dev) to check code against actual WordPress source |
 
 ### Performance
 
@@ -64,6 +63,7 @@ This is the canonical skill repo for all WordPress agent work in this environmen
 
 | Skill | What it teaches |
 |-------|-----------------|
+| **security-researcher** | Produces source-grounded internal research briefs about vendor-specific WordPress security products, hosting stacks, and platform guidance. Separates verified vendor claims from editorial implications. Output is editorial input (what should our docs say?), not code analysis. Uses [Veloria](https://veloria.dev) to check code against actual WordPress source |
 | **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation and the code it contains |
 | **wordpress-runbook-ops** | Operations runbooks with WP-CLI steps, verification, rollback, escalation |
 
