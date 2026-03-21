@@ -10,8 +10,8 @@ This is the canonical skill repo for all WordPress agent work in this environmen
 |--------|--------|-------|
 | [WordPress/agent-skills](https://github.com/WordPress/agent-skills) | 17 upstream skills | Tracked on `main`; fork additions on `trunk` |
 | [Joost de Valk](https://github.com/jdevalk/skills) | wp-github-actions, wp-readme-optimizer, github-repo, github-profile | Ported and adapted |
-| [dknauss/claude-wordpress-skills](https://github.com/dknauss/claude-wordpress-skills) | wp-performance-review | Ported from standalone Claude plugin |
-| This fork | studio, studio-xdebug, wp-accessibility | Original skills written here |
+| [elvismdev/claude-wordpress-skills](https://github.com/elvismdev/claude-wordpress-skills) | wp-performance-review | Created by [Elvis Developer](https://github.com/elvismdev); ported and adapted |
+| This fork | studio, studio-xdebug, wp-accessibility, wp-secure-code | Original skills by Dan Knauss |
 
 ## Available Skills
 
@@ -44,9 +44,10 @@ This is the canonical skill repo for all WordPress agent work in this environmen
 | Skill | What it teaches |
 |-------|-----------------|
 | **wp-accessibility** | WCAG 2.2 AA compliance: semantic HTML, focus management, ARIA, screen-reader-text, testing |
+| **wp-secure-code** | Secure code analysis: sanitization, escaping, nonces, capability checks, $wpdb->prepare(), WPCS/VIP standards |
 | **wp-performance** | Profiling, caching, database optimization, Server-Timing |
 | **wp-performance-review** | Performance code review: anti-pattern detection, severity-rated findings |
-| **security-researcher** | WordPress security research and vulnerability analysis |
+| **security-researcher** | Security research briefs: vendor product analysis for editorial teams |
 | **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation |
 | **wordpress-runbook-ops** | Operations runbooks with WP-CLI steps, verification, rollback, escalation |
 

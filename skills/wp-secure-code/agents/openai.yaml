@@ -1,0 +1,4 @@
+agent:
+  name: wp-secure-code
+  model: o3
+  skill: ../SKILL.md

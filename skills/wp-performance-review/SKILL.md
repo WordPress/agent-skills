@@ -6,6 +6,10 @@ compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent wit
 
 # WordPress Performance Review Skill
 
+## Credit
+
+Originally created by [Elvis Developer (elvismdev)](https://github.com/elvismdev) as part of [claude-wordpress-skills](https://github.com/elvismdev/claude-wordpress-skills). Ported and adapted with additions by Dan Knauss.
+
 ## Overview
 
 Systematic performance code review for WordPress themes, plugins, and custom code. **Core principle:** Scan critical issues first (OOM, unbounded queries, cache bypass), then warnings, then optimizations. Report with line numbers and severity levels.
