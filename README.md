@@ -39,17 +39,32 @@ This is the canonical skill repo for all WordPress agent work in this environmen
 | **wp-github-actions** | GitHub Actions CI/CD for WP plugins: WPCS, PHPUnit, PHPStan, Playground previews, deploy to .org |
 | **wp-readme-optimizer** | Audit and rewrite WordPress.org plugin readme.txt for visibility and conversions |
 
-### Quality: Accessibility, Security, Performance, and Documentation
+### Accessibility
 
 | Skill | What it teaches |
 |-------|-----------------|
 | **wp-accessibility** | WCAG 2.2 AA compliance: semantic HTML, focus management, ARIA, screen-reader-text, testing |
-| **wp-secure-code** | Secure code baseline analysis for all WordPress projects: sanitization, escaping, nonces, capability checks, `$wpdb->prepare()`, REST permission callbacks, OWASP top 10 in WP context, WPCS security sniffs, PHP compatibility.  |
+
+### Security
+
+| Skill | What it teaches |
+|-------|-----------------|
+| **wp-secure-code** | Secure code baseline analysis for all WordPress projects: sanitization, escaping, nonces, capability checks, `$wpdb->prepare()`, REST permission callbacks, OWASP top 10 in WP context, WPCS security sniffs, PHP compatibility |
 | **wp-vip-standards** | WordPress VIP platform-specific standards: banned functions, required alternatives, caching requirements, read-only filesystem constraints, `WordPress-VIP-Go` PHPCS ruleset. Builds on `wp-secure-code` as a prerequisite |
+| **security-researcher** | Produces source-grounded internal research briefs about vendor-specific WordPress security products, hosting stacks, and platform guidance. Separates verified vendor claims from editorial implications. Output is editorial input (what should our docs say?), not code analysis. Uses [Veloria](https://veloria.dev) to check code against actual WordPress source |
+
+### Performance
+
+| Skill | What it teaches |
+|-------|-----------------|
 | **wp-performance** | Profiling, caching, database optimization, Server-Timing |
 | **wp-performance-review** | Performance code review: anti-pattern detection, severity-rated findings |
-| **security-researcher** | Produces source-grounded internal research briefs about vendor-specific WordPress security products, hosting stacks, and platform guidance. Separates verified vendor claims from editorial implications. Output is editorial input (what should our docs say?), not code analysis. Uses [Veloria](https://veloria.dev) to check code against actual WordPress source. |
-| **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation and the code it contains. |
+
+### Documentation
+
+| Skill | What it teaches |
+|-------|-----------------|
+| **wordpress-security-doc-editor** | Draft, revise, and fact-check WordPress security documentation and the code it contains |
 | **wordpress-runbook-ops** | Operations runbooks with WP-CLI steps, verification, rollback, escalation |
 
 ### Local Development Environments
