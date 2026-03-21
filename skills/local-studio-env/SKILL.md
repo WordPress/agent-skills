@@ -18,9 +18,11 @@ compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires WordPress Studio 
 
 ### Site Management
 
-- Studio manages sites in `~/Library/Application Support/com.wordpress.studio/` (macOS).
-- Each site has its own PHP runtime and SQLite or MySQL database.
-- Sites are accessible at `localhost:<port>` or custom `.test` domains.
+- Studio stores sites in `~/Studio/<site-name>/` (macOS).
+- Configuration lives in `~/Library/Application Support/Studio/appdata-v1.json`.
+- Each site has its own WASM PHP runtime and SQLite database.
+- Sites are accessible at `http://localhost:<port>` (typically 8881+).
+- `appdata-v1.json` is the source of truth — `customDomain`, `enableHttps`, and debug settings override wp-config.php and the database at the WASM bootstrap level.
 
 ### WP-CLI Access
 
@@ -47,57 +49,89 @@ This allows live development — changes in your repo appear immediately in the 
 
 ### Site Configuration
 
-- Sites stored in `~/Local Sites/` by default.
-- Each site has independent PHP version, web server (nginx/Apache), and MySQL.
-- Access via `sitename.local` domain with Local's DNS routing.
+- Sites stored in `~/Local Environments/Local Sites/` by default (not `~/Local Sites/` — that may be a symlink).
+- Each site has independent PHP version, web server (nginx), and MySQL.
+- Access via `sitename.local` domain — Local writes `/etc/hosts` entries and runs nginx on ports 80/443 with auto-generated SSL certs.
 
 ### MySQL Access
 
+Local's MySQL sockets are stored under random IDs in the app support directory, not under the site directory:
+
 ```bash
-# Local provides MySQL socket access
-mysql -u root -proot -S /path/to/site/run/mysql/mysqld.sock
+# Find all Local MySQL sockets
+find ~/Library/Application\ Support/Local/run -name "mysqld.sock"
+```
+
+Each socket serves one site. To identify which is which, query each:
+
+```bash
+MYSQL="$HOME/Library/Application Support/Local/lightning-services/mysql-8.0.35+4/bin/darwin-arm64/bin/mysql"
+for sock in ~/Library/Application\ Support/Local/run/*/mysql/mysqld.sock; do
+    url=$("$MYSQL" -u root -proot -S "$sock" -N -e \
+        "SELECT option_value FROM wp_options WHERE option_name='siteurl'" local 2>/dev/null)
+    echo "$sock → $url"
+done
 ```
 
 Or use the Local app's "Database" tab to open Adminer/TablePlus.
 
 ### WP-CLI in Local
 
-Use Local's "Open Site Shell" or configure your shell:
+Use Local's "Open Site Shell" or configure your shell with the correct socket path:
 
 ```bash
-# Add to your test scripts
-export WP_TESTS_DB_HOST="localhost:/Users/username/Local Sites/sitename/run/mysql/mysqld.sock"
+# After identifying the socket for your site:
+export WP_TESTS_DB_HOST="localhost:/Users/username/Library/Application Support/Local/run/<site-id>/mysql/mysqld.sock"
 export WP_TESTS_DB_USER="root"
 export WP_TESTS_DB_PASSWORD="root"
 ```
 
-### Plugin Syncing
+### PHPUnit Testing
 
-For PHPUnit integration tests against a Local site:
+Create a dedicated test database to avoid clobbering the live site:
 
 ```bash
-# Install WP test suite pointing to Local's MySQL
-bash bin/install-wp-tests.sh wordpress_test root root "localhost:/path/to/mysqld.sock"
+"$MYSQL" -u root -proot -S "$SOCK" -e "CREATE DATABASE IF NOT EXISTS local_tests;"
 ```
 
-## Port Conflicts
+Then configure `wp-tests-config.php` to use `local_tests` as the database name with the same socket path.
 
-When Studio and Local run simultaneously, or when other services occupy ports:
+## Running Both Simultaneously
 
-- Check port usage: `lsof -i :80` / `lsof -i :443` / `lsof -i :3306`
-- Studio typically uses high ports (e.g., 8881+).
-- Local uses ports configured per-site.
-- Resolve by stopping conflicting services or changing port assignments.
+Studio and Local can run at the same time without port conflicts:
+
+| Environment | Ports | Domain |
+|---|---|---|
+| Local (nginx) | 80, 443 | `sitename.local` (with SSL) |
+| Studio (Express) | 8881+ | `localhost:<port>` (HTTP only) |
+
+**The conflict is in custom domains, not ports.** Local's nginx on 80/443 intercepts any domain pointed at `127.0.0.1` via `/etc/hosts`. If Studio has a `customDomain` set and a hosts entry for it, the traffic goes to Local's nginx (which doesn't know that domain) instead of Studio's Express server on 8881.
+
+### Rules for coexistence
+
+1. **Studio uses `localhost:<port>` — no custom domain, no hosts entry.**
+2. **Local uses `.local` domains with its own hosts entries and SSL.**
+3. **Do not set `enableHttps: true` on Studio** while Local's nginx holds ports 80/443 — HTTPS redirects from Studio's WASM PHP will hit Local's nginx, not Studio.
+4. If you need SSL on a Studio custom domain, stop Local's sites first so nginx releases 80/443.
+
+### Port conflict diagnosis
+
+```bash
+lsof -i :80 -i :443 -i :8881 -sTCP:LISTEN -n -P
+```
 
 ## SSL Certificates
 
 ### Local
-Local generates trusted SSL certs automatically. If browser shows warnings:
+Local generates trusted SSL certs automatically for each `.local` domain. If browser shows warnings:
 - Trust Local's CA certificate in Keychain Access (macOS).
 - Or use `--ignore-https-errors` in Playwright tests.
+- Local stores certs under `~/Library/Application Support/Local/run/<site-id>/conf/nginx/certs/`.
 
 ### Studio
-Studio sites default to HTTP. For HTTPS testing, use a reverse proxy or Playground.
+Studio on `localhost:<port>` is HTTP only. For HTTPS testing:
+- Stop Local and set Studio's `customDomain` + `enableHttps: true` in appdata.
+- Or use `wp-env` / Playground for HTTPS CI environments.
 
 ## Mailpit / Email Testing
 

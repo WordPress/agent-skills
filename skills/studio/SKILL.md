@@ -17,21 +17,54 @@ compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires WordPress Studio 
 
 ## Site Management
 
-- Studio manages sites in `~/Library/Application Support/com.wordpress.studio/` (macOS).
-- Each site gets its own PHP runtime and SQLite database by default.
+- Studio stores sites in `~/Studio/<site-name>/` (macOS).
+- Configuration lives in `~/Library/Application Support/Studio/appdata-v1.json`.
+- Each site gets its own PHP runtime (WASM) and SQLite database by default.
 - Sites are accessible at `http://localhost:<port>` — Studio assigns ports automatically (typically 8881+).
-- Custom `.test` domains are not used by default; Studio relies on `localhost` with port isolation.
 
 ### Creating Sites
 
-Use the Studio app GUI or:
+Use the Studio app GUI. Site directories are at:
 
 ```bash
-# List existing Studio sites
-ls ~/Library/Application\ Support/com.wordpress.studio/
+ls ~/Studio/
 ```
 
 Each site directory contains a full WordPress installation with `wp-content/`, `wp-config.php`, and Studio's bundled PHP.
+
+### appdata-v1.json Is the Source of Truth
+
+Studio's `appdata-v1.json` controls runtime behavior and **overrides both wp-config.php and the database** at the WASM PHP bootstrap level. Key fields per site:
+
+| Field | Effect |
+|---|---|
+| `port` | Which localhost port the Express server listens on |
+| `customDomain` | Overrides `siteurl`/`home` at bootstrap — database values are ignored when set |
+| `enableHttps` | Forces HTTPS redirects at the WASM level — wp-config.php `FORCE_SSL_ADMIN` is irrelevant |
+| `enableDebugLog` | Overrides `WP_DEBUG_LOG` — wp-config.php value is ignored |
+| `enableDebugDisplay` | Overrides `WP_DEBUG_DISPLAY` |
+| `enableXdebug` | Toggles Xdebug in the WASM PHP runtime |
+
+**Critical:** When troubleshooting URL redirects or debug settings, check appdata first — not wp-config.php, not the database. Studio injects these constants before WordPress loads.
+
+To edit:
+
+```bash
+# Read current config
+cat ~/Library/Application\ Support/Studio/appdata-v1.json | python3 -m json.tool
+```
+
+**After editing appdata-v1.json, you must fully quit and reopen WordPress Studio.** A site stop/start within the app is not sufficient — the Express server reads appdata at app launch.
+
+### Custom Domains
+
+Studio supports custom domains via the `customDomain` field in appdata. However:
+
+- **Custom domains require a `/etc/hosts` entry** pointing the domain to `127.0.0.1`.
+- **If another tool's web server (nginx, Apache) is listening on ports 80/443**, the hosts entry will route traffic to that server instead of Studio. Studio's Express server runs on high ports (8881+), not 80/443.
+- **`enableHttps: true` with a custom domain will fail** if Studio doesn't control ports 443. The WASM PHP forces HTTPS redirects, but there's no HTTPS listener on Studio's port.
+- **To use a custom domain with SSL, stop any other web server on 80/443 first.** Otherwise, use `http://localhost:<port>` without a custom domain.
+- **To clear a custom domain:** set `"customDomain": ""` in appdata and restart Studio. You must also update the database `siteurl`/`home` to `http://localhost:<port>` since Studio no longer overrides them when `customDomain` is empty.
 
 ## WP-CLI Access
 
@@ -68,7 +101,7 @@ Symlink your development plugin or theme into the Studio site:
 
 ```bash
 ln -s /path/to/your-plugin \
-    ~/Library/Application\ Support/com.wordpress.studio/site-name/wp-content/plugins/your-plugin
+    ~/Studio/site-name/wp-content/plugins/your-plugin
 ```
 
 Changes in your repo appear immediately in the site — no copy step needed.
@@ -77,11 +110,11 @@ Changes in your repo appear immediately in the site — no copy step needed.
 
 ```bash
 # Confirm it resolved correctly
-ls -la ~/Library/Application\ Support/com.wordpress.studio/site-name/wp-content/plugins/your-plugin
+ls -la ~/Studio/site-name/wp-content/plugins/your-plugin
 
 # Activate via WP-CLI
 /Applications/WordPress\ Studio.app/Contents/Resources/wp-cli.phar \
-    --path=~/Library/Application\ Support/com.wordpress.studio/site-name \
+    --path=~/Studio/site-name \
     plugin activate your-plugin
 ```
 
@@ -90,13 +123,13 @@ ls -la ~/Library/Application\ Support/com.wordpress.studio/site-name/wp-content/
 Studio uses SQLite by default. The database file is at:
 
 ```
-~/Library/Application Support/com.wordpress.studio/site-name/wp-content/database/.ht.sqlite
+~/Studio/site-name/wp-content/database/.ht.sqlite
 ```
 
 To inspect:
 
 ```bash
-sqlite3 ~/Library/Application\ Support/com.wordpress.studio/site-name/wp-content/database/.ht.sqlite
+sqlite3 ~/Studio/site-name/wp-content/database/.ht.sqlite
 ```
 
 ```sql
@@ -212,12 +245,16 @@ For Xdebug setup, step debugging, stack trace reading, and resolving port 9003 c
 When a Studio site isn't working:
 
 1. **Site not loading** — Is Studio running? Is the site started? Check `curl -sI http://localhost:<port>`.
-2. **Wrong content** — Verify you're hitting the right port. Check `wp option get siteurl`.
-3. **Plugin not appearing** — Verify symlink resolves: `ls -la wp-content/plugins/your-plugin`.
-4. **WP-CLI wrong output** — Check for global `~/.wp-cli/config.yml` conflicts. Use Studio's bundled WP-CLI explicitly.
-5. **Port occupied** — Run the port scan from the Port Conflicts section above.
-6. **DNS oddity** — Check `/etc/hosts` for stale entries from other tools.
-7. **Xdebug not connecting** — Use `studio-xdebug` skill for diagnosis.
+2. **HTTPS redirect loop** — Check `enableHttps` and `customDomain` in appdata-v1.json. If `enableHttps: true` but nothing serves HTTPS on the custom domain, you get an infinite redirect. Fix: set `enableHttps: false` or clear `customDomain`, then fully restart Studio.
+3. **Custom domain goes to wrong server** — Another tool's web server on ports 80/443 is intercepting the domain. Either stop that server or clear `customDomain` and use `localhost:<port>`.
+4. **Database URL changes have no effect** — Studio's `customDomain` overrides `siteurl`/`home` at the WASM bootstrap. Clear `customDomain` in appdata first, then update the database.
+5. **appdata changes have no effect** — You must fully quit and reopen Studio. A site stop/start is not enough.
+6. **Wrong content** — Verify you're hitting the right port. Check `wp option get siteurl`.
+7. **Plugin not appearing** — Verify symlink resolves: `ls -la wp-content/plugins/your-plugin`.
+8. **WP-CLI wrong output** — Check for global `~/.wp-cli/config.yml` conflicts. Use Studio's bundled WP-CLI explicitly.
+9. **Port occupied** — Run the port scan from the Port Conflicts section above.
+10. **DNS oddity** — Check `/etc/hosts` for stale entries from other tools.
+11. **Xdebug not connecting** — Use `studio-xdebug` skill for diagnosis.
 
 ## Done Criteria
 
