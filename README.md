@@ -6,15 +6,15 @@
 
 Fork of [WordPress/agent-skills](https://github.com/WordPress/agent-skills) with additional skills from [Dan Knauss](https://github.com/dknauss) and other sources.
 
-This is the canonical skill repo for all WordPress agent work in this environment. Any AI agent (Claude, Codex, Cursor, Copilot) working on WordPress code or docs pulls skill definitions from here.
+This is the canonical skill repo for all agent work in my WordPress project environments. Any AI agent (Claude, Codex, Cursor, Copilot) working on WordPress code or docs pulls skill definitions from this repo of repos.
 
 ## Sources
 
 | Source | Skills | Notes |
 |--------|--------|-------|
-| [WordPress/agent-skills](https://github.com/WordPress/agent-skills) | 13 upstream skills | Tracked on `main`; fork additions on `trunk` |
-| [jdevalk/skills](https://github.com/jdevalk/skills) | wp-github-actions, wp-readme-optimizer, github-repo, github-profile | Ported and adapted from Joost de Valk. |
-| [elvismdev/claude-wordpress-skills](https://github.com/elvismdev/claude-wordpress-skills) | wp-performance-review | Created by [Elvis Morales](https://github.com/elvismdev); ported and adapted. |
+| [WordPress/agent-skills](https://github.com/WordPress/agent-skills) | 13 upstream skills from [WordPress.com](https://github.com/WordPress/)| Fork additions on `trunk` |
+| [jdevalk/skills](https://github.com/jdevalk/skills) | wp-github-actions, wp-readme-optimizer, github-repo, github-profile | Adapted from [Joost de Valk](https://github.com/jdevalk/). |
+| [elvismdev/claude-wordpress-skills](https://github.com/elvismdev/claude-wordpress-skills) | wp-performance-review | Adapted from [Elvis Morales](https://github.com/elvismdev); ported and adapted. |
 | This fork | wp-accessibility, wp-performance, wp-secure-code, wp-vip-standards, security-researcher, wordpress-security-doc-editor, wordpress-runbook-ops, studio, studio-xdebug, local-studio-env | Original skills by Dan Knauss and Claude |
 
 ## Available Skills
