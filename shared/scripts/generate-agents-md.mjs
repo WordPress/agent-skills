@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * Generates AGENTS.md from the skill inventory in skills/.
+ * Generates AGENTS.md from the skill inventory in skills/ and
+ * non-overridable policies from the .github governance repo.
  *
  * Each SKILL.md must have YAML frontmatter with `name` and `description` fields.
  * Skills are grouped by category based on the README.md table structure.
  *
+ * Policies with `agents-md: true` in their frontmatter are appended as
+ * universal behavioral rules that all agents must follow.
+ *
  * Usage:
- *   node shared/scripts/generate-agents-md.mjs [--out=path]
+ *   node shared/scripts/generate-agents-md.mjs [--out=path] [--policies=path]
  *
  * Default output: stdout. Use --out to write to a file.
+ * --policies: path to .github/policies/ directory (default: ../../.github/policies)
  */
 
 import fs from "node:fs";
@@ -19,6 +24,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "../..");
 const SKILLS_DIR = path.join(REPO_ROOT, "skills");
+const DEFAULT_POLICIES_DIR = path.resolve(REPO_ROOT, "../.github/policies");
 
 // Category assignments — maps skill name to category.
 // Update this when adding new skills.
@@ -69,10 +75,11 @@ const CATEGORIES = {
 };
 
 function parseArgs(argv) {
-  const args = { out: null };
+  const args = { out: null, policiesDir: DEFAULT_POLICIES_DIR };
   for (const a of argv) {
     if (a === "--help" || a === "-h") args.help = true;
     else if (a.startsWith("--out=")) args.out = a.slice("--out=".length);
+    else if (a.startsWith("--policies=")) args.policiesDir = a.slice("--policies=".length);
     else {
       process.stderr.write(`Unknown arg: ${a}\n`);
       args.help = true;
@@ -156,7 +163,36 @@ function loadSkills() {
   return skills;
 }
 
-function generate(skills) {
+function loadAgentsPolicies(policiesDir) {
+  if (!fs.existsSync(policiesDir)) {
+    process.stderr.write(`Warning: policies directory not found at ${policiesDir}, skipping policies\n`);
+    return [];
+  }
+
+  const policies = [];
+  const files = fs.readdirSync(policiesDir).filter(f => f.endsWith(".md")).sort();
+
+  for (const file of files) {
+    const content = fs.readFileSync(path.join(policiesDir, file), "utf-8");
+    const fm = parseFrontmatter(content);
+
+    if (fm["agents-md"] !== "true") continue;
+
+    // Extract the body (everything after the frontmatter)
+    const body = content.replace(/^---\n[\s\S]*?\n---\n*/, "").trim();
+    if (!body) continue;
+
+    policies.push({
+      name: file.replace(".md", ""),
+      overridable: fm.overridable === "true",
+      body,
+    });
+  }
+
+  return policies;
+}
+
+function generate(skills, policies) {
   const lines = [];
 
   lines.push("## Scope");
@@ -212,6 +248,19 @@ function generate(skills) {
   lines.push("");
   lines.push("### Style");
   lines.push("- Keep brand casing as `WordPress`.");
+
+  // Append non-overridable policies
+  if (policies.length > 0) {
+    lines.push("");
+    lines.push("## Policies");
+    lines.push("");
+    lines.push("These behavioral rules apply to all agents working in WordPress repos. Non-overridable policies cannot be weakened by per-repo configuration.");
+    for (const policy of policies) {
+      lines.push("");
+      lines.push(policy.body);
+    }
+  }
+
   lines.push("");
 
   return lines.join("\n");
@@ -220,14 +269,15 @@ function generate(skills) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
-    process.stderr.write("Usage: node shared/scripts/generate-agents-md.mjs [--out=path]\n");
+    process.stderr.write("Usage: node shared/scripts/generate-agents-md.mjs [--out=path] [--policies=path]\n");
     process.exit(1);
   }
 
   const skills = loadSkills();
-  process.stderr.write(`Found ${skills.size} skills\n`);
+  const policies = loadAgentsPolicies(args.policiesDir);
+  process.stderr.write(`Found ${skills.size} skills, ${policies.length} agent-facing policies\n`);
 
-  const output = generate(skills);
+  const output = generate(skills, policies);
 
   if (args.out) {
     fs.writeFileSync(args.out, output, "utf-8");
