@@ -34,6 +34,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-playground** | WordPress Playground for instant local environments |
 | **wpds** | WordPress Design System |
 | **wp-plugin-directory-guidelines** | WordPress Plugin Directory Guidelines |
+| **blueprint** | WordPress Playground Blueprints for declarative Playground environment setup |
 
 ## Quick Start
 
