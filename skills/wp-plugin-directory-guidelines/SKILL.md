@@ -45,165 +45,330 @@ Use this skill when you need to:
 
 Source: [Detailed Plugin Guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/)
 
-## WordPress.org Plugin Directory Guidelines (18 Rules)
+## WordPress.org Plugin Directory Guidelines — Review Checklist
 
-All plugins hosted on WordPress.org must comply with these guidelines. Violations may result in plugin removal.
+Source: [Detailed Plugin Guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/)
+
+Use this section as a structured checklist when reviewing a plugin. Each guideline includes the violation signal to look for, the verdict to issue, and the fix to recommend. Cite the guideline number in every finding.
+
+---
 
 ### Guideline 1: GPL-Compatible License
-All code, data, images, and third-party libraries must comply with the GPL or a GPL-compatible license. Using "GPLv2 or later" (same as WordPress) is strongly recommended. See the GPL Compliance section below for details.
+
+**Check:** Does the main plugin file have a `License:` header with a GPL-compatible value? Are all bundled third-party libraries under compatible licenses?
+
+**Violation signals:**
+- Missing `License:` or `License URI:` header in the main plugin file
+- License is `Proprietary`, `All Rights Reserved`, `CC-BY-NC`, `CC-BY-ND`, `SSPL`, `BSL`, `Commons Clause`, `EPL`, `EUPL`, or `MPL-1.0`
+- Bundled library under a license not in the GPL-Compatible Licenses table (see below)
+- PHP files encoded with ionCube, Zend Guard, or similar — source cannot be exercised → violation
+
+**Verdict:** Flag as **FAIL** with the specific file and license value found.
+
+**Fix:** Use `GPL-2.0-or-later` (recommended). Add full license text or a `License URI:` to `https://www.gnu.org/licenses/gpl-2.0.html`. Replace incompatible libraries.
+
+---
 
 ### Guideline 2: Developer Responsibility
-Developers are solely responsible for ensuring all files comply with guidelines. Intentionally circumventing guidelines or restoring removed code is prohibited. Developers must verify licensing of all included files and comply with terms of third-party services/APIs.
 
-### Guideline 3: Stable Version Available
-The only distributed version is the one in the WordPress.org directory. Code must be kept up to date in SVN; distributing via alternate methods while neglecting the directory version may result in removal.
+**Check:** Has the developer deliberately re-introduced previously removed code, circumvented a prior guideline decision, or included files they cannot legally distribute?
+
+**Violation signals:**
+- Commit history shows restoring a file after it was removed by the review team
+- Bundled assets with no documented license (treat as unlicensed until proven otherwise)
+- Third-party API terms prohibit redistribution of the bundled SDK
+
+**Verdict:** Flag as **FAIL**. Document the specific file or commit.
+
+**Fix:** Remove the offending file or obtain and document proper licensing.
+
+---
+
+### Guideline 3: Stable Version in SVN
+
+**Check:** Is the WordPress.org SVN version the canonical release? Is the plugin also distributed via an external channel with a newer version?
+
+**Violation signals:**
+- `readme.txt` advertises a version not present in SVN trunk/tags
+- External download page (developer's own site) offers a newer build than WP.org
+- Plugin auto-updates itself from a non-WP.org server (also a Guideline 8 issue)
+
+**Verdict:** Flag as **FAIL** if an actively maintained external version is ahead of the directory.
+
+**Fix:** Keep SVN up to date. External channels may mirror but must not supersede the directory version.
+
+---
 
 ### Guideline 4: Human-Readable Code
-Code obfuscation is prohibited (packer, uglify mangle, unclear naming like `$z12sdf813d`). Developers must provide public access to source code and build tools either:
-- Included in the deployed plugin, OR
-- Via a link in the readme to the development location
+
+**Check:** Is all PHP, JS, and CSS in a form that a developer can read and understand? Are build sources available?
+
+**Violation signals:**
+- PHP obfuscated with packer, eval+base64 chains, or variable names like `$a1b2c3` throughout
+- Minified JS present **without** any source map or reference to the source repo/file in the readme
+- Build artifacts (`.min.js`) committed with no corresponding unminified source in the package or a public repo linked from `readme.txt`
+
+**Verdict:** Flag as **FAIL** for obfuscated PHP (always). Flag minified-only JS as **FAIL** if no source access is documented.
+
+**Fix:** Remove obfuscation. Add a `Development` or `Build` section to `readme.txt` linking to the source repo (GitHub, GitLab, etc.).
+
+---
 
 ### Guideline 5: No Trialware
-Plugins may not contain functionality restricted/locked behind payment or upgrade. No disabling after trial period or quota. No sandbox-only API access. Paid functionality in external services IS permitted if all plugin code is fully available. Add-on plugins hosted outside WordPress.org are recommended for premium code.
 
-#### Trialware & Upsell Checks (Guideline 5 Focus)
+**Core rule:** Every feature shipped in the directory must function end-to-end without a license key, payment, or account.
 
-**Core rule:** Anything shipped on WordPress.org must work fully without a license key or payment.
+**Check for each feature gate in the code:**
 
-**Not allowed (trialware patterns):**
-- Time-based or usage-based cutoffs for local features
-- “Free but crippled” behavior intended to force upgrades
-- License key checks to unlock local-only functionality
-- Artificial quotas for features that would otherwise work locally
+1. Does a `has_paid_access()` / `is_licensed()` / `check_license()` check gate **local** processing (not an external service call)?
+2. Is there a time-based expiry (`time() > $installed_at + 30 * DAY_IN_SECONDS`) for local behavior?
+3. Is there a usage quota (`if ( $count >= 100 )`) that is artificially low and only exists to pressure upgrades?
+4. Does the free user see a blocked/locked UI that prevents completing a core workflow?
 
-**Allowed (freemium patterns):**
-- Informational upsell UI that does not block use
-- Premium functionality provided by a separate add-on plugin
-- External SaaS integrations where the service itself provides the value
-- Preview/teaser UI that is clearly non-blocking and optional
+**Violation signals (flag as FAIL):**
+- `return` / `wp_die()` / blocking screen shown when `has_paid_access()` is false for a local feature
+- Ternary limits: `$limit = $licensed ? 10000 : 100` with no filter to extend the free cap
+- Features expire after X days even when no external service is involved
+- Admin screen is entirely replaced with an upgrade prompt
 
-**Pattern guidance (keep free functional):**
+**Allowed patterns (do not flag):**
+- Upsell notice shown alongside a working free feature (non-blocking)
+- Premium feature delegated to a **separate** add-on plugin not hosted on WP.org
+- External SaaS feature gated because the **service** itself requires payment (e.g., AI API quota)
+- Dismissible comparison table or upgrade button in plugin settings
+
+**Code patterns:**
 
 ```php
-// Bad: blocks local feature
+// VIOLATION — local feature blocked by paid check
 if ( ! $this->has_paid_access() ) {
     echo 'Upgrade required';
-    return;
+    return; // ← blocks execution
 }
-```
 
-```php
-// Good: free feature works, premium enhances
-$this->render_basic_export();
-if ( $this->has_premium_addon() ) {
-    do_action( 'myplugin_premium_export_options' );
-}
-```
-
-```php
-// Bad: artificial limit
+// VIOLATION — artificial cap with no extension point
 $limit = $this->has_paid_access() ? 10000 : 100;
 ```
 
 ```php
-// Good: consistent limit, allow extension via add-on/filter
-$limit = 10000;
-$limit = apply_filters( 'myplugin_event_limit', $limit );
+// COMPLIANT — free path works; premium adds to it
+$this->render_basic_export();
+if ( $this->has_premium_addon() ) {
+    do_action( 'myplugin_premium_export_options' );
+}
+
+// COMPLIANT — cap is consistent; extensible via filter
+$limit = apply_filters( 'myplugin_event_limit', 10000 );
 ```
 
-**Upsell UI principles:**
-- Keep upsells contextual and dismissible
-- Avoid blocking screens or repeated nags
-- Use comparison tables or subtle notices instead of hard gates
-- If you show a disabled preview UI for a premium feature, make sure it never prevents the free feature from working
-
-**Review questions (ask per feature):**
-1. Does this feature run end-to-end without a license key?
-2. Is any code path gated solely by “paid” checks for local behavior?
-3. Are there time/usage caps that reduce free functionality?
-4. Would a free user feel blocked or tricked?
-5. Does the free version still provide standalone value?
-
-**Trialware compliance checklist (pre-submission):**
+**Pre-submission checklist:**
 - [ ] All free features work without a license key
-- [ ] No time-based expirations or usage quotas
-- [ ] No “locked” UI that blocks normal use
-- [ ] Upsell prompts are informational and dismissible
-- [ ] Premium functionality lives in a separate add-on or external service
-- [ ] Free version provides real, standalone value
+- [ ] No time-based expirations or usage quotas for local behavior
+- [ ] No blocking/locked UI preventing free-tier workflows
+- [ ] Upsell prompts are informational, non-blocking, and dismissible
+- [ ] Premium-only code lives in a separate add-on or an external service
 
-**Common trialware violations:**
-- Constant upgrade popups or blocking screens
-- Intentionally crippled workflows to force upgrades
-- Expiring features after X days
-- Usage caps added solely to pressure upgrades
-- License validation for features that are purely local
+---
 
-### Guideline 6: SaaS Is Permitted
-Plugins acting as interfaces to external third-party services are allowed (even paid). The service must provide real functionality and be documented in the readme. NOT allowed:
-- Services that only validate licenses/keys while all functionality is local
-- Moving code to a service to falsely appear as supplemented functionality
-- Storefronts that are just front-ends for external purchases
+### Guideline 6: SaaS Integrations Are Allowed — With Conditions
 
-### Guideline 7: No User Tracking Without Consent
-Plugins may not contact external servers without explicit, authorized consent (opt-in, registration, or checkbox). Privacy policy should be in the readme. Prohibited:
-- Automated data collection without user confirmation
-- Misleading users into submitting information
-- Offloading unrelated assets
-- Undocumented use of external data
-- Third-party ad tracking
+**Check:** Does the external service provide real functionality? Is it documented in the readme?
 
-Exception: SaaS plugins (Twitter, CDN, Akismet) where consent is implied by activation/configuration.
+**Violation signals:**
+- The external service's sole purpose is validating a license key; all actual processing is local
+- Code was moved server-side specifically to disguise what is really a local feature gate
+- Plugin is a storefront or checkout page for an external product with no real plugin functionality
 
-### Guideline 8: No External Executable Code
-All non-service JS/CSS must be included locally. Prohibited:
-- Serving updates from non-WordPress.org servers
-- Installing premium versions from external servers
-- Third-party CDNs (except font inclusions)
-- Managing data lists via third-party services (unless permitted by terms)
-- iframes for admin pages (use APIs instead)
+**Verdict:** Flag as **FAIL** for license-validation-only services. Do not flag genuine SaaS integrations.
 
-### Guideline 9: No Illegal, Dishonest, or Offensive Actions
-Includes but not limited to:
-- Manipulating search results / keyword stuffing
-- Compensating or pressuring for reviews
-- Sockpuppeting (fake accounts for reviews/tickets)
-- Presenting others' plugins as original work
-- Implying plugins create legal compliance
-- Using user resources without permission (botnets, crypto-mining)
-- Exploiting guideline loopholes
+**Fix:** Document what the external service does in `readme.txt`. Move license validation out of the plugin's critical path if the functionality is local.
 
-### Guideline 10: No Embedded External Links Without Permission
-All "Powered By" or credit links must be optional, defaulting to hidden. Users must opt-in via clear choices. Plugins may not require credits to function. Services may brand their own output.
+---
+
+### Guideline 7: No External Data Collection Without Consent
+
+**Check:** Does the plugin send any data to an external server without the user explicitly opting in?
+
+**Violation signals:**
+- HTTP request to a remote URL on plugin activation, admin page load, or cron job with no user opt-in
+- User email, site URL, or usage data sent without a visible opt-in checkbox or registration step
+- Third-party analytics or ad-tracking scripts loaded in admin or frontend without consent
+- Assets (images, fonts, scripts) loaded from an external CDN that are not the plugin's primary service
+
+**Exception:** Plugins that are interfaces to a named third-party service (e.g., Akismet, Mailchimp, a CDN) — consent is implied when the user configures the service connection.
+
+**Verdict:** Flag as **FAIL** for any unconsented outbound call. Include the specific URL or domain found.
+
+**Fix:** Wrap all outbound calls in an opt-in gate. Add a `Privacy Policy` section to `readme.txt` describing what data is collected and why.
+
+---
+
+### Guideline 8: No Remotely Loaded Executable Code
+
+**Check:** Is all JS/CSS that runs on the user's site included in the plugin package?
+
+**Violation signals:**
+- `wp_enqueue_script()` loading JS from a third-party CDN (not a self-hosted asset)
+- Plugin fetches and executes code from an external URL at runtime (`file_get_contents` + `eval`, dynamic `<script src>`)
+- Plugin installs or updates itself from a non-WP.org server
+- Admin page rendered entirely inside an `<iframe>` pointing to an external URL
+
+**Exceptions allowed:**
+- Web fonts loaded from Google Fonts or similar font CDNs
+- The plugin's own SaaS service loading its own widget/embed scripts (with user consent per Guideline 7)
+
+**Verdict:** Flag as **FAIL** for each externally loaded executable. Note the URL and the file/line where it is enqueued.
+
+**Fix:** Bundle JS/CSS locally. Use the WP.org SVN for updates. Replace `<iframe>` admin pages with proper WP Admin UI backed by a REST or admin-ajax API.
+
+---
+
+### Guideline 9: No Illegal, Dishonest, or Offensive Behavior
+
+**Check:** Does the plugin engage in any deceptive, manipulative, or harmful behavior?
+
+**Violation signals:**
+- Hidden keyword stuffing in page output to manipulate search rankings
+- Code that posts reviews, ratings, or support replies on the user's behalf
+- Plugin presented as original work but is a fork or copy of another plugin without attribution
+- Plugin claims to make a site “GDPR compliant” or “ADA compliant” without legal basis
+- Code that uses site visitor resources for crypto-mining, botnets, or similar
+
+**Verdict:** Flag as **FAIL**. This is a high-severity category; document evidence thoroughly.
+
+---
+
+### Guideline 10: No Forced External Links
+
+**Check:** Does the plugin output any “Powered by” links, footer credits, or backlinks visible to site visitors?
+
+**Violation signals:**
+- Credit link output by default with no setting to disable it
+- Plugin requires the credit link to remain active for full functionality
+- Link is embedded in non-optional template output
+
+**Exception:** A service may brand its own rendered output (e.g., a payment form branded with the payment processor's logo).
+
+**Verdict:** Flag as **FAIL** if the link is on by default with no opt-out. Flag as **FAIL** if removing it breaks functionality.
+
+**Fix:** Default the setting to `false` (hidden). Provide a clear checkbox in settings to enable it.
+
+---
 
 ### Guideline 11: No Admin Dashboard Hijacking
-Nags, alerts, and upgrade prompts must be limited and contextual (preferably on the plugin's own settings page). Site-wide notices must be dismissible or self-dismiss. Error messages must explain resolution. Avoid in-dashboard advertising. Tracking referrals via ads is prohibited.
+
+**Check:** Are admin notices, upgrade prompts, and nags limited and non-intrusive?
+
+**Violation signals:**
+- Site-wide admin notice that cannot be dismissed (no dismiss button, reappears on every page load)
+- Upgrade/upsell prompt shown on every admin page, not just the plugin's own settings screen
+- Plugin overrides the WordPress dashboard home page or injects full-page overlays
+- Ad banners or tracking pixels placed in the WordPress admin area
+
+**Verdict:** Flag as **FAIL** for persistent undismissable notices or for notices appearing outside the plugin's own pages.
+
+**Fix:** Use `is_plugin_page()` or an equivalent check to scope notices. Add a dismiss handler using `update_user_meta` or the WP dismissible notice pattern. Never show upgrade prompts on unrelated admin pages.
+
+---
 
 ### Guideline 12: No Readme Spam
-No unnecessary affiliate links, competitor tags, or keyword stuffing. Maximum 5 tags. Links to required products are permitted in moderation. Readmes are for people, not bots. Affiliate links must be disclosed and link directly (no redirects/cloaking).
 
-### Guideline 13: Use WordPress Default Libraries
-Plugins must use WordPress-bundled libraries (jQuery, SimplePie, PHPMailer, PHPass, etc.) instead of bundling their own versions. See [Default Scripts](https://developer.wordpress.org/reference/functions/wp_enqueue_script/) for the full list.
+**Check:** Is the `readme.txt` free of keyword stuffing, excessive affiliate links, and competitor tags?
 
-### Guideline 14: Avoid Frequent Commits
-SVN is a release repository, not a development one. Every commit triggers zip regeneration. Only deployment-ready code should be pushed. Use descriptive commit messages. Exception: readme updates for WordPress version support.
+**Violation signals:**
+- More than 5 tags in the `Tags:` field
+- Affiliate links present but not disclosed, or using redirect/cloaking URLs
+- Tags that name competitor plugins or irrelevant popular terms purely for SEO
+- `readme.txt` reads as a keyword list rather than useful documentation
+
+**Verdict:** Flag as **WARNING** for minor stuffing; **FAIL** for undisclosed affiliate links or more than 5 tags.
+
+**Fix:** Reduce tags to 5 or fewer relevant terms. Disclose all affiliate links with “(affiliate link)” notation. Link affiliate URLs directly without cloaking.
+
+---
+
+### Guideline 13: Use WordPress-Bundled Libraries
+
+**Check:** Does the plugin bundle its own copies of libraries that WordPress already ships?
+
+**Violation signals:**
+- Plugin includes its own `jquery.js`, `jquery.min.js`, or loads jQuery from a CDN
+- Plugin bundles `PHPMailer`, `SimplePie`, `PHPass`, `Backbone`, `Underscore`, `React`, `wp-polyfill`, or other WP-bundled libraries
+- `wp_enqueue_script()` registers a library already available as a WordPress handle (check [Default Scripts](https://developer.wordpress.org/reference/functions/wp_enqueue_script/))
+
+**Verdict:** Flag as **FAIL** for each duplicate bundled library.
+
+**Fix:** Replace bundled copies with `wp_enqueue_script( 'jquery' )` (or the appropriate WP handle). Remove the local copy from the plugin package.
+
+---
+
+### Guideline 14: SVN Is a Release Repository
+
+**Check:** Are SVN commits release-quality and infrequent?
+
+**Violation signals:**
+- Multiple commits per day with messages like “fix typo”, “testing”, “debug”
+- Development/debug code committed to trunk (e.g., `var_dump()`, `error_log()`, `console.log( 'test' )`)
+- Version number not incremented between commits that change functional code
+
+**Note:** This guideline is primarily advisory; violations do not block submission but reflect poorly on the developer.
+
+**Fix:** Use a development branch (GitHub/GitLab) and commit to SVN only for releases. Each SVN commit should correspond to a version bump.
+
+---
 
 ### Guideline 15: Increment Version Numbers
-Version must be incremented for each release. Trunk `readme.txt` must reflect the current version.
 
-### Guideline 16: Complete Plugin at Submission
-A complete, functional plugin must be available at submission time. Names cannot be reserved for future use or brand protection. Unused approved slugs may be reassigned.
+**Check:** Is the version number in `readme.txt` and the plugin header incremented for every release?
+
+**Violation signals:**
+- `Stable tag:` in `readme.txt` does not match the `Version:` field in the main plugin file
+- `Stable tag: trunk` used (discouraged; use an explicit version number)
+- Version number is the same across two different functional releases in SVN tags
+
+**Verdict:** Flag as **FAIL** if `Stable tag` and plugin header `Version` do not match.
+
+**Fix:** Bump both values together on every release. Tag the release in SVN under `tags/X.Y.Z`.
+
+---
+
+### Guideline 16: Plugin Must Be Complete at Submission
+
+**Check:** Is the plugin functional and complete at the time of submission?
+
+**Violation signals:**
+- Plugin is a skeleton with placeholder functions or “coming soon” admin pages
+- Slug was requested to reserve a name for a future or in-progress product
+- Primary plugin functionality requires a separate plugin not yet published
+
+**Verdict:** Flag as **FAIL**. An incomplete plugin cannot be approved.
+
+**Fix:** Submit only when the plugin is feature-complete and functional for end users.
+
+---
 
 ### Guideline 17: Respect Trademarks and Copyrights
-Using trademarks or project names as the sole/initial term of a plugin slug is prohibited unless legal ownership can be confirmed. Example: non-employees should use "Dancing Sloths for SuperSandbox" not "SuperSandbox Dancing Sloths."
 
-### Guideline 18: Directory Maintenance Rights
-WordPress.org reserves the right to:
-- Update guidelines at any time
-- Disable/remove any plugin
-- Grant exceptions
-- Remove developer access
-- Modify plugins for public safety
+**Check:** Does the plugin name or slug start with a trademark or project name the developer does not own?
+
+**Violation signals:**
+- Slug starts with `woocommerce-`, `elementor-`, `jetpack-`, `yoast-`, or any term in the Trademark Slug List (see Naming Rules section below)
+- Plugin name starts with a trademarked term (e.g., “WooCommerce Pricing Rates” → starts with WooCommerce)
+- Name uses a portmanteau of a trademark (e.g., “PricingPress” uses `-Press` from WordPress)
+
+**Correct pattern:** Trademark may only appear **after** a connector word: `for`, `with`, `using`, `and`.
+- ✅ `Pricing Rates for WooCommerce`
+- ❌ `WooCommerce Pricing Rates`
+
+**Verdict:** Flag as **FAIL** with the specific trademark and the correct name structure.
+
+**Fix:** Move the trademark to after a connector. Rename the slug accordingly (max 50 chars, lowercase, hyphens only).
+
+---
+
+### Guideline 18: WordPress.org Reserves Directory Rights
+
+**Note:** This guideline is informational — no code or readme check is required. It establishes that WordPress.org may update guidelines, remove plugins, revoke access, or modify plugins for public safety at any time. Inform developers of this when advising on submission strategy.
 
 ---
 
