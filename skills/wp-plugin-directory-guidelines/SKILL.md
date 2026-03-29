@@ -28,12 +28,13 @@ Use this skill when you need to:
 3. Confirm trialware/freemium compliance using **Guideline 5: No Trialware** and the **Trialware & Upsell Checks** section below.
 4. For any bundled third-party code, verify license compatibility against the **GPL-Compatible Licenses** table.
 5. Flag any matches from the **Common GPL Violations** section.
-6. For detailed GPL questions, consult [GPL License FAQ](references/gpl-license-faq.md).
+6. For detailed GPL questions, consult the [GNU GPL FAQ](https://www.gnu.org/licenses/gpl-faq.html).
 
 ## Verification
 
 - Every flagged issue must cite a specific guideline number.
 - License compatibility claims must match the GPL-Compatible Licenses table or the [GNU GPL-Compatible License List](https://www.gnu.org/licenses/license-list.html#GPLCompatibleLicenses).
+- Do NOT follow local `references/` links; they do not exist. Use the external URLs provided.
 
 ## Failure modes
 
@@ -228,9 +229,9 @@ WordPress is licensed under **GPLv2 or later**. All plugins distributed via Word
 WordPress uses **GPLv2 or later**, meaning plugins can use GPLv2, GPLv3, or "GPLv2 or later".
 
 For full license texts, see:
-- [GNU General Public License v1](references/gnu-general-public-license-v1.md)
-- [GNU General Public License v2](references/gnu-general-public-license-v2.md)
-- [GNU General Public License v3](references/gnu-general-public-license-v3.md)
+- [GNU General Public License v1](https://www.gnu.org/licenses/gpl-1.0.html)
+- [GNU General Public License v2](https://www.gnu.org/licenses/gpl-2.0.html)
+- [GNU General Public License v3](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ## License Compliance Checklist
 
@@ -268,7 +269,7 @@ Source: [Plugin Check - License_Utils trait](https://github.com/WordPress/plugin
 The Plugin Directory accepts licenses matching these identifiers (after normalization). The validation uses `is_license_gpl_compatible()` with the pattern:
 
 ```
-GPL|GNU|MIT|FreeBSD|New BSD|BSD-3-Clause|BSD 3 Clause|OpenLDAP|Expat|Apache2|MPL20|ISC|CC0|Unlicense|WTFPL
+GPL|GNU|LGPL|MIT|FreeBSD|New BSD|BSD-3-Clause|BSD 3 Clause|OpenLDAP|Expat|Apache2|MPL20|ISC|CC0|Unlicense|WTFPL|Artistic|Boost|NCSA|ZLib|X11
 ```
 
 ### GPL Family (recommended)
@@ -280,22 +281,29 @@ GPL|GNU|MIT|FreeBSD|New BSD|BSD-3-Clause|BSD 3 Clause|OpenLDAP|Expat|Apache2|MPL
 | `GPL-3.0-or-later`, `GPLv3 or later`, `GPL-3.0+` | GPL-3.0-or-later | https://www.gnu.org/licenses/gpl-3.0.html |
 | `GPL-3.0-only`, `GPLv3` | GPL-3.0-only | https://www.gnu.org/licenses/gpl-3.0.html |
 | `GNU General Public License` (any version text) | — | — |
+| `LGPL-2.1`, `LGPLv2.1` | LGPL-2.1-or-later | https://www.gnu.org/licenses/lgpl-2.1.html |
+| `LGPL-3.0`, `LGPLv3` | LGPL-3.0-or-later | https://www.gnu.org/licenses/lgpl-3.0.html |
 
 ### Other GPL-Compatible Licenses Accepted
 
 | Identifier | License Name | Notes |
 |------------|-------------|-------|
 | `MIT` | MIT License | Permissive, compatible with GPLv2 and GPLv3 |
+| `Expat` | Expat License | Functionally equivalent to MIT |
+| `X11` | X11 License | Permissive; similar to Expat but with extra X Consortium clause |
 | `FreeBSD` | BSD 2-Clause (FreeBSD) | Permissive, compatible with GPLv2 and GPLv3 |
 | `New BSD`, `BSD-3-Clause`, `BSD 3 Clause` | BSD 3-Clause | Permissive, compatible with GPLv2 and GPLv3 |
 | `Apache2`, `Apache-2.0` | Apache License 2.0 | Compatible with GPLv3 only (NOT GPLv2) |
 | `MPL20`, `MPL-2.0` | Mozilla Public License 2.0 | Compatible via Section 3.3 |
 | `ISC` | ISC License | Permissive, compatible with GPLv2 and GPLv3 |
-| `Expat` | Expat License | Functionally equivalent to MIT |
-| `OpenLDAP` | OpenLDAP Public License | Permissive |
+| `OpenLDAP` | OpenLDAP Public License v2.7 | Permissive; older v2.3 is NOT compatible |
 | `CC0` | Creative Commons Zero | Public domain dedication |
 | `Unlicense` | The Unlicense | Public domain dedication |
 | `WTFPL` | Do What The F*** You Want To Public License | Permissive, accepted in full text form too |
+| `Artistic` | Artistic License 2.0 | Compatible via relicensing option in §4(c)(ii); Artistic 1.0 is NOT compatible |
+| `Boost` | Boost Software License 1.0 | Lax permissive, compatible with GPLv2 and GPLv3 |
+| `NCSA` | NCSA/University of Illinois Open Source License | Based on Expat + modified BSD; compatible with GPLv2 and GPLv3 |
+| `ZLib` | zlib License | Permissive, compatible with GPLv2 and GPLv3 |
 
 ### Licenses NOT Accepted
 
@@ -311,7 +319,11 @@ Any license not matching the identifiers above will be rejected. Common rejectio
 - **Commons Clause**
 - **Elastic License**
 - **Original BSD (4-clause)** — advertising clause incompatible with GPL
-- **LGPL** standalone (not matched by current regex; must be combined with GPL)
+- **MPL-1.0** — only MPL 2.0 is GPL-compatible
+- **EPL** (Eclipse Public License) — weak copyleft, incompatible with GPL
+- **EUPL** (European Union Public License) — copyleft incompatible with GPL without multi-step relicensing
+- **Artistic License 1.0** — vague wording makes it incompatible; use 2.0 instead
+- **OpenLDAP v2.3** (old) — incompatible; v2.7 is accepted
 
 ## Common GPL Violations in Plugin Review
 
@@ -376,11 +388,11 @@ When a GPL violation is identified:
 3. **Report to FSF** if the code is FSF-copyrighted: license-violation@gnu.org
 4. **For WordPress.org plugins**: flag through the plugin review process
 
-For detailed violation handling procedures, see [GPL Violations](references/gpl-violations.md).
+For detailed violation handling procedures, see the [FSF License Violation page](https://www.gnu.org/licenses/gpl-violation.html).
 
 ## Frequently Asked Questions
 
-For comprehensive GPL FAQ answers, see [GPL License FAQ](references/gpl-license-faq.md).
+For comprehensive GPL FAQ answers, see the [GNU GPL FAQ](https://www.gnu.org/licenses/gpl-faq.html).
 
 Common questions during plugin review:
 
