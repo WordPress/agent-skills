@@ -4,8 +4,6 @@ description: "WordPress.org Plugin Directory submission guidelines reference. Us
 compatibility: "Targets WordPress 6.9+."
 ---
 
-# WP Plugin Directory Guidelines
-
 ## When to use
 
 Use this skill when you need to:
@@ -34,20 +32,17 @@ Use this skill when you need to:
 
 - Every flagged issue must cite a specific guideline number.
 - License compatibility claims must match the GPL-Compatible Licenses table or the [GNU GPL-Compatible License List](https://www.gnu.org/licenses/license-list.html#GPLCompatibleLicenses).
-- Do NOT follow local `references/` links; they do not exist. Use the external URLs provided.
+- Local `references/` links do not exist and should not be followed. Use the external URLs provided instead.  
 
 ## Failure modes
 
 - If a license is not listed in the compatibility tables, do not guess; check the [GNU license list](https://www.gnu.org/licenses/license-list.html) or escalate.
 - If a plugin uses a dual-license model, verify both licenses independently.
 
----
-
-Source: [Detailed Plugin Guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/)
 
 ## WordPress.org Plugin Directory Guidelines — Review Checklist
 
-Source: [Detailed Plugin Guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/)
+Source: [Detailed Plugin Guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/?output_format=md)
 
 Use this section as a structured checklist when reviewing a plugin. Each guideline includes the violation signal to look for, the verdict to issue, and the fix to recommend. Cite the guideline number in every finding.
 
