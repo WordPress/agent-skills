@@ -15,7 +15,7 @@ Use this skill when you need to:
 - Identify common guideline violations before submission
 - Answer questions about what is or is not allowed on WordPress.org
 - Evaluate premium/upsell flows, license checks, or freemium positioning
-- Review “teaser” or “preview” UI for trialware violations
+- Review "teaser" or "preview" UI for trialware violations
 
 ## Inputs required
 
