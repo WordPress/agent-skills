@@ -4,6 +4,10 @@ description: "Use when reviewing WordPress plugins for GPL compliance, checking 
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+)."
 ---
 
+## Overview
+
+Authoritative reference for the 18 WordPress.org Plugin Directory guidelines. Covers GPL licensing, plugin naming/trademark rules, trialware restrictions, and all other submission requirements.
+
 ## When to use
 
 Use this skill when you need to:
