@@ -1,6 +1,6 @@
 ---
 name: wp-plugin-directory-guidelines
-description: "WordPress.org Plugin Directory submission guidelines reference. Use when reviewing WordPress plugins for GPL compliance, checking license headers, evaluating license compatibility, validating upsells or premium add-ons, verifying plugin directory guideline adherence, or answering questions about WordPress.org plugin policies."
+description: "Use when reviewing WordPress plugins for GPL compliance, checking license headers or compatibility, evaluating upsell/freemium/trialware patterns, validating plugin naming or trademark rules, checking plugin slugs, understanding why a plugin was rejected from WordPress.org, or answering any question about the 18 WordPress.org Plugin Directory guidelines — even if the user doesn't mention 'guidelines' explicitly."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+)."
 ---
 
