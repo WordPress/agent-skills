@@ -60,7 +60,7 @@ WordPress is licensed under **GPLv2 or later**. All plugins distributed via Word
 | Version | Year | Key Addition |
 |---------|------|--------------|
 | GPLv1 | 1989 | Base copyleft: share-alike for modifications |
-| GPLv2 | 1991 | Patent clause (Section 7), clearer distribution terms |
+| GPLv2 | 1991 | "Liberty or death" clause (Section 7), clearer distribution terms |
 | GPLv3 | 2007 | Anti-tivoization, explicit patent grants, compatibility provisions |
 
 WordPress uses **GPLv2 or later**, meaning plugins can use GPLv2, GPLv3, or "GPLv2 or later".
