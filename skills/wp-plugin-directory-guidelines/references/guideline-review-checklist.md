@@ -1,8 +1,31 @@
-## WordPress.org Plugin Directory Guidelines — Review Checklist
+# WordPress.org Plugin Directory Guidelines — Review Checklist
 
 Source: [Detailed Plugin Guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/?output_format=md)
 
 Use this section as a structured checklist when reviewing a plugin. Each guideline includes the violation signal to look for, the verdict to issue, and the fix to recommend. Cite the guideline number in every finding.
+
+## Contents
+
+- [WordPress.org Plugin Directory Guidelines — Review Checklist](#wordpressorg-plugin-directory-guidelines--review-checklist)
+	- [Contents](#contents)
+		- [Guideline 1: GPL-Compatible License](#guideline-1-gpl-compatible-license)
+		- [Guideline 2: Developer Responsibility](#guideline-2-developer-responsibility)
+		- [Guideline 3: Stable Version in SVN](#guideline-3-stable-version-in-svn)
+		- [Guideline 4: Human-Readable Code](#guideline-4-human-readable-code)
+		- [Guideline 5: No Trialware](#guideline-5-no-trialware)
+		- [Guideline 6: SaaS Integrations Are Allowed — With Conditions](#guideline-6-saas-integrations-are-allowed--with-conditions)
+		- [Guideline 7: No External Data Collection Without Consent](#guideline-7-no-external-data-collection-without-consent)
+		- [Guideline 8: No Remotely Loaded Executable Code](#guideline-8-no-remotely-loaded-executable-code)
+		- [Guideline 9: No Illegal, Dishonest, or Offensive Behavior](#guideline-9-no-illegal-dishonest-or-offensive-behavior)
+		- [Guideline 10: No Forced External Links](#guideline-10-no-forced-external-links)
+		- [Guideline 11: No Admin Dashboard Hijacking](#guideline-11-no-admin-dashboard-hijacking)
+		- [Guideline 12: No Readme Spam](#guideline-12-no-readme-spam)
+		- [Guideline 13: Use WordPress-Bundled Libraries](#guideline-13-use-wordpress-bundled-libraries)
+		- [Guideline 14: SVN Is a Release Repository](#guideline-14-svn-is-a-release-repository)
+		- [Guideline 15: Increment Version Numbers](#guideline-15-increment-version-numbers)
+		- [Guideline 16: Plugin Must Be Complete at Submission](#guideline-16-plugin-must-be-complete-at-submission)
+		- [Guideline 17: Respect Trademarks and Copyrights](#guideline-17-respect-trademarks-and-copyrights)
+		- [Guideline 18: WordPress.org Reserves Directory Rights](#guideline-18-wordpressorg-reserves-directory-rights)
 
 ---
 
@@ -150,9 +173,47 @@ $limit = apply_filters( 'myplugin_event_limit', 10000 );
 
 **Exception:** Plugins that are interfaces to a named third-party service (e.g., Akismet, Mailchimp, a CDN) — consent is implied when the user configures the service connection.
 
+**Code patterns (violation vs compliant):**
+
+```php
+// VIOLATION — sends data on activation without consent
+register_activation_hook( __FILE__, function() {
+    wp_remote_post(
+        'https://api.example.com/collect',
+        array(
+            'body' => array(
+                'site' => home_url(),
+                'admin_email' => get_option( 'admin_email' ),
+            ),
+        )
+    );
+} );
+
+// COMPLIANT — explicit opt-in gate
+if ( isset( $_POST['myplugin_opt_in'] ) && '1' === $_POST['myplugin_opt_in'] ) {
+    update_option( 'myplugin_tracking_opt_in', 1 );
+}
+
+if ( get_option( 'myplugin_tracking_opt_in' ) ) {
+    wp_remote_post( 'https://api.example.com/collect', $payload );
+}
+```
+
+**Review questions:**
+1. Is any outbound request made on activation, first-run, or cron before consent is stored?
+2. Is the opt-in UI explicit, unambiguous, and default-off?
+3. Is consent persisted and checked before every telemetry request path?
+4. Are collected fields documented in `readme.txt` privacy disclosures?
+
 **Verdict:** Flag as **FAIL** for any unconsented outbound call. Include the specific URL or domain found.
 
 **Fix:** Wrap all outbound calls in an opt-in gate. Add a `Privacy Policy` section to `readme.txt` describing what data is collected and why.
+
+**Pre-submission checklist:**
+- [ ] No telemetry/analytics calls occur before explicit opt-in
+- [ ] Opt-in control is visible and off by default
+- [ ] Consent is stored and checked in every outbound path
+- [ ] Privacy policy in readme explains data, destination, and purpose
 
 ---
 
@@ -170,9 +231,43 @@ $limit = apply_filters( 'myplugin_event_limit', 10000 );
 - Web fonts loaded from Google Fonts or similar font CDNs
 - The plugin's own SaaS service loading its own widget/embed scripts (with user consent per Guideline 7)
 
+**Code patterns (violation vs compliant):**
+
+```php
+// VIOLATION — executable JS loaded from third-party CDN
+wp_enqueue_script(
+    'myplugin-admin',
+    'https://cdn.example.com/myplugin/admin.js',
+    array(),
+    '1.0.0',
+    true
+);
+
+// COMPLIANT — executable JS bundled in plugin package
+wp_enqueue_script(
+    'myplugin-admin',
+    plugins_url( 'assets/js/admin.js', __FILE__ ),
+    array(),
+    MYPLUGIN_VERSION,
+    true
+);
+```
+
+**Review questions:**
+1. Are any script/style enqueues pointing to third-party domains for executable assets?
+2. Is any runtime code download/execution path present (`eval`, dynamic `<script>`, remote includes)?
+3. Does update/install logic bypass WP.org distribution channels?
+4. Are external assets limited to permitted exceptions (fonts, genuine service embed)?
+
 **Verdict:** Flag as **FAIL** for each externally loaded executable. Note the URL and the file/line where it is enqueued.
 
 **Fix:** Bundle JS/CSS locally. Use the WP.org SVN for updates. Replace `<iframe>` admin pages with proper WP Admin UI backed by a REST or admin-ajax API.
+
+**Pre-submission checklist:**
+- [ ] All executable JS/CSS is packaged locally in the plugin
+- [ ] No runtime remote code download or execution
+- [ ] No external self-update/install mechanism
+- [ ] Any external assets are documented and fall under allowed exceptions
 
 ---
 
@@ -199,12 +294,45 @@ $limit = apply_filters( 'myplugin_event_limit', 10000 );
 - Credit link output by default with no setting to disable it
 - Plugin requires the credit link to remain active for full functionality
 - Link is embedded in non-optional template output
+- “Powered by” text/link in templates (scanner pattern: `(?<!x-)powered[ -_]by`)
+- Backlink required to unlock an upgrade/feature (crosses Guideline 5 + 10)
 
 **Exception:** A service may brand its own rendered output (e.g., a payment form branded with the payment processor's logo).
+
+**Code patterns (violation vs compliant):**
+
+```php
+// VIOLATION — forced credit link on public output
+add_action( 'wp_footer', function() {
+    echo '<p class="myplugin-credit"><a href="https://vendor.example">Powered by Vendor</a></p>';
+} );
+
+// VIOLATION — backlink required for feature activation
+if ( ! get_option( 'myplugin_keep_backlink' ) ) {
+    wp_die( 'Please keep our credit link active to use this feature.' );
+}
+
+// COMPLIANT — optional, explicit opt-in, default off
+if ( get_option( 'myplugin_show_credit_link', false ) ) {
+    echo '<p class="myplugin-credit"><a href="https://vendor.example">Powered by Vendor</a></p>';
+}
+```
+
+**Review questions:**
+1. Is any “Powered by” or credit link injected into frontend output by default?
+2. Can users disable the link without breaking functionality?
+3. Is there any logic that ties feature access to keeping a backlink active?
+4. Is consent for showing credits explicit (not implied) and persisted?
 
 **Verdict:** Flag as **FAIL** if the link is on by default with no opt-out. Flag as **FAIL** if removing it breaks functionality.
 
 **Fix:** Default the setting to `false` (hidden). Provide a clear checkbox in settings to enable it.
+
+**Pre-submission checklist:**
+- [ ] No credit/backlink is shown by default on public pages
+- [ ] Credit link is strictly opt-in and user-controlled
+- [ ] Disabling credit links does not disable any plugin functionality
+- [ ] No upgrade path requires a backlink to remain active
 
 ---
 
@@ -217,10 +345,54 @@ $limit = apply_filters( 'myplugin_event_limit', 10000 );
 - Upgrade/upsell prompt shown on every admin page, not just the plugin's own settings screen
 - Plugin overrides the WordPress dashboard home page or injects full-page overlays
 - Ad banners or tracking pixels placed in the WordPress admin area
+- Admin settings page rendered as an external `<iframe>` instead of native WP admin UI
+
+**Code patterns (violation vs compliant):**
+
+```php
+// VIOLATION — external iframe in admin page
+add_action( 'admin_menu', function() {
+    add_menu_page( 'My Plugin', 'My Plugin', 'manage_options', 'myplugin', function() {
+        echo '<iframe src="https://app.vendor.example/dashboard" style="width:100%;height:80vh;border:0"></iframe>';
+    } );
+} );
+
+// COMPLIANT — native admin page shell with server/API data fetch
+add_action( 'admin_menu', function() {
+    add_menu_page( 'My Plugin', 'My Plugin', 'manage_options', 'myplugin', function() {
+        echo '<div class="wrap"><h1>My Plugin</h1><div id="myplugin-admin-app"></div></div>';
+    } );
+} );
+
+add_action( 'admin_enqueue_scripts', function( $hook ) {
+    if ( 'toplevel_page_myplugin' !== $hook ) {
+        return;
+    }
+    wp_enqueue_script(
+        'myplugin-admin',
+        plugins_url( 'assets/js/admin.js', __FILE__ ),
+        array( 'wp-api-fetch' ),
+        MYPLUGIN_VERSION,
+        true
+    );
+} );
+```
+
+**Review questions:**
+1. Does any admin screen render plugin UI inside an external iframe?
+2. Is the plugin using native WP admin pages and capabilities checks instead?
+3. Are upsells/notices scoped to plugin pages and dismissible?
+4. Does removing upsell UI leave settings and core flows fully usable?
 
 **Verdict:** Flag as **FAIL** for persistent undismissable notices or for notices appearing outside the plugin's own pages.
 
 **Fix:** Use `is_plugin_page()` or an equivalent check to scope notices. Add a dismiss handler using `update_user_meta` or the WP dismissible notice pattern. Never show upgrade prompts on unrelated admin pages.
+
+**Pre-submission checklist:**
+- [ ] No external iframes used for admin/settings pages
+- [ ] Admin UI is rendered as native WP admin pages
+- [ ] Notices are dismissible and scoped to plugin screens only
+- [ ] Removing notices/upsells does not break plugin functionality
 
 ---
 
@@ -248,10 +420,63 @@ $limit = apply_filters( 'myplugin_event_limit', 10000 );
 - Plugin includes its own `jquery.js`, `jquery.min.js`, or loads jQuery from a CDN
 - Plugin bundles `PHPMailer`, `SimplePie`, `PHPass`, `Backbone`, `Underscore`, `React`, `wp-polyfill`, or other WP-bundled libraries
 - `wp_enqueue_script()` registers a library already available as a WordPress handle (check [Default Scripts](https://developer.wordpress.org/reference/functions/wp_enqueue_script/))
+- Scanner indicators: `files_library_core` and known core library filename matches (see scanner `known-libraries.php`)
+
+**Code patterns (violation vs compliant):**
+
+```php
+// VIOLATION — loading custom/bundled jQuery copy
+wp_enqueue_script(
+    'myplugin-jquery',
+    plugins_url( 'assets/vendor/jquery-3.7.1.min.js', __FILE__ ),
+    array(),
+    '3.7.1',
+    true
+);
+
+// COMPLIANT — use WordPress-bundled jQuery handle
+wp_enqueue_script( 'jquery' );
+```
+
+```php
+// VIOLATION — bundling WP core PHP libs directly
+require_once __DIR__ . '/vendor/PHPMailer.php';
+require_once __DIR__ . '/vendor/SimplePie.php';
+
+// COMPLIANT — use WordPress APIs that rely on core libs
+wp_mail( $to, $subject, $message, $headers );
+$feed = fetch_feed( $feed_url );
+```
+
+```php
+// VIOLATION — registering local copy for a core-shipped package
+wp_register_script(
+    'myplugin-underscore',
+    plugins_url( 'assets/vendor/underscore.min.js', __FILE__ ),
+    array(),
+    '1.13.6',
+    true
+);
+
+// COMPLIANT — rely on core handle
+wp_enqueue_script( 'underscore' );
+```
+
+**Review questions:**
+1. Does the plugin ship filenames that match core-library patterns (`jquery`, `underscore`, `backbone`, `codemirror`, `moment`, `PHPMailer`, `SimplePie`)?
+2. Are any core-library equivalents registered/enqueued from plugin paths instead of WP handles?
+3. Are SMTP/feed features implemented through WordPress APIs (`wp_mail`, `fetch_feed`) rather than bundled core libs?
+4. Can bundled duplicates be removed without breaking functionality?
 
 **Verdict:** Flag as **FAIL** for each duplicate bundled library.
 
 **Fix:** Replace bundled copies with `wp_enqueue_script( 'jquery' )` (or the appropriate WP handle). Remove the local copy from the plugin package.
+
+**Pre-submission checklist:**
+- [ ] No bundled copies of libraries already shipped by WordPress core
+- [ ] Core script dependencies are loaded via WP handles
+- [ ] Mail/feed functionality uses WordPress APIs instead of bundled core libs
+- [ ] Any remaining third-party libs are not core duplicates and are documented/license-compliant
 
 ---
 
@@ -279,9 +504,50 @@ $limit = apply_filters( 'myplugin_event_limit', 10000 );
 - `Stable tag: trunk` used (discouraged; use an explicit version number)
 - Version number is the same across two different functional releases in SVN tags
 
+**Code patterns (violation vs compliant):**
+
+```text
+// VIOLATION — readme/plugin header mismatch
+readme.txt:
+Stable tag: 1.4.0
+
+my-plugin.php header:
+Version: 1.3.9
+```
+
+```text
+// COMPLIANT — values are aligned and bumped together
+readme.txt:
+Stable tag: 1.4.1
+
+my-plugin.php header:
+Version: 1.4.1
+```
+
+```text
+// VIOLATION — releasing functional changes without version increment
+SVN tag: tags/1.4.1
+Current release code: changed features, still Version: 1.4.1
+
+// COMPLIANT — each functional release gets a new version tag
+SVN tags: tags/1.4.1 -> tags/1.4.2
+```
+
+**Review questions:**
+1. Does `readme.txt` `Stable tag` exactly match main plugin `Version`?
+2. Is the new SVN tag version unique for this release?
+3. Did functional/code changes occur without a version increment?
+4. Are all user-facing changelog/release markers consistent with the bumped version?
+
 **Verdict:** Flag as **FAIL** if `Stable tag` and plugin header `Version` do not match.
 
 **Fix:** Bump both values together on every release. Tag the release in SVN under `tags/X.Y.Z`.
+
+**Pre-submission checklist:**
+- [ ] `Stable tag` matches plugin header `Version`
+- [ ] Version is incremented for this release
+- [ ] SVN tag uses the new version (`tags/X.Y.Z`)
+- [ ] Changelog/release notes reflect the same version
 
 ---
 
