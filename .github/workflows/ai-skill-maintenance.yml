@@ -86,6 +86,13 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           AI_DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "⚠️ ANTHROPIC_API_KEY is not configured. Skipping AI skill updates."
+            echo "Configure it under Settings → Secrets and variables → Actions."
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
           node shared/scripts/ai-generate-updates.mjs
 
           # Check if any skill files changed
