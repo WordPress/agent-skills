@@ -47,6 +47,10 @@ If you need a logical grouping, register an ability category early (see `referen
 
 ### 4) Register abilities (PHP)
 
+For grouping decisions (how many abilities to register, and where to put filters vs new ability names), read `references/grouping-heuristic.md` first — it keeps you from shipping one atomic ability per REST operation.
+
+For shared helper patterns when multiple execute callbacks delegate to existing REST controllers, see `references/plugin-family-patterns.md` (pick the shared-API-client vs zero-arg-controllers shape) and `references/delegate-helper-pattern.md` (the canonical `delegate_to_rest_controller` helper and when NOT to use it).
+
 Implement the ability in PHP registration with:
 
 - stable `id` (namespaced),
@@ -86,6 +90,9 @@ Use the documented init hooks for Abilities API registration so they load at the
   - wrong REST base/namespace,
   - JS dependency not bundled,
   - caching (object/page caches) masking changes.
+- Execute callback returns unexpected errors or silently ignores input:
+  - `input_schema` defaults aren't being applied, pagination key drift between the ability and the backing, or `empty()`-based ID validation — see `references/input-schema-gotchas.md`.
+  - Inconsistent or hand-rolled `WP_Error` codes — see `references/error-code-vocabulary.md` for the standardized vocabulary.
 
 ## Escalation
 
