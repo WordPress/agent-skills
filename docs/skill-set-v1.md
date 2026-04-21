@@ -10,6 +10,7 @@ This repo currently includes:
 - `wp-rest-api`
 - `wp-interactivity-api`
 - `wp-abilities-api`
+- `wp-abilities-audit`
 - `wp-wpcli-and-ops`
 - `wp-performance`
 - `wp-phpstan`
