@@ -1,7 +1,7 @@
 ---
 name: wp-abilities-verify
 description: "Verify a WordPress plugin's Abilities API registrations: enumerate abilities via REST, check annotation correctness including the adversarial readonly-but-writes detection, validate permissions and schemas, and validate audit documents produced by wp-abilities-audit."
-compatibility: "Targets WordPress 6.9+ plugins. Requires a runnable environment (wp-env, docker-based dev stack, or equivalent) for runtime mode; static mode runs entirely from the plugin checkout with no env. Filesystem-based agent with bash + node."
+compatibility: "Targets WordPress 6.9+ plugins (PHP 7.2.24+). Requires a runnable environment (wp-env, docker-based dev stack, or equivalent) for runtime mode; static mode runs entirely from the plugin checkout with no env. Filesystem-based agent with bash + node."
 ---
 
 # WP Abilities Verify
