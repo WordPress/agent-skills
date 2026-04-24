@@ -1,0 +1,22 @@
+{
+  "name": "Review a plugin for WordPress.org license/GPL compliance",
+  "skills": ["wp-plugin-directory-guidelines"],
+  "query": "Before I submit my plugin to WordPress.org, review it for license compliance. The main file header says 'License: Proprietary', and I bundle a copy of lodash (MIT) and a font under CC-BY-NC 4.0. Can this be accepted?",
+  "expected_behavior": [
+    "Step 1: Cite Guideline 1 (GPL-Compatible License) as the controlling rule",
+    "Step 2: Flag the main-file License header as FAIL — 'Proprietary' is not GPL-compatible",
+    "Step 3: Accept the bundled lodash (MIT) as GPL-compatible per references/gpl-compliance.md",
+    "Step 4: Flag the CC-BY-NC 4.0 font as FAIL — NonCommercial clause is incompatible with GPL",
+    "Step 5: Recommend replacing the License header with 'GPL-2.0-or-later' and adding a matching License URI",
+    "Step 6: Recommend replacing the font with one under OFL, GPL-compatible, or an equivalent permissive license",
+    "Step 7: Remind the author that obfuscated PHP and split licensing would also violate Guideline 1"
+  ],
+  "success_criteria": [
+    "Cites Guideline 1 explicitly",
+    "Identifies 'Proprietary' as not GPL-compatible and gives the fix",
+    "Correctly accepts MIT-licensed bundled library",
+    "Correctly rejects CC-BY-NC (NonCommercial) assets",
+    "Names a concrete valid License header string (e.g. GPL-2.0-or-later) and License URI",
+    "Points the user at references/gpl-compliance.md for the full compatibility table"
+  ]
+}
