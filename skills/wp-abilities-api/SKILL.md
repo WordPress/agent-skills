@@ -23,6 +23,8 @@ Use this skill when the task involves:
 
 ## Procedure
 
+Before deciding what to register, read `references/domain-vs-projection.md` — abilities live at the domain capability layer; MCP / Command Palette / REST exposure is a projection. Registration shape and exposure shape are different decisions, and conflating them forces re-registration every time a consumer's constraints change.
+
 ### 1) Confirm availability and version constraints
 
 - If this is WP core work, check `signals.isWpCoreCheckout` and `versions.wordpress.core`.
@@ -50,6 +52,8 @@ If you need a logical grouping, register an ability category early (see `referen
 For grouping decisions (how many abilities to register, and where to put filters vs new ability names), read `references/grouping-heuristic.md` first — it keeps you from shipping one atomic ability per REST operation.
 
 For shared helper patterns when multiple execute callbacks delegate to existing REST controllers, see `references/plugin-family-patterns.md` (pick the shared-API-client vs zero-arg-controllers shape) and `references/delegate-helper-pattern.md` (the canonical `delegate_to_rest_controller` helper and when NOT to use it).
+
+To avoid drift between the ability and the existing UI / REST code path, see `references/shared-core-service.md` — abilities, REST handlers, CLI commands, and UI controllers should be thin adapters over a shared service. The reference also covers the metric trap (REST handlers that emit usage telemetry) and the `agents.md` rule for keeping registrations in sync when underlying code paths change.
 
 Implement the ability in PHP registration with:
 
