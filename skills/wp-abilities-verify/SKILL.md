@@ -123,6 +123,20 @@ Cross-reference `../wp-abilities-api/references/error-code-vocabulary.md`.
 Grep each callback for `new WP_Error(` / `new \WP_Error(` and lint the
 first-argument code literal. Non-vocabulary codes → WARN.
 
+### 8. Token-budget measurement (stub)
+
+Read `references/measurement-loop.md`. Token budget is a verification
+axis distinct from correctness — an annotation-clean, schema-clean,
+runtime-passing ability set can still be unshippable if its serialized
+`tools/list` form burns through the agent's context window.
+
+**Stub status.** The backing skill (`wp-abilities-measure`) is in
+active development and not yet published. Until it lands, the
+reference captures the problem framing, the provisional 2,000-token
+per-plugin budget, and a manual workflow for inspecting token cost via
+Anthropic's `count_tokens`. The full integration (a verify-mode flag
+that fails over budget) will follow once the measurement skill ships.
+
 ## Verification
 
 The run produces a structured markdown report at the user-specified path:
