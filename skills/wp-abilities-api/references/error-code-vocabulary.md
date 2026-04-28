@@ -1,5 +1,7 @@
 # Error code vocabulary
 
+> Also consumed by `wp-abilities-verify` (step 7 lints `WP_Error` codes against this vocabulary). When adding or renaming a code here, run verify on a representative plugin to confirm it still passes.
+
 Every `WP_Error` returned from an ability's execute callback should use a code drawn from this small vocabulary. A consistent vocabulary lets the agent (or the caller in your automation) build retry and recovery logic that matches on codes instead of parsing error messages.
 
 ## Why standardized codes matter

@@ -1,5 +1,7 @@
 # Grouping heuristic — domain-layer granularity
 
+> Also consumed by `wp-abilities-audit` (step 4: granularity guidance for proposed-ability lists). Update this reference and the dependent skills together when granularity rules change.
+
 How to decide WHAT to register when a plugin already has a REST (or internal service) surface. The hard part of adopting the Abilities API is not the registration syntax — it's picking the right *domain-layer granularity* so abilities map to user-meaningful actions instead of HTTP plumbing.
 
 > **Scope note.** This reference governs *domain-layer* decisions: how many abilities to register, where to put filters vs. where to introduce a new ability name. It does NOT govern projection-layer choices (flat-with-full-schemas vs single-tool facade vs nested-discovery vs semantic grouping in the consumer view). Those are separate decisions made *after* the domain layer is settled — see `./domain-vs-projection.md` for the layering and `./measurement-loop.md` for the token-budget axis that drives projection redesign. A domain layer chosen well is reusable across multiple projections; conflating the two means re-registering every time a consumer's constraints change.
@@ -72,11 +74,15 @@ The user question "which disputes need a response?" becomes one ability invocati
 
 The same plugin also registers a zero-arg `get-payout-overview` ability (next payout date + amount) because "when do I get paid?" is the single highest-frequency merchant question and the backing endpoint takes no arguments. That one ability has outsized value for one line of registration code — rule 4 in action.
 
-## Escape hatch — when atomization is right
+## Escape hatch — when per-operation granularity is right (for reads)
 
-Two cases where one-ability-per-operation IS appropriate:
+Two cases where one-ability-per-operation IS appropriate on the read
+side, despite the recommendation against REST-atomization for reads:
 
-1. **Genuinely different permission models.** If `create-<resource>` and `delete-<resource>` require different capabilities or different confirmation flows, splitting is honest.
+1. **Genuinely different permission models.** If `list-<resource>` and `search-<resource>` require different capabilities or different confirmation flows, splitting is honest.
 2. **Different destructive / idempotent annotations.** An ability that both reads and writes cannot honestly declare `readonly: true`; split the read-only part into its own ability.
 
-These exceptions tend to coincide with rule 2 (one state transition per ability) — not a contradiction.
+For writes, this escape hatch isn't needed: rule 2 ("one state
+transition per ability") already establishes per-operation granularity
+as the default. Splitting `submit-evidence` and `close-resource` into
+separate abilities isn't an exception — it's rule 2 in action.

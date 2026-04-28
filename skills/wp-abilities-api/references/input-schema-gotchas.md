@@ -1,5 +1,7 @@
 # Input schema gotchas
 
+> Also consumed by `wp-abilities-verify` (step 6 schema lints cross-reference these gotchas). Update this reference and the verify schema-lints together when patterns change.
+
 Three surprises the Abilities API's `input_schema` will ship with if you rely on schema declarations alone. All three have been caught in real plugin work after the schema looked correct and tests passed; each has a defensive pattern that makes the execute callback robust regardless.
 
 ## 1. Schema `default` values are NOT injected into execute callback input

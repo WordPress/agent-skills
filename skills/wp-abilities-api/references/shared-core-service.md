@@ -129,6 +129,14 @@ The ability and the REST endpoint now share business logic. Telemetry stays on t
 - **Write of any kind** → extract a service. Drift is most damaging on writes (lost validation, missing audit hooks).
 - **No existing REST endpoint** → start at the service. The first ability you ship is also the right time to add the structure that a future REST endpoint will consume.
 
+The telemetry and write rules above **override** the signature-based
+rule in `delegate-helper-pattern.md` ("if the backing method takes a
+`WP_REST_Request`, use the helper"). The signature test is sufficient
+only when telemetry is absent and the operation is a read. If the REST
+handler emits telemetry or the operation writes, extract a service
+even when the signature would otherwise make `delegate_to_rest_controller`
+the easy path.
+
 ## Escape hatch — when re-implementation is OK
 
 Two narrow cases:
