@@ -36,6 +36,34 @@ lints, and optionally executes each ability against a live environment.
 
 Both modes produce the same structured report format.
 
+### Static-mode coverage caveats
+
+Static mode is grep-driven. It catches the high-leverage bug class
+(`readonly: true` ability that obviously writes via `$wpdb`, options API,
+`wp_insert_*`, or non-GET delegate) but does NOT detect every possible
+write. Known blind spots:
+
+- **Indirected service writes** — `$service->commit()`, `$repo->persist()`,
+  camelCase verbs (`->markAsPaid()`), or any custom-named mutating method
+  that doesn't match the documented verb list.
+- **Hooks-as-writes** — `do_action()` whose listeners write. The ability
+  itself looks readonly; the side effect happens in a registered listener.
+- **Cron / scheduling writes** — `wp_schedule_event` and friends mutate
+  the cron options table.
+- **Filesystem writes** — `file_put_contents`, `wp_upload_bits`,
+  `WP_Filesystem->put_contents`, `fwrite`, `unlink`, `rename`.
+- **Method-default in delegate helpers** — a `delegate_to_rest_controller`
+  whose HTTP method is built from a variable or a default-changed
+  signature won't trip the literal-method regex.
+- **Inline `new WP_REST_Request('POST', ...)`** without going through
+  the delegate helper.
+
+Treat a static-mode PASS as "no obvious-shape violations," not "verified
+write-free." Runtime mode catches some of these via the twin-invocation
+diff (a `readonly: true` ability that mutates state will return different
+data on second call). For high-stakes plugins, run runtime mode before
+landing.
+
 ## Inputs required
 
 1. **Plugin checkout path** — working tree to verify.
@@ -83,11 +111,14 @@ not firing). Runtime-only → WARN (dynamic registration path).
 Read `references/annotation-correctness.md`. This is what makes verify a
 distinct skill rather than just "run the tests". Three claims:
 
-- `readonly: true` → callback must not write. Grep for `wpdb->update`,
-  `wpdb->insert`, `wpdb->delete`, `update_option`, `add_option`,
-  `delete_option`, `update_post_meta`, `wp_insert_*`, `wp_update_*`,
-  `wp_delete_*`, `->update_`, `->create_`, `->insert_`, `->delete_`,
-  non-GET `wp_remote_*`, or `delegate_to_rest_controller` with non-GET.
+- `readonly: true` → callback must not write. The reference covers grep
+  patterns for direct `$wpdb` writes, options API, post/user/term/comment
+  writes, write-verb method names on services, non-GET HTTP delegations
+  (including inline `new WP_REST_Request('POST', ...)`), filesystem
+  writes, and cron-scheduling calls. It also flags hooks-as-writes
+  (`do_action` whose listeners write) and indirected service mutators
+  (`->commit`, `->persist`, camelCase verbs) as known blind spots that
+  require runtime confirmation.
 - `destructive: false` → callback must not delete, refund, cancel, close
   disputes, or trash content.
 - `idempotent: true` → no `rand()`, no `wp_create_nonce`, no sequence

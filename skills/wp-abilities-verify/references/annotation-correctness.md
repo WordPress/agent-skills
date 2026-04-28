@@ -104,6 +104,16 @@ grep -nE '->(create|insert|update|delete|remove|save|store|write|destroy|purge|a
 grep -nE '\bwp_remote_(post|request|delete)\b' <file>
 grep -nE "delegate_to_rest_controller\s*\([^)]*(POST|PUT|DELETE|PATCH)" <file>
 
+# Inline non-GET WP_REST_Request construction (without the delegate helper).
+grep -nE "new\s+\\\\?WP_REST_Request\s*\(\s*['\"](POST|PUT|DELETE|PATCH)" <file>
+
+# Filesystem writes — durable state changes that tools/list cannot describe.
+grep -nE '\b(file_put_contents|wp_upload_bits|fwrite|fputs|unlink|rename|mkdir|rmdir|copy|move_uploaded_file)\s*\(' <file>
+grep -nE 'WP_Filesystem(_Direct)?\s*->\s*(put_contents|delete|move|copy|mkdir|rmdir)' <file>
+
+# Cron and scheduler writes — mutate the cron options table even on "readonly" abilities.
+grep -nE '\bwp_(schedule_event|schedule_single_event|schedule_recurring_event|reschedule_event|unschedule_event|clear_scheduled_hook)\s*\(' <file>
+
 # Transients — may be legitimate read-path caching; flag as WARN not FAIL.
 # See "False-positive allow-list" below.
 grep -nE '\b(set_transient|delete_transient|set_site_transient|delete_site_transient)\s*\(' <file>
@@ -159,7 +169,10 @@ Not every hit is equal weight.
 | `wp_delete_*` / `wp_trash_*` | FAIL | FAIL |
 | `->refund`, `->cancel`, `->close_dispute` | FAIL | FAIL |
 | Non-GET `delegate_to_rest_controller` | FAIL | depends on method |
+| Inline `new WP_REST_Request('POST', ...)` | FAIL | depends on method |
 | `wp_remote_post` / `wp_remote_delete` | FAIL | WARN |
+| `file_put_contents`, `wp_upload_bits`, `WP_Filesystem->put_contents`, `unlink`, `rename` | FAIL | FAIL (delete) / WARN (write) |
+| `wp_schedule_event` / `wp_schedule_single_event` / `wp_clear_scheduled_hook` | FAIL | WARN |
 | `set_transient` / `delete_transient` | WARN (caching is ambiguous) | OK |
 | `rand()` / `wp_create_nonce` | N/A | N/A |
 | `time()` in response | N/A | N/A |
@@ -167,6 +180,27 @@ Not every hit is equal weight.
 Severity is deliberately sharp on the patterns that matter (deletion,
 money-moving verbs, non-GET delegates) and soft on ambiguous patterns
 (transients, time-in-response) to preserve signal quality.
+
+## Known blind spots
+
+Grep cannot reach every write. Static-mode PASS is "no obvious-shape
+violations," not "verified write-free." When verifying a high-stakes
+ability, run runtime mode and inspect the callback by hand for these
+patterns:
+
+| Blind spot | Why grep misses it | Mitigation |
+|---|---|---|
+| **Indirected service writes** — `$repo->persist()`, `$service->commit()`, `$model->flush()`, `->markAsPaid()` (camelCase), `->set()` (Doctrine), `->put()` (key-value), `->push()` (queue), `->dispatch_job()` | The verb list is finite and excludes domain-specific or framework-specific mutating verbs. | Inspect the callback when the ability touches any custom service/repository. Add the verb to the regex if it's recurring. |
+| **`do_action()` whose listeners write** | The ability itself emits an event; the write happens in a registered listener. Provenance ambiguity: the readonly-by-design ability is conceptually clean but the system mutates state. | Audit registered listeners on the action. If any write, downgrade the ability to `readonly: false` or split the event-emission out of the read path. |
+| **Variable-built or default HTTP method on `delegate_to_rest_controller`** — `$method = $is_write ? 'POST' : 'GET'; delegate_to_rest_controller(..., $method);` | The regex matches a literal token, not a variable. | When the helper signature defaults `$http_method` to anything other than `'GET'`, treat all callers as suspect. |
+| **WP-CLI invocations from inside an ability** — `WP_CLI::runcommand('option update foo bar')` | Not in any pattern list. | Rare in production; if present, treat as a destructive escape hatch and require explicit annotation. |
+| **Tautological capability gates** — `permission_callback => fn() => current_user_can('read')` | Static mode records cap as `read`; subscribers pass. Runtime catches it because subscriber assertions fail. | Cross-reference the permission roundtrip step; flag any cap that all logged-in users hold. |
+
+The blind-spot list is the reason the skill lists `readonly: true` as
+the *strongest* claim and `destructive: false` as a *weaker* one. A
+plugin that registers everything as `destructive: true` and
+`idempotent: false` and lets `readonly` be the only annotated promise
+gets the most value out of the static checks.
 
 ## False-positive allow-list
 
@@ -194,12 +228,12 @@ better.
 Patterns that recur across many plugins get listed here so agents don't
 re-invent the suppression rationale:
 
-| Pattern | Why it's legitimate on a readonly ability |
-|---|---|
-| `set_transient($cache_key, $data, ...)` after a cache-miss | Read-through cache populating on fetch. Side-effect, but not a semantic write. Suppress with `// verify-ignore: readonly`. |
-| `update_user_meta( $user_id, 'last_read_at', time() )` | Tracking that the user read something. Arguably a write, but doesn't change the data the ability returns. WARN, not FAIL. |
-| `do_action( 'my_plugin_after_read', ... )` | Emitting an event. If a listener writes, that's on the listener, not the ability. OK. |
-| `$logger->info(...)` or similar logging | Diagnostic, not a semantic write. OK. |
+| Pattern | Why it's legitimate on a readonly ability | Caveat |
+|---|---|---|
+| `set_transient($cache_key, $data, ...)` after a cache-miss | Read-through cache populating on fetch. Side-effect, but not a semantic write. Suppress with `// verify-ignore: readonly`. | Don't allow when the transient is a rate-limit counter or a write-counter — that's a real state mutation. Reviewers should check what's actually being cached before rubber-stamping the suppression. |
+| `update_user_meta( $user_id, 'last_read_at', time() )` | Tracking that the user read something. Arguably a write, but doesn't change the data the ability returns. WARN, not FAIL. | — |
+| `do_action( 'my_plugin_after_read', ... )` with no known write-listener | Emitting an event. If no registered listener writes, the ability stays clean. | Check listeners. If any listener writes, the ability is no longer cleanly readonly; either downgrade the annotation or move the action emission outside the read path. |
+| `$logger->info(...)` or similar logging | Diagnostic, not a semantic write. OK. | — |
 
 Anything not in this list should be reviewed case-by-case. Don't add
 entries speculatively — only add one after hitting a real false positive
