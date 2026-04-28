@@ -247,6 +247,11 @@ Documented so downstream skills have an explicit contract:
 - **`capability_gate` string-with-inline-comment form** loses data when parsed
   by strict YAML parsers (comments are dropped). The structured object form is
   preferred; string form is accepted for backwards compatibility.
+- **Legacy compound-string `capability_gate`** — the `"<read_cap> / <write_cap>"`
+  form predates the structured `{read, write}` object and is still accepted
+  for backwards compatibility. Validators (e.g. `wp-abilities-verify`)
+  emit WARN on this form to nudge migration to the structured shape;
+  they do NOT FAIL. New audits should use the object form.
 - **`return_type` is hint-only.** Prose for the human auditor; not
   machine-parseable. Downstream skills use runtime `is_wp_error(...)` and
   `instanceof WP_REST_Response` checks regardless of what this field says.
@@ -256,3 +261,7 @@ Documented so downstream skills have an explicit contract:
 - **`inherited_from` + `null` line numbers** are the canonical way to
   represent routes/callbacks defined in a parent class that lives outside
   the plugin repo.
+- **`backing: null` invariant.** Abilities with `backing: null` are intentional
+  gaps and MUST also appear in `surfaced_gaps` by `name`. Validators FAIL
+  audits where this invariant is violated (a `null` backing without a
+  matching `surfaced_gaps` entry indicates inconsistent audit output).
