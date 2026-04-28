@@ -107,4 +107,4 @@ Concretely: name the abilities at the domain level (`myplugin/get-thing`, not `m
 
 - `grouping-heuristic.md` — within-domain decisions: how many abilities, where to put filters.
 - `shared-core-service.md` — the implementation mechanism for "same code path as the UI."
-- `../wp-abilities-verify/references/measurement-loop.md` — projection-axis evaluation: when to redesign the projection because token cost is over budget.
+- `./measurement-loop.md` — projection-axis evaluation: why token cost is a projection-layer concern and what to do when an ability set is over budget.

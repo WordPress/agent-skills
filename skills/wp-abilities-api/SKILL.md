@@ -25,6 +25,8 @@ Use this skill when the task involves:
 
 Before deciding what to register, read `references/domain-vs-projection.md` — abilities live at the domain capability layer; MCP / Command Palette / REST exposure is a projection. Registration shape and exposure shape are different decisions, and conflating them forces re-registration every time a consumer's constraints change.
 
+If you're sizing a larger surface (≥ ~5 abilities) and care about MCP exposure, also read `references/measurement-loop.md` for the token-budget framing — it explains why projection shape (semantic-grouping vs flat-with-full-schemas vs nested-discovery) is the axis to redesign on when a registered set is over budget. The measurement tool itself ships separately as `wp-abilities-measure`.
+
 ### 1) Confirm availability and version constraints
 
 - If this is WP core work, check `signals.isWpCoreCheckout` and `versions.wordpress.core`.

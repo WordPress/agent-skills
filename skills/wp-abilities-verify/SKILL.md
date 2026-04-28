@@ -123,20 +123,6 @@ Cross-reference `../wp-abilities-api/references/error-code-vocabulary.md`.
 Grep each callback for `new WP_Error(` / `new \WP_Error(` and lint the
 first-argument code literal. Non-vocabulary codes → WARN.
 
-### 8. Token-budget measurement (stub)
-
-Read `references/measurement-loop.md`. Token budget is a verification
-axis distinct from correctness — an annotation-clean, schema-clean,
-runtime-passing ability set can still be unshippable if its serialized
-`tools/list` form burns through the agent's context window.
-
-**Stub status.** The backing skill (`wp-abilities-measure`) is in
-active development and not yet published. Until it lands, the
-reference captures the problem framing, the provisional 2,000-token
-per-plugin budget, and a manual workflow for inspecting token cost via
-Anthropic's `count_tokens`. The full integration (a verify-mode flag
-that fails over budget) will follow once the measurement skill ships.
-
 ## Verification
 
 The run produces a structured markdown report at the user-specified path:
@@ -191,3 +177,14 @@ without FAILs → WARN; otherwise PASS.
 - Audit-schema validator rejects a legitimate audit → the canonical schema
   in `wp-abilities-audit/references/audit-schema.md` has evolved. Update
   `references/audit-schema-validation.md` to match and sync both.
+
+## Out of scope
+
+Token-budget measurement is a separate verification axis — an
+annotation-clean, schema-clean, runtime-passing ability set can still
+be unshippable if its `tools/list` form burns through an agent's
+context. That axis is tracked by the forthcoming `wp-abilities-measure`
+skill and the conceptual primer at
+`../wp-abilities-api/references/measurement-loop.md`. Do NOT aggregate
+manual measurement into this skill's PASS/FAIL verdict; it will
+integrate as a distinct check when the measurement skill ships.
