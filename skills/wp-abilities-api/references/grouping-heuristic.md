@@ -1,21 +1,23 @@
-# Grouping heuristic — picking which abilities to register
+# Grouping heuristic — domain-layer granularity
 
-How to decide WHAT to register when a plugin already has a REST (or internal service) surface. The hard part of adopting the Abilities API is not the registration syntax — it's picking the right granularity so agents can actually use the result.
+How to decide WHAT to register when a plugin already has a REST (or internal service) surface. The hard part of adopting the Abilities API is not the registration syntax — it's picking the right *domain-layer granularity* so abilities map to user-meaningful actions instead of HTTP plumbing.
+
+> **Scope note.** This reference governs *domain-layer* decisions: how many abilities to register, where to put filters vs. where to introduce a new ability name. It does NOT govern projection-layer choices (flat-with-full-schemas vs single-tool facade vs nested-discovery vs semantic grouping in the consumer view). Those are separate decisions made *after* the domain layer is settled — see `./domain-vs-projection.md` for the layering and `./measurement-loop.md` for the token-budget axis that drives projection redesign. A domain layer chosen well is reusable across multiple projections; conflating the two means re-registering every time a consumer's constraints change.
 
 ## Three observed approaches
 
-| Approach | Shape | Example | Verdict |
+| Approach | Shape | Example | Verdict (domain-layer) |
 |---|---|---|---|
-| **Action-bundle** | One ability bundles many sub-operations behind an action string. | `my_plugin_account` with `action: "get" \| "update" \| "delete"`. | Reference only. Hides the ability surface from the agent's tool-list and defeats the Abilities API's introspection model — agents can't see what a bundle can do until they invoke it. |
-| **REST-atomization** | One ability per HTTP method per resource (typically 5 per resource: list, get, create, update, delete). | `orders-list`, `orders-get`, `orders-create`, `orders-update`, `orders-delete`. | Explodes the agent's tool-list. Agents spend context picking between near-duplicates and often still miss the right one. Doesn't match how humans ask questions. |
-| **Semantic-intent** | One ability per real-world question or state transition. Filter parameters in `input_schema` collapse N variants into 1. | Jetpack Forms `jetpack-forms/get-responses` with `status`, `is_unread`, `search`, date-range — 1 ability replaces what would be 8+ atomized variants. | **Recommended.** |
+| **Action-bundle** | One ability bundles many sub-operations behind an action string. | `my_plugin_account` with `action: "get" \| "update" \| "delete"`. | **Avoid.** Hides the ability surface from the agent's tool-list and defeats the Abilities API's introspection model — agents can't see what a bundle can do until they invoke it. |
+| **REST-atomization** | One ability per HTTP method per resource (typically 5 per resource: list, get, create, update, delete). | `orders-list`, `orders-get`, `orders-create`, `orders-update`, `orders-delete`. | **Avoid as the registration shape.** Couples ability names to HTTP plumbing rather than user intent — and forces re-registration if the projection layer ever needs to compress the surface. |
+| **Semantic-intent** | One ability per real-world question or state transition. Filter parameters in `input_schema` collapse N variants into 1. | Jetpack Forms `jetpack-forms/get-responses` with `status`, `is_unread`, `search`, date-range — 1 ability replaces what would be 8+ atomized variants. | **Recommended for the domain layer.** |
 
-## Why semantic-intent wins
+## Why semantic-intent wins at the domain layer
 
-1. **Agent tool-list context is finite.** Every registered ability consumes tokens on every agent turn that includes the tool list. A semantic ability collapses 8 REST variants into 1 entry and frees that context for reasoning.
-2. **Users think in questions, not HTTP verbs.** "Which form responses are unread?" maps cleanly to one ability with an `is_unread` filter. It does NOT map to 8 abilities (`get-unread-responses`, `get-spam-responses`, `get-trashed-responses`, ...).
-3. **The Abilities API's `input_schema` is designed for rich inputs.** Enum constraints, date-time formats, and required-field validation do the variant-splitting job that atomization would delegate to the ability name.
-4. **Writes stay narrow anyway.** A write ability should already be one state transition; atomization and semantic-intent converge for writes.
+1. **Users think in questions, not HTTP verbs.** "Which form responses are unread?" maps cleanly to one ability with an `is_unread` filter. It does NOT map to 8 abilities (`get-unread-responses`, `get-spam-responses`, `get-trashed-responses`, ...). Ability names are *use-case contracts* — see `./domain-vs-projection.md`.
+2. **The Abilities API's `input_schema` is designed for rich inputs.** Enum constraints, date-time formats, and required-field validation do the variant-splitting job that atomization would delegate to the ability name.
+3. **Writes stay narrow anyway.** A write ability should already be one state transition; atomization and semantic-intent converge for writes.
+4. **Tool-list token cost is a downstream consequence, not the reason.** Semantic-intent registrations also serialize cheaper in flat MCP projections — but token cost is a *projection-layer* concern (see `./measurement-loop.md`). If registrations are cheap by accident because the use-case framing happened to compress them, that's a happy side-effect; if they're expensive, the fix is at the projection layer (single-tool facade, nested-discovery), not by re-grouping the domain.
 
 ## Rules that make it work
 
