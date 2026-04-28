@@ -1,5 +1,7 @@
 # Domain capability vs projection — picking the layer to register at
 
+> Three layers in this model: **domain**, **projection**, and an optional **workflow** layer that composes abilities into multi-step tasks. The title names the two primary decisions; workflow is introduced where it earns its keep.
+
 The Abilities API can be used at two heights. You can register abilities as the surface an MCP/REST/Command-Palette client will consume directly. Or you can register abilities at the domain layer — "what can this plugin do, transport-neutrally?" — and let each consumer see a projection of that surface that suits its constraints. This reference covers why the second framing pays off, the three-layer model that operationalizes it, and how to use it when deciding what to register.
 
 ## Why this matters

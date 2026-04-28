@@ -86,3 +86,9 @@ For writes, this escape hatch isn't needed: rule 2 ("one state
 transition per ability") already establishes per-operation granularity
 as the default. Splitting `submit-evidence` and `close-resource` into
 separate abilities isn't an exception — it's rule 2 in action.
+
+## Related references
+
+- `./domain-vs-projection.md` — granularity governs *domain-layer* decisions; this reference covers the projection layer where token-efficiency tradeoffs and consumer-shape choices live.
+- `./measurement-loop.md` — token-budget axis that drives projection redesign when a registered set is over budget.
+- `./shared-core-service.md` — implementation mechanism for keeping abilities, REST handlers, CLI commands, and UI in lockstep on the domain layer.
