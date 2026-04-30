@@ -31,11 +31,13 @@ A registered ability is a use-case contract — a natural-language shortcut to a
 
 Two consequences fall out of that framing:
 
-### 1. Inclusion test — "would a human ever do this in admin?"
+### 1. Inclusion test — "would a human intentionally do this through a supported UI or workflow?"
 
-If yes, the operation is a candidate for an ability. If no, it stays an endpoint or a CLI command. Internal-only plumbing (cache invalidation, scheduler ticks, debug hooks) does not belong as an ability — even if it has a clean schema.
+If yes, the operation is a candidate for an ability. The lens is broader than wp-admin alone: a "supported UI or workflow" covers admin screens, public-facing UIs (storefront, account dashboard, course viewer, appointment booker), end-user self-service flows on the site front-end, and supported workflows in which another plugin or an agent calls the operation as part of a chain of actions. Abilities like `store/get-my-orders`, `events/list-available-tickets`, or `profile/update-public-profile` qualify just as much as admin-side abilities like `myplugin/list-pending-orders` or `myplugin/approve-submission`.
 
-The test is asymmetric: not everything an admin can do should be an ability either (rule 1 in `grouping-heuristic.md` covers grouping). But anything that isn't admin-meaningful almost certainly isn't ability-meaningful.
+If no, the operation stays a REST endpoint, a CLI command, or an internal hook. Internal-only plumbing — cache invalidation, scheduler ticks, debug snapshots, lifecycle bookkeeping — does not belong as an ability even when it has a clean schema. There is no meaningful human invocation point, so there is no use-case contract to register.
+
+The test is asymmetric: not everything a UI exposes should be an ability either (rule 1 in `grouping-heuristic.md` covers grouping). But anything that has no human-meaningful invocation surface almost certainly is not ability-meaningful.
 
 ### 2. Same code path as the UI
 
