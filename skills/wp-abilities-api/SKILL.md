@@ -53,6 +53,10 @@ For grouping decisions (how many abilities to register, and where to put filters
 
 To avoid drift between the ability and the existing UI / REST code path, see `references/shared-core-service.md` — abilities, REST handlers, CLI commands, and UI controllers should be thin adapters over a shared service. The reference also covers the metric trap (REST handlers that emit usage telemetry) and the `AGENTS.md` rule for keeping registrations in sync when underlying code paths change.
 
+For shared helper patterns when multiple execute callbacks delegate to existing REST controllers, see `references/plugin-family-patterns.md` (pick the shared-API-client vs zero-arg-controllers shape) and `references/delegate-helper-pattern.md` (the canonical helper and when not to use it).
+
+For standardized `WP_Error` codes that let agents reason about retry vs. escalation, see `references/error-code-vocabulary.md`.
+
 Implement the ability in PHP registration with:
 
 - stable `id` (namespaced),
@@ -92,6 +96,8 @@ Use the documented init hooks for Abilities API registration so they load at the
   - wrong REST base/namespace,
   - JS dependency not bundled,
   - caching (object/page caches) masking changes.
+- Execute callback returns unexpected errors or silently ignores input:
+  - `input_schema` defaults aren't being applied, pagination key drift between the ability and the backing, or `empty()`-based ID validation — see `references/input-schema-gotchas.md`.
 
 ## Escalation
 
