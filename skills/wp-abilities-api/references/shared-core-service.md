@@ -1,6 +1,6 @@
 # Shared core service — keeping abilities in lockstep with REST and UI
 
-When an ability mirrors something a human can already do in the admin, the ability MUST consume the same code path as the UI — same permissions, same validation, same business rules. Three call sites for the same operation (UI, REST, ability — possibly CLI too) drift apart over time unless they all delegate to a shared service. This reference covers when to delegate to an existing REST controller (the `delegate_to_rest_controller` route), when to extract a service class instead, and the metric trap that makes that distinction matter.
+When an ability mirrors something a human can already do through a supported UI or workflow, the ability MUST consume the same code path as that UI or workflow — same permissions, same validation, same business rules. Three call sites for the same operation (UI, REST, ability — possibly CLI too) drift apart over time unless they all delegate to a shared service. This reference covers when to delegate to an existing REST controller (the `delegate_to_rest_controller` route), when to extract a service class instead, and the metric trap that makes that distinction matter.
 
 Read `domain-vs-projection.md` first — abilities are use-case contracts at the domain layer; UI/REST/CLI/MCP are projections. This reference is the implementation mechanism that keeps those projections honest.
 
