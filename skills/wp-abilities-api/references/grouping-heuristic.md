@@ -10,7 +10,7 @@ How to decide WHAT to register when a plugin already has a REST (or internal ser
 |---|---|---|---|
 | **Action-bundle** | One ability bundles many sub-operations behind an action string. | `my_plugin_account` with `action: "get" \| "update" \| "delete"`. | **Avoid.** Hides the ability surface from the agent's tool-list and defeats the Abilities API's introspection model — agents can't see what a bundle can do until they invoke it. |
 | **REST-atomization** | One ability per HTTP method per resource (typically 5 per resource: list, get, create, update, delete). | `orders-list`, `orders-get`, `orders-create`, `orders-update`, `orders-delete`. | **Avoid as the registration shape.** Couples ability names to HTTP plumbing rather than user intent — and forces re-registration if the projection layer ever needs to compress the surface. |
-| **Semantic-intent** | One ability per real-world question or state transition. Filter parameters in `input_schema` collapse N variants into 1. | Jetpack Forms `jetpack-forms/get-responses` with `status`, `is_unread`, `search`, date-range — 1 ability replaces what would be 8+ atomized variants. | **Recommended for the domain layer.** |
+| **Semantic-intent** | One ability per real-world question or state transition. Filter parameters in `input_schema` collapse N variants into 1. | One `feedback/get-responses` ability with `status`, `is_unread`, `search`, and date-range filters in `input_schema` — replaces what would be 8+ atomized variants. | **Recommended for the domain layer.** |
 
 ## Why semantic-intent wins at the domain layer
 
@@ -47,19 +47,17 @@ When enumerating the backing surface, specifically look for zero-argument aggreg
 
 Every ability's `label` + `description` should fit in an agent's tool-selection prompt. If you can't describe the ability in one sentence without "and", that's usually a sign it's two abilities.
 
-## Worked example A — Jetpack Forms: 3 abilities for the whole responses surface
+## Worked example A — feedback/responses: 3 abilities for the whole responses surface
 
-Jetpack Forms' responses surface in the WP admin exposes: a list with 8+ filters, a detail view, bulk status changes (spam/trash/publish), read/unread toggles, and a count-by-status dashboard summary.
+Consider a generic feedback or form-response plugin. Its admin screens expose: a list with 8+ filters, a detail view, bulk status changes (spam / trash / publish), read/unread toggles, and a count-by-status dashboard summary.
 
-REST-atomization would ship ~6 abilities (list, get, delete, update, bulk-update, count). Jetpack Forms instead registers **three**:
+REST-atomization would ship ~6 abilities (list, get, delete, update, bulk-update, count). Semantic-intent registers **three**:
 
-- `jetpack-forms/get-responses` — list/search, with `status`, `is_unread`, `search`, `before`, `after`, `parent` in `input_schema`.
-- `jetpack-forms/update-response` — one write that covers status changes AND read-state toggles on a single response (semantically "modify a response").
-- `jetpack-forms/get-status-counts` — the dashboard summary ability. Zero-arg-friendly (only optional filters).
+- `feedback/get-responses` — list/search, with `status`, `is_unread`, `search`, `before`, `after`, `parent` in `input_schema`.
+- `feedback/update-response` — one write that covers status changes AND read-state toggles on a single response (semantically "modify a response").
+- `feedback/get-status-counts` — the dashboard summary ability. Zero-arg-friendly (only optional filters).
 
 Why three works: a user asking "show me spam responses from last week" uses one ability. An agent updating one response to `spam` uses one ability. The dashboard-style "how many unread?" uses one ability. The entire product surface fits in three tool-list entries.
-
-Canonical file: [`Automattic/jetpack/projects/packages/forms/src/abilities/class-forms-abilities.php`](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/forms/src/abilities/class-forms-abilities.php).
 
 ## Worked example B — generic Tickets plugin: one ability with a status filter, not eight
 
