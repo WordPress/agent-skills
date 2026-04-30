@@ -1,6 +1,6 @@
 # Shared core service — keeping abilities in lockstep with REST and UI
 
-When an ability mirrors something a human can already do through a supported UI or workflow, the ability MUST consume the same code path as that UI or workflow — same permissions, same validation, same business rules. Three call sites for the same operation (UI, REST, ability — possibly CLI too) drift apart over time unless they all delegate to a shared service. This reference covers when to delegate to an existing REST controller (the `delegate_to_rest_controller` route), when to extract a service class instead, and the metric trap that makes that distinction matter.
+When an ability mirrors something a human can already do through a supported UI or workflow, the ability MUST consume the same code path as that UI or workflow — same permissions, same validation, same business rules. Three call sites for the same operation (UI, REST, ability — possibly CLI too) drift apart over time unless they all delegate to a shared service. This reference covers when to delegate to an existing REST controller (the delegation pattern), when to extract a service class instead, and the metric trap that makes that distinction matter.
 
 Read `domain-vs-projection.md` first — abilities are use-case contracts at the domain layer; UI/REST/CLI/MCP are projections. This reference is the implementation mechanism that keeps those projections honest.
 
@@ -22,16 +22,38 @@ The fix is to keep one source of business logic and treat ability/REST/UI/CLI as
 | Shape | Example | Verdict |
 |---|---|---|
 | **Re-implement** the logic in the execute callback. | The callback runs its own SQL, applies its own permission checks, builds its own response. | **Avoid.** Guaranteed drift the first time the original code path changes. |
-| **Delegate to the existing REST controller** via `WP_REST_Request`. | `delegate_to_rest_controller( '...REST_Things_Controller', 'get_things', '/myplugin/v1/things', $input )`. | **OK for low-stakes reads** — but read "the metric trap" below first. |
+| **Delegate to the existing REST controller** via `WP_REST_Request`. | The ability builds a `WP_REST_Request` from its input, dispatches via `rest_do_request()`, and returns the response data. The dispatched request flows through the registered controller's permission check, validation, and handler. | **OK for low-stakes reads** — but read "the metric trap" below first. |
 | **Extract a service class** that ability + REST controller + UI handler all consume. | `My_Plugin::get_things_service()->list( $args )` called from the ability, the REST controller, and an admin-side handler. | **Recommended** for writes and for any read whose backing endpoint records usage metrics. |
 
 The middle row is fine when the backing endpoint is light, read-only, and metric-neutral. The third row is what removes drift entirely; it is also more invasive because it usually means refactoring the existing REST controller to call the service rather than embed the logic.
+
+## What the delegation pattern looks like
+
+The middle row of the table — "delegate to the existing REST controller" — is a pattern, not a single canonical helper. The minimal shape is small enough to inline in an ability's `execute_callback`:
+
+```php
+public static function execute_get_things( $input = null ) {
+    $request = new WP_REST_Request( 'GET', '/my-plugin/v1/things' );
+    $request->set_query_params( (array) $input );
+
+    $response = rest_do_request( $request );
+    if ( $response->is_error() ) {
+        return $response->as_error();
+    }
+
+    return $response->get_data();
+}
+```
+
+The five moves: construct the `WP_REST_Request` with the right HTTP method and route; copy the ability's `$input` onto the request as query params (or body params for writes); dispatch via `rest_do_request()`, which routes through the registered controller including its `permission_callback` and any side effects; convert an error response back to a `WP_Error` so the ability's caller sees a normal error; otherwise return the data.
+
+In a real codebase you would usually extract this into a small private helper so multiple ability callbacks can share the boilerplate. The shape of that helper is out of scope for this reference — the point here is that the delegation pattern is mechanically simple and does not depend on any particular framework helper to be in place.
 
 ## The metric trap
 
 Most production REST endpoints in real plugins emit usage telemetry — analytics events, structured log emitters, custom event hooks. These metrics drive product decisions (which endpoints are hot, which are abandoned, which are slow).
 
-Routing an ability through `delegate_to_rest_controller` re-uses the REST controller's full code path, including its telemetry emission. Every agent invocation now counts as a UI-driven REST call. The metric is no longer a measure of human-driven usage; it is contaminated by agent traffic, and the contamination has no provenance label distinguishing the two.
+Routing an ability through the delegation pattern re-uses the REST controller's full code path, including its telemetry emission. Every agent invocation now counts as a UI-driven REST call. The metric is no longer a measure of human-driven usage; it is contaminated by agent traffic, and the contamination has no provenance label distinguishing the two.
 
 The fix is the third row of the table above:
 
@@ -41,7 +63,7 @@ The fix is the third row of the table above:
 
 This way the dashboards stay clean and the ability still consumes the same business logic as the UI.
 
-If the existing REST endpoint emits no metrics, `delegate_to_rest_controller` is a fine shortcut.
+If the existing REST endpoint emits no metrics, the delegation pattern is a fine shortcut.
 
 ## MCP exposure rule
 
@@ -124,7 +146,7 @@ The ability and the REST endpoint now share business logic. Telemetry stays on t
 
 ## Rule of thumb
 
-- **Read with no telemetry, light logic** → route the ability through the existing REST handler (the `delegate_to_rest_controller` pattern). Cheapest. Drift risk is bounded because the REST controller is one short hop away.
+- **Read with no telemetry, light logic** → route the ability through the existing REST handler via the delegation pattern. Cheapest. Drift risk is bounded because the REST controller is one short hop away.
 - **Read with telemetry on the REST handler** → extract a service. Don't contaminate metrics.
 - **Write of any kind** → extract a service. Drift is most damaging on writes (lost validation, missing audit hooks).
 - **No existing REST endpoint** → start at the service. The first ability you ship is also the right time to add the structure that a future REST endpoint will consume.
