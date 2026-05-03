@@ -1,0 +1,28 @@
+{
+  "name": "Build a Mistral provider plugin that registers with the AI Client",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-ai-connectors"],
+  "query": "I want to build a WordPress plugin called 'AI Provider for Mistral' that adds Mistral as an option in the Settings → Connectors screen on WordPress 7.0. Site owners should set their Mistral API key like they would for the official Anthropic/Google/OpenAI providers. What do I need to register, and where?",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-ai-connectors skill (not wp-ai-client — this is provider-side)",
+    "Step 4: Set the plugin header — Requires at least: 7.0 (or 6.9 with bundled wordpress/php-ai-client like the official plugins do), Requires PHP: 7.4",
+    "Step 5: Register via AiClient::defaultRegistry()->registerProvider( MistralProvider::class ) — class name string, NOT an instance, and the method is registerProvider() not register()",
+    "Step 6: Wrap registration in class_exists( AiClient::class ) and hasProvider() guards (verbatim pattern from ai-provider-for-anthropic/plugin.php)",
+    "Step 7: Hook on init priority 5 so registration runs BEFORE _wp_connectors_init at priority 10",
+    "Step 8: Note that the Connectors API auto-discovers the provider; do NOT manually call WP_Connector_Registry::register() for the new provider — that's only for overrides via wp_connectors_init",
+    "Step 9: Document the API key naming convention: setting connectors_ai_mistral_api_key, env/constant MISTRAL_API_KEY",
+    "Step 10: Mention that Settings → Connectors only renders ai_provider type connectors with api_key/none auth in WP 7.0",
+    "Step 11: Point at the three flagship provider plugins (Anthropic/Google/OpenAI) as canonical bootstrap implementations"
+  ],
+  "success_criteria": [
+    "Routes to wp-ai-connectors skill",
+    "Uses AiClient::defaultRegistry()->registerProvider() (not ->register(); not on WP_Connector_Registry)",
+    "Passes a class name string (MistralProvider::class), not an instance (new MistralProvider())",
+    "Includes class_exists( AiClient::class ) and hasProvider() guards",
+    "Hooks on init at priority < 10 (canonical: priority 5)",
+    "Does not manually call WP_Connector_Registry::register() for the new provider (auto-discovery)",
+    "Documents the connectors_ai_{id}_api_key naming convention and the env/constant/database priority order",
+    "References the official provider plugins (especially ai-provider-for-anthropic/plugin.php) as the canonical bootstrap"
+  ]
+}

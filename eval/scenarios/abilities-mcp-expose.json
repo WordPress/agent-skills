@@ -1,0 +1,25 @@
+{
+  "name": "Expose existing plugin abilities to Claude Desktop via MCP",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-abilities-api"],
+  "query": "My plugin already registers a few abilities via wp_register_ability — things like 'list pending comments', 'approve comment', 'mark as spam'. I want to expose them to Claude Desktop so I can moderate comments by talking to Claude. The site is on WordPress 7.0. What do I install, and what do I need to change about my abilities to make this work cleanly?",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-abilities-api skill (point at references/mcp-exposure.md)",
+    "Step 4: Recommend installing the MCP Adapter via Composer (composer require wordpress/mcp-adapter); use Jetpack Autoloader if multiple plugins on the site depend on it",
+    "Step 5: Note that the default server (mcp-adapter-default-server) exposes everything; for production with mixed-trust abilities, register a custom server via the mcp_adapter_init action",
+    "Step 6: Audit existing abilities for proper meta.annotations: 'list pending comments' should be readonly:true, 'approve' should NOT be readonly (it mutates), 'mark as spam' should be destructive:true",
+    "Step 7: Ensure every ability has a permission_callback (especially destructive ones); MCP clients act as authenticated users",
+    "Step 8: Set up an Application Password for the Claude Desktop user; explain Settings → Permalinks must NOT be Plain",
+    "Step 9: Verify by hitting /wp-json/ for the namespace and connecting Claude Desktop to confirm tools appear"
+  ],
+  "success_criteria": [
+    "Routes to wp-abilities-api with mcp-exposure.md reference",
+    "Recommends Composer installation of wordpress/mcp-adapter (not the standalone plugin zip for production)",
+    "Mentions Jetpack Autoloader for multi-plugin scenarios",
+    "Audits annotations: readonly for read operations, destructive for spam/delete",
+    "Confirms permission_callback on all abilities (especially destructive ones)",
+    "Surfaces the Plain permalinks gotcha",
+    "Mentions Application Passwords as the practical local-dev auth method"
+  ]
+}

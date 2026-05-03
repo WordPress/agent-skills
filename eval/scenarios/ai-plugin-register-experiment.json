@@ -1,0 +1,33 @@
+{
+  "name": "Add an internal-link suggestion Experiment to the canonical AI plugin",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-ai-plugin", "wp-abilities-api"],
+  "query": "I want to add an Experiment to the canonical WordPress AI plugin (the one at github.com/WordPress/ai, version 0.8.0) that suggests internal links for a post based on its content. It should appear in Settings → AI like the other Experiments, register an Ability so it's also reachable via REST and MCP, and respect the site's Guidelines if they're configured. Walk me through the structure.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect that this is the AI plugin source (or a downstream plugin extending it)",
+    "Step 3: Route to wp-ai-plugin skill (with wp-abilities-api as a secondary reference for the Ability registration step)",
+    "Step 4: Open the canonical example: includes/Experiments/Example_Experiment/Example_Experiment.php — copy its shape",
+    "Step 5: Gate downstream code on function_exists('wp_supports_ai') && wp_supports_ai()",
+    "Step 6: Subclass WordPress\\AI\\Abstracts\\Abstract_Feature (NOT WP\\AI\\Features\\Abstract_Feature — that namespace is wrong)",
+    "Step 7: Implement the three abstract methods: public static get_id(), protected load_metadata() returning [label, description, category, optional stability], public register()",
+    "Step 8: Use Experiment_Category::EDITOR (since post-editor surface) for the category",
+    "Step 9: Register the Experiment via the wpai_default_feature_classes filter (preferred) OR wpai_register_features action — both documented in includes/Features/Loader.php",
+    "Step 10: Inside the Experiment's register() method, hook wp_abilities_api_init to call wp_register_ability('ai/internal-links', [label, description, ability_class => Internal_Links_Ability::class])",
+    "Step 11: Create a paired Internal_Links_Ability extending WordPress\\AI\\Abstracts\\Abstract_Ability with input_schema, output_schema, execute_callback, permission_callback, meta",
+    "Step 12: Override guideline_categories() on the Ability to return ['site', 'copy'] — Abstract_Ability handles the Guidelines integration automatically via load_system_instruction_from_file()",
+    "Step 13: Test: Settings → AI shows the Experiment; toggle persists; with AI plugin disabled, downstream code no-ops cleanly"
+  ],
+  "success_criteria": [
+    "Routes to wp-ai-plugin (and wp-abilities-api for the Ability step)",
+    "Uses the correct namespace WordPress\\AI\\Abstracts\\Abstract_Feature (NOT WP\\AI\\Features\\Abstract_Feature)",
+    "References Example_Experiment.php as the canonical 'copy this' starting point",
+    "Includes function_exists('wp_supports_ai') && wp_supports_ai() gate",
+    "Implements the three abstract methods with correct signatures (get_id static, load_metadata protected returning array with label+description+category, register public)",
+    "Uses Experiment_Category constants (EDITOR or ADMIN), not raw strings",
+    "Registers via wpai_default_feature_classes filter or wpai_register_features action (NOT a fabricated 'wp_ai_register_features' action or singleton like Registry::instance())",
+    "Pairs with an Abstract_Ability subclass — does not put prompt logic in the Experiment class itself",
+    "Sets guideline_categories() on the Ability (NOT a fabricated procedural call like wp_ai_guidelines_get_for_context())",
+    "Knows the WPAI_* constant names: WPAI_VERSION, WPAI_PLUGIN_FILE, WPAI_PLUGIN_DIR, WPAI_PLUGIN_URL (NOT WPAI_FILE/WPAI_PATH/WPAI_URL — those are wrong)",
+    "Acknowledges that there is no AI-plugin-specific dashboard widgets framework — uses standard wp_add_dashboard_widget() if needed"
+  ]
+}
