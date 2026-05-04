@@ -85,14 +85,36 @@ function my_plugin_generate_featured_image( WP_REST_Request $request ) {
         return $image;
     }
 
-    // Persist via existing Media Library helpers.
-    $upload = wp_upload_bits( 'ai-' . wp_generate_uuid4() . '.png', null, base64_decode( /* extract from data URI */ ) );
+    // Parse the data URI returned by the AI Client. Bound the size before decoding,
+    // restrict to known image subtypes, and re-validate MIME after upload.
+    $data_uri        = $image->getDataUri();
+    $max_image_bytes = (int) apply_filters( 'my_plugin_ai_image_max_bytes', 10 * MB_IN_BYTES );
+    if ( strlen( $data_uri ) > 2 * $max_image_bytes ) {
+        return new WP_Error( 'image_too_large', 'AI image response is too large to store.', array( 'status' => 500 ) );
+    }
+    if ( ! preg_match( '#^data:image/(?<subtype>png|jpeg|webp);base64,(?<payload>[A-Za-z0-9+/=]+)$#', $data_uri, $matches ) ) {
+        return new WP_Error( 'invalid_image', 'AI image response is not a supported data URI.', array( 'status' => 500 ) );
+    }
+    $data = base64_decode( $matches['payload'], true );
+    if ( false === $data || strlen( $data ) > $max_image_bytes ) {
+        return new WP_Error( 'invalid_image', 'AI image response could not be decoded or is too large.', array( 'status' => 500 ) );
+    }
+
+    $subtype   = strtolower( $matches['subtype'] );
+    $extension = ( 'jpeg' === $subtype ) ? 'jpg' : $subtype;
+    $mime_type = 'image/' . $subtype;
+
+    $upload = wp_upload_bits( 'ai-' . wp_generate_uuid4() . '.' . $extension, null, $data );
     if ( ! empty( $upload['error'] ) ) {
         return new WP_Error( 'upload_failed', $upload['error'], array( 'status' => 500 ) );
     }
+    if ( wp_get_image_mime( $upload['file'] ) !== $mime_type ) {
+        wp_delete_file( $upload['file'] );
+        return new WP_Error( 'invalid_image', 'AI image response is not a valid image.', array( 'status' => 500 ) );
+    }
 
     $attachment_id = wp_insert_attachment( array(
-        'post_mime_type' => 'image/png',
+        'post_mime_type' => $mime_type,
         'post_title'     => sanitize_text_field( $prompt ),
         'post_status'    => 'inherit',
     ), $upload['file'] );

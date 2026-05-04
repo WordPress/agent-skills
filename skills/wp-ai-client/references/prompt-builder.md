@@ -188,7 +188,7 @@ Update your plugin header to `Requires at least: 7.0` and remove the Composer de
 `wordpress/php-ai-client` is loaded by Core on 7.0+. Loading it via Composer too will cause duplicate-class errors. Wrap the autoloader:
 
 ```php
-if ( ! function_exists( 'wp_get_wp_version' ) || version_compare( wp_get_wp_version(), '7.0', '<' ) ) {
+if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
     require_once __DIR__ . '/vendor/autoload.php';
 }
 ```
