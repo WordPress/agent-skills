@@ -1,6 +1,6 @@
 ---
 name: wp-abilities-api
-description: "Use when working with the WordPress Abilities API (wp_register_ability, wp_register_ability_category, /wp-json/wp-abilities/v1/*, @wordpress/abilities) including defining abilities, categories, meta, REST exposure, and permissions checks for clients."
+description: "Use when working with the WordPress Abilities API (wp_register_ability, wp_register_ability_category, /wp-json/wp-abilities/v1/*, @wordpress/abilities, @wordpress/core-abilities) including defining abilities, categories, meta, REST exposure, permissions checks for clients, the WP 7.0+ client-side JS API (registerAbility, executeAbility, the core/abilities store), and exposing abilities to external AI agents via the MCP Adapter (Claude Desktop, Cursor, ChatGPT)."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
 ---
 
@@ -65,8 +65,14 @@ Use the documented init hooks for Abilities API registration so they load at the
 
 ### 6) Consume from JS (if needed)
 
-- Prefer `@wordpress/abilities` APIs for client-side access and checks.
-- Ensure build tooling includes the dependency and the project’s build pipeline bundles it.
+- For the WP 7.0+ client-side surface (registering abilities in JS, the `core/abilities` store, `executeAbility`, and how annotations affect the HTTP method used to dispatch server abilities), see `references/client-side.md`.
+- Two packages: `@wordpress/abilities` (pure store, registration, execution) and `@wordpress/core-abilities` (auto-loads server-registered abilities into the client store). Enqueue via `wp_enqueue_script_module()`.
+- WordPress core enqueues `@wordpress/core-abilities` on all admin pages, so server abilities are available there by default.
+- For older clients or non-WP 7.0 contexts, prefer `@wordpress/abilities` APIs for client-side access and checks; ensure the build pipeline bundles the dependency.
+
+### 7) Expose via MCP for external AI agents (optional)
+
+If external agents (Claude Desktop, Cursor, ChatGPT) should be able to discover and invoke your abilities, install the MCP Adapter (`composer require wordpress/mcp-adapter`). The adapter reads everything registered with `wp_register_ability()`, respects `permission_callback`, and maps `meta.annotations` (`readonly`, `destructive`, `idempotent`) to the corresponding MCP tool annotations. The default server (`mcp-adapter-default-server`) exposes everything; register a custom server via the `mcp_adapter_init` action when you need an allow-list. See `references/mcp-exposure.md`.
 
 ## Verification
 
@@ -93,3 +99,5 @@ Use the documented init hooks for Abilities API registration so they load at the
 - For canonical details, consult:
   - `references/rest-api.md`
   - `references/php-registration.md`
+  - `references/client-side.md` (WP 7.0+ JavaScript API)
+  - `references/mcp-exposure.md` (MCP Adapter integration)

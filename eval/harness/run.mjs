@@ -111,9 +111,13 @@ function main() {
       compatibility.length <= 500,
       `Compatibility too long in ${path.relative(repoRoot, skillPath)} (${compatibility.length} chars)`
     );
+    const matchesLegacyBaseline =
+      compatibility.includes("WordPress 6.9") && compatibility.includes("PHP 7.2.24");
+    const matchesAiEraBaseline =
+      compatibility.includes("WordPress 7.0") && compatibility.includes("PHP 7.4");
     assert(
-      compatibility.includes("WordPress 6.9") && compatibility.includes("PHP 7.2.24"),
-      `Compatibility contract mismatch in ${path.relative(repoRoot, skillPath)} (expected WP 6.9 + PHP 7.2.24+)`
+      matchesLegacyBaseline || matchesAiEraBaseline,
+      `Compatibility contract mismatch in ${path.relative(repoRoot, skillPath)} (expected WP 6.9 + PHP 7.2.24+ or WP 7.0 + PHP 7.4+)`
     );
   }
 

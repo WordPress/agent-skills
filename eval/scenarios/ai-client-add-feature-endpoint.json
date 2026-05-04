@@ -1,0 +1,27 @@
+{
+  "name": "Add an AI summarize-paragraph feature using WP 7.0 AI Client",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-ai-client"],
+  "query": "I'm building a WordPress plugin that targets WordPress 7.0. I want to add a 'rewrite this paragraph in plain English' button to the block editor sidebar. It should use whatever AI provider the site owner has configured (not bundle our own API key). Editors and authors should be able to use it on posts they can edit. What's the right way to wire this up?",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-ai-client skill",
+    "Step 4: Confirm WP 7.0+ via detect_ai_client.mjs (or note the requirement)",
+    "Step 5: Recommend a per-feature REST endpoint with permission_callback gating on edit_post (NOT the client-side prompt API which requires manage_options)",
+    "Step 6: Show wp_ai_client_prompt() with using_system_instruction() and an explicit user content payload via with_text()",
+    "Step 7: Use generate_text_result() and return via rest_ensure_response()",
+    "Step 8: Show conditional UI gating with is_supported_for_text_generation() before enqueueing scripts",
+    "Step 9: Document that credentials are handled by the Connectors API; do not handle API keys",
+    "Step 10: Mention using_abilities() as the function-calling tie-in if the feature would benefit from the model invoking registered abilities (links to wp-abilities-api)"
+  ],
+  "success_criteria": [
+    "Routes to wp-ai-client skill",
+    "Uses wp_ai_client_prompt() (not direct provider SDKs)",
+    "Recommends per-feature REST endpoint, not the client-side prompt API",
+    "Permission callback uses edit_post (or similar editor-level capability), not manage_options",
+    "Includes is_supported_for_text_generation() gate before showing UI",
+    "Returns the result via rest_ensure_response (handles WP_Error path)",
+    "Does not handle API keys; defers to Connectors API",
+    "Method names match the verified wp-ai-client/php-ai-client source: using_temperature/with_text/using_system_instruction/generate_text_result/is_supported_for_text_generation, and the wp_ai_client_prevent_prompt filter receives a clone of the builder (read-only)"
+  ]
+}
