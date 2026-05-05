@@ -135,7 +135,33 @@ Both happen. The helper unwraps `WP_REST_Response` via `get_data()` and passes r
 
 ## When NOT to use the helper
 
-Two categories of abilities bypass the helper and call the backing directly:
+Three categories of abilities bypass the helper and call the backing directly:
+
+### Backing request class can be invoked without the controller
+
+If the REST controller's only role is to translate `WP_REST_Request` into a call to an underlying request class (e.g., `Things_Request::from_rest_request( $request )->execute()`) and adds no validation, permission logic, or orchestration on top, bypass the controller and call the request class directly:
+
+```php
+public static function execute_get_things( $input = null ) {
+    if ( ! class_exists( '\My_Plugin\Things_Request' ) ) {
+        return new \WP_Error( '<plugin>_not_initialized', __( '<Plugin> is not initialized.', '<text-domain>' ) );
+    }
+
+    $request = new \WP_REST_Request( 'GET', '/my-plugin/v1/things' );
+    foreach ( (array) $input as $param => $value ) {
+        $request->set_param( $param, $value );
+    }
+
+    $things_request = \My_Plugin\Things_Request::from_rest_request( $request );
+    $rows           = $things_request->execute();
+
+    return is_array( $rows ) ? $rows : [];
+}
+```
+
+The `WP_REST_Request` object exists only to satisfy `from_rest_request()`'s parameter contract — nothing dispatches it. This is the shortest path through the layers: no controller construction, no controller-emitted side effects, and (when the request class is hit before any REST traffic in the lifecycle) no `rest_api_init` cost. See `shared-core-service.md` for the broader discussion of REST-path side effects and the first-call bootstrap cost on cold paths.
+
+The tradeoff is real: bypassing the controller bypasses anything the controller does. If the controller runs validation that the request class doesn't, or emits an audit hook the request class doesn't, that work is lost on the ability path. Use this shape when the controller is genuinely a thin wrapper, not when it's doing work you'd want to keep.
 
 ### Zero-arg backing methods
 
@@ -168,7 +194,7 @@ If the execute callback reaches a service directly (e.g. `My_Plugin::get_account
 
 ## Rule of thumb
 
-**If the backing method's signature includes `WP_REST_Request`, use the helper. Otherwise direct-path.**
+**If the backing method takes `WP_REST_Request` and the controller adds something beyond delegating to an underlying request class (validation, permissions, orchestration, side effects you want to keep), use the helper. If the controller is a thin wrapper over a request class, call the request class directly. Otherwise direct-path.**
 
 ## Conversion pattern — before and after
 
