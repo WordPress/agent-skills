@@ -64,11 +64,11 @@ add_action( 'wp_abilities_api_init', function() {
 | `meta.show_in_rest` | Optional (default `false`) | Set `true` to expose via the `wp-abilities/v1` REST API namespace. |
 | `meta.mcp.public` | Optional (default `false`) | Set `true` to expose the ability as a tool via the bundled WordPress MCP adapter. Independent from `show_in_rest`. |
 | `meta.mcp.type` | Optional (default `'tool'`) | One of `'tool'`, `'resource'`, `'prompt'`. Controls how the bundled MCP adapter projects the ability. Values outside this enum silently coerce to `'tool'`. |
-| `meta.annotations.readonly` | Optional (default `null`) | `true` if the ability does not modify its environment. |
-| `meta.annotations.destructive` | Optional (default `null`) | `true` if the ability may perform destructive updates. `false` for additive-only updates. |
-| `meta.annotations.idempotent` | Optional (default `null`) | `true` if calling the ability repeatedly with the same arguments has no additional effect. |
+| `meta.annotations.readonly` | **Strongly recommended** (default `null`) | `true` if the ability does not modify its environment. |
+| `meta.annotations.destructive` | **Strongly recommended** (default `null`) | `true` if the ability may perform destructive updates. `false` for additive-only updates. |
+| `meta.annotations.idempotent` | **Strongly recommended** (default `null`) | `true` if calling the ability repeatedly with the same arguments has no additional effect. |
 
-The three annotations under `meta.annotations` are *hints* for tooling and documentation — core does not enforce them at runtime. Plugins are expected to populate them honestly so MCP / Command Palette / agent surfaces can reason about ability behavior without invoking it.
+The three annotations under `meta.annotations` are *hints* for tooling and documentation — core does not enforce them at runtime, so a missing or `null` value is silently legal. That permissiveness is exactly why every registration should populate them explicitly: MCP / Command Palette / agent surfaces and review tooling reason about ability safety from these values *without* invoking the callback. A `readonly: null` ability is treated as "behavior unknown," which is a worse signal than either `true` or `false`. Treat the absence of an annotation as a bug, not a default.
 
 ### `show_in_rest` vs `mcp.public` — they target different surfaces
 
@@ -85,7 +85,7 @@ A plugin can set both, either, or neither. If you want the ability discoverable 
 - Treat IDs as stable API; changing an ID is a breaking change for any consumer that holds a reference.
 - Use `input_schema` and `output_schema` for validation and to help AI agents understand usage.
 - **Always include a `permission_callback`.** It is required on every registration — there is no implicit default.
-- Populate all three `meta.annotations` keys (`readonly`, `destructive`, `idempotent`) on every registration so consumers can reason about ability behavior without invoking it.
+- **Always set all three `meta.annotations` keys (`readonly`, `destructive`, `idempotent`) explicitly.** Leaving them at the `null` default broadcasts "behavior unknown" to every consumer that reads this metadata before invoking the ability. The cost of writing them is three lines; the cost of omitting them is opaque safety surface.
 
 ## References
 
