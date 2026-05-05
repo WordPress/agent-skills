@@ -1,7 +1,7 @@
 ---
 name: respira-mcp
 description: "Use when the agent has the Respira MCP server connected to a live WordPress site (token in WORDPRESS_API_KEY) and the user wants to read or edit content on that site directly. Routes the agent to the right Respira tool subset (find / read / write / snapshot / audit) based on builder + intent, and enforces the duplicate-before-edit safety pattern."
-compatibility: "Targets WordPress 6.9+ (PHP 7.4+). Requires the Respira for WordPress plugin (>= 6.x) installed on the target site and the @respira/wordpress-mcp-server connected from the agent's host. Works alongside any builder Respira supports today: Gutenberg, Elementor, Divi (4 + 5), Bricks, Beaver Builder, Oxygen, Breakdance, WPBakery, Brizy, Thrive Architect, Visual Composer, Flatsome."
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires the Respira for WordPress plugin (>= 6.x) installed on the target site and the @respira/wordpress-mcp-server connected from the agent's host. Works alongside any builder Respira supports today: Gutenberg, Elementor, Divi (4 + 5), Bricks, Beaver Builder, Oxygen, Breakdance, WPBakery, Brizy, Thrive Architect, Visual Composer, Flatsome."
 ---
 
 # Respira MCP
