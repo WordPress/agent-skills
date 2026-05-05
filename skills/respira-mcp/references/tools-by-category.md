@@ -3,8 +3,9 @@
 Respira exposes 250+ tools across the WordPress and WooCommerce surface. The agent never needs to know all of them — pick from the category that matches the user's intent.
 
 The full live catalog (with parameters, return shapes, and per-builder coverage) is published at
-`https://www.respira.press/dashboard/skills` and the source of truth is the MCP server at
-`https://github.com/respira-press/respira-wordpress-mcp-server`.
+`https://www.respira.press/dashboard/skills`. The MCP server itself is closed-source; the open-source
+companion repos for skills, the Lite plugin, and the CLI live under
+`https://github.com/respira-press`.
 
 ## Discovery
 
