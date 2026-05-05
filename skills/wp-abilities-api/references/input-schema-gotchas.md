@@ -179,7 +179,51 @@ public function test_execute_returns_wp_error_when_id_not_a_string(): void {
 
 The integer `123` is a fine canary — it's non-empty, it `isset`s, but it's not a string. A callback that only uses `isset` + `empty` would false-pass this input and fall through to the URL construction with an integer argument.
 
-## Putting the three together
+## 4. Direct vs indirect invocation differ in strictness
+
+### Problem
+
+Two ways exist to invoke an ability's `execute_callback`:
+
+- **Direct.** A caller imports the registrar and calls the static method (`Abilities_Registrar::execute_get_things( $input )`). PHP signature defaults apply; no schema validation runs.
+- **Indirect.** A caller resolves the ability through `wp_get_ability( '<id>' )->execute( $input )`. WordPress runs `WP_Ability::normalize_input()` then `validate_input()` (then `check_permissions()`) before the callback is invoked.
+
+The two paths differ in three ways agents trip over:
+
+1. **Validation against `input_schema` runs only on the indirect path.** If the ability declares an object-typed schema with properties and the indirect caller passes `null` (or omits the argument entirely, as `$ability->execute()` does), `validate_input()` rejects with an `ability_invalid_input` error before the callback runs. The PHP-level `$input = null` default in the callback signature is dead code on this path.
+
+2. **Schema's top-level `default` IS applied — but only on the indirect path.** `normalize_input()` substitutes the schema's top-level `default` when the caller passes `null`. Direct callers don't run through this method; they get whatever PHP default the callback signature declares. Declaring `default => (object) array()` at the schema root makes `$ability->execute()` work without arguments — but the same callback called directly still receives PHP `null`.
+
+3. **The callback's first argument arrives only when `input_schema` is non-empty.** WordPress only forwards `$input` to the callback when the schema is declared. Without an input schema, the callback is invoked with zero arguments — PHP-level signature defaults compensate for this if you wrote them; without them, the indirect path produces an `ArgumentCountError`.
+
+### Symptoms
+
+- An ability looks fine when unit-tested by directly invoking the static method, then fails the moment it's exercised through `wp_get_ability(...)->execute()` from MCP / Command Palette / agent harnesses.
+- "Works in the test, breaks in MCP" — typical pattern when a test calls `Abilities_Registrar::execute_get_things( [] )` (passing an empty array) but the agent invocation goes through the indirect pipeline.
+- A schema with all-optional properties still rejects zero-arg indirect calls because `null` is not an object.
+
+### Fix — declare a top-level schema `default` for any zero-arg-allowed ability
+
+```php
+'input_schema' => [
+    'type'       => 'object',
+    'default'    => (object) array(),  // applied by normalize_input() on null inputs
+    'properties' => [
+        'per_page' => [ 'type' => 'integer', 'default' => 10 ],
+        // ...
+    ],
+],
+```
+
+`(object) array()` is preferred over `[]` because it json-encodes to `{}` rather than the array literal `[]`, avoiding PHP's array/object ambiguity at the validator boundary.
+
+### Distinguish from Gotcha 1
+
+Top-level schema `default` is honored by `normalize_input()` and reaches the callback. Property-level `default` (Gotcha 1) is NOT — those values are dropped by the validator, and the callback has to defensively reapply them. Different layers, different fates.
+
+If you've declared the top-level `default` in the schema, the PHP-level signature default exists only for direct callers. Don't add a third layer of fallback inside the callback that re-checks `if ( $input === null )` — three compensating defaults stacked on each other diffuses the meaning of "no input."
+
+## Putting gotchas 1-3 together
 
 A hardened execute callback for a list-style ability with a required ID, schema defaults, and backing pagination drift:
 
