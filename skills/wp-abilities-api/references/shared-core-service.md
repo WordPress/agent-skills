@@ -58,6 +58,7 @@ A delegating ability re-uses the REST controller's full code path, including any
 - **Custom-event hooks** (`do_action(...)`) — listeners on those hooks now fire on every ability invocation, with surprise side-effects in unrelated subsystems.
 - **Email / notification dispatch** — agent-driven calls trigger user-visible notifications that should not have been sent.
 - **Cache invalidation, schedule rescheduling, lock acquisition** — harmless when intended; harmful when fired by traffic the original handler did not anticipate.
+- **First-call REST bootstrap cost** (performance, not semantics). `rest_do_request()` calls `rest_get_server()`, which lazily instantiates `WP_REST_Server` and fires `rest_api_init` the first time it's invoked in a request lifecycle. In a normal HTTP REST request the cost is paid before the abilities layer even runs; in CLI / cron / agent / non-REST MCP transports, the *first* ability that delegates pays it — every plugin's `register_rest_route()` callback wires up at this point. The cost is one-time per request lifecycle (`rest_get_server()` guards on `if ( empty( $wp_rest_server ) )`), but on a cold path the first invocation is measurably slow. If the ability is expected to run predominantly outside REST contexts, prefer calling the underlying service or request class directly over going through `rest_do_request()`.
 
 The fix is the third row of the table above:
 
@@ -150,17 +151,20 @@ The ability and the REST endpoint now share business logic. Side effects (audit,
 
 ## Rule of thumb
 
-- **Read with no side effects on the REST path, light logic** → route the ability through the existing REST handler via the delegation pattern. Cheapest. Drift risk is bounded because the REST controller is one short hop away.
+- **Read with no side effects on the REST path, light logic, predominantly invoked through REST** → route the ability through the existing REST handler via the delegation pattern. Cheapest. Drift risk is bounded because the REST controller is one short hop away.
 - **Read where the REST handler does more than data-fetch** (audit, hooks, notifications, telemetry) → extract a service. Don't fire UI-scoped side effects on agent invocations.
+- **Read predominantly invoked outside REST** (CLI, cron, agent, non-REST MCP transport) → prefer direct invocation of the service or the underlying request class. Delegation pays the first-call REST bootstrap cost on every cold path.
 - **Write of any kind** → extract a service. Drift is most damaging on writes (lost validation, missing audit hooks).
 - **No existing REST endpoint** → start at the service. The first ability you ship is also the right time to add the structure that a future REST endpoint will consume.
 
-The side-effect and write rules **override** the lighter "if the
-backing takes a `WP_REST_Request`, just delegate" heuristic. The
-signature test is sufficient only when the REST handler is a pure
-data-fetch and the operation is a read. If the handler emits side
-effects or the operation writes, extract a service even when
-delegating would otherwise be the easy path.
+The side-effect, write, and non-REST-context rules **override** the
+lighter "if the backing takes a `WP_REST_Request`, just delegate"
+heuristic. The signature test is sufficient only when the REST handler
+is a pure data-fetch, the operation is a read, and the ability runs
+mostly inside REST contexts. If the handler emits side effects, the
+operation writes, or the ability runs predominantly through CLI / cron /
+agent paths, extract a service even when delegating would otherwise be
+the easy path.
 
 ## Escape hatch — when re-implementation is OK
 
