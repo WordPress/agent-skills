@@ -32,7 +32,10 @@ against a live environment.
 - **Runtime mode** — requires a running env. Does everything static does
   PLUS: `wp_get_abilities()` for authoritative enumeration, executes each
   ability with curated inputs, confirms permission roundtrip against real
-  users, verifies idempotent reads are byte-for-byte identical on twin calls.
+  users, and runs a twin-invocation heuristic on `idempotent: true`
+  abilities to flag candidates for review (return-value equality is a
+  signal, not a verdict — core defines idempotent as "no additional
+  effect on the environment").
 
 Both modes produce the same structured report format.
 
@@ -122,8 +125,12 @@ distinct skill rather than just "run the tests". Three claims:
   require runtime confirmation.
 - `destructive: false` → callback must not delete, refund, cancel, close
   disputes, or trash content.
-- `idempotent: true` → no `rand()`, no `wp_create_nonce`, no sequence
-  increments. Runtime: twin invocations must match byte-for-byte.
+- `idempotent: true` → repeated calls with the same input have no
+  additional effect on the environment (core's wording at
+  `class-wp-ability.php` lines 47-48). Static catches counter writes,
+  per-call cron schedules, and sequence increments. Runtime
+  twin-invocation diff is a heuristic — differing returns flag
+  candidates to inspect, not a verdict.
 
 False positives get suppressed via an inline `// verify-ignore: readonly`
 comment — see the reference.

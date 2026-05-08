@@ -252,15 +252,17 @@ means the registration didn't supply a valid callable — a hard FAIL. A
 `WP_Error` with code `ability_callback_exception` means the callback
 threw — also a hard FAIL.
 
-## Check 6 — idempotent reads return byte-for-byte identical results on twin invocations
+## Check 6 — twin-invocation heuristic for idempotent abilities
 
 Only apply this to abilities annotated `idempotent: true` whose `execute()`
-returned without error in Check 3. Per
-`annotation-correctness.md` step "Runtime check complement":
+returned without error in Check 3. Per `annotation-correctness.md` step
+"Runtime check complement", this is a *heuristic*: idempotent in core
+means "no additional effect on the environment" (`class-wp-ability.php`
+lines 47-48), not "byte-identical return values."
 
 ```bash
 <env-cli> wp --user=admin eval '
-$a  = wp_get_ability( "<plugin>/<idempotent-read-ability>" );
+$a  = wp_get_ability( "<plugin>/<idempotent-ability>" );
 $r1 = $a->execute();
 $r2 = $a->execute();
 
@@ -278,18 +280,23 @@ if ( is_wp_error( $r1 ) || is_wp_error( $r2 ) ) {
 '
 ```
 
-Expected (when both invocations succeeded): `match=true` and two
-identical hashes.
+Interpretation:
 
-Twin-invocation differ on an `idempotent: true` ability → FAIL. Common
-causes:
+- `match=true` → cheap PASS. Same input produced the same response, and
+  any environmental writes (write abilities) were the same on both calls.
+- `match=false` → inspect what changed before deciding:
+  - Response embeds a per-call timestamp, nonce, or random ID →
+    environment unchanged. Still idempotent under core's reading.
+    Optionally remove the field if the agent doesn't need it; the
+    annotation stays `idempotent: true`.
+  - Response reflects a counter or sequence that grew between calls →
+    real environmental change. FAIL: drop the `idempotent: true`
+    annotation or fix the underlying write to be input-determined.
 
-- Response embeds `time()` or `current_time()`.
-- Response embeds a nonce.
-- Response embeds a non-deterministic queue state.
-
-Either remove the nondeterministic field (preferred) or change the
-annotation to `idempotent: false`. Don't loosen the check.
+For ambiguous cases (response varies but no obvious counter), supplement
+with a state diff: snapshot a representative table or option before call
+1, snapshot after call 2, diff. If state changed by more than the input
+writes would explain, the ability is non-idempotent.
 
 ## Output format
 

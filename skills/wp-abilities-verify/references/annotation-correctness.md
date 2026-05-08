@@ -26,7 +26,9 @@ execute callback body and comparing what it does against what the
 annotation says it does. That's this file.
 
 The same logic applies to `destructive: false` ("won't delete anything")
-and `idempotent: true` ("same input, same result, same effect").
+and `idempotent: true` ("repeated calls with the same arguments produce
+no additional effect on the environment" — core's docblock at
+`class-wp-ability.php` lines 47-48).
 
 ## The three claims
 
@@ -34,12 +36,18 @@ and `idempotent: true` ("same input, same result, same effect").
 |---|---|---|
 | `readonly: true` | No writes. GET-style side-effect-free. | No `wpdb->insert/update/delete`, `update_option`, `wp_insert_*`, non-GET delegates, etc. |
 | `destructive: false` | Won't irreversibly destroy data or forfeit money. | No `wp_delete_*`, `wp_trash_post`, `->refund`, `->cancel`, `->close_dispute`. |
-| `idempotent: true` | Same input always produces same effect. | No `rand()`, nonce generation, sequence increments, timestamps-in-response. Runtime: twin invocations byte-identical. |
+| `idempotent: true` | Repeated calls with the same arguments produce no additional environmental effect (core's definition). | No counter writes that grow per call, no per-call cron schedules, no sequence increments writing back to durable state. Runtime twin-invocation diff is a heuristic to flag candidates, not a verdict. |
 
 These overlap but are not redundant: `readonly` is the strictest,
 `destructive: false` is weaker (updates that don't destroy are OK), and
 `idempotent` is orthogonal (a POST that writes the same row twice is both
 "writes" and "idempotent").
+
+The run controller operationalizes annotations into HTTP method routing
+(`readonly: true` → GET, `destructive && idempotent` → DELETE, otherwise
+POST — see `class-wp-rest-abilities-v1-run-controller.php` lines 110-116).
+That's the load-bearing semantic — verify checks that the callback's
+behavior matches what the routing assumes.
 
 ## Static adversarial checks
 
@@ -135,26 +143,39 @@ grep -nE '->(refund|cancel|void|dispute|chargeback)\s*\(' <file>
 grep -nE '\bwp_delete_user\s*\(' <file>
 ```
 
-### Step 4 — idempotent-but-nondeterministic check
+### Step 4 — idempotent-but-non-idempotent check
 
-Against callbacks annotated `idempotent: true`:
+Against callbacks annotated `idempotent: true`. Idempotency in core
+means *repeated calls with the same arguments have no additional effect
+on the environment* — it's about environmental writes, not return-value
+determinism. The patterns to catch are per-call writes whose effect
+accumulates:
 
 ```bash
-# Randomness.
-grep -nE '\b(rand|mt_rand|random_int|random_bytes|wp_rand)\s*\(' <file>
-grep -nE '\bwp_generate_(uuid4|password|auth_cookie)\s*\(' <file>
+# Counter or sequence-style writes — value grows per call.
+grep -nE '\b(update_option|update_post_meta|update_user_meta)\s*\([^)]*get_(option|post_meta|user_meta)' <file>
 
-# Nonce generation (per-call, non-deterministic by design).
-grep -nE '\bwp_create_nonce\s*\(' <file>
+# Per-call cron schedules — wp_schedule_event creates a new timer each
+# call; wp_schedule_single_event is non-idempotent unless the call site
+# explicitly checks for an existing scheduled hook first.
+grep -nE '\bwp_schedule_(single_)?event\s*\(' <file>
 
-# Time-based payloads — time() in the response means twin calls differ.
-# Flag as WARN, not FAIL: many legitimate read callbacks include a
-# `generated_at` field. Runtime byte-comparison catches the real violations.
-grep -nE '\b(time|microtime|current_time|date|wp_date)\s*\(' <file>
+# Append-only inserts on a per-call basis (logs, audit trails).
+grep -nE '\$wpdb->insert\s*\(' <file>
 
-# Sequence increments.
+# Sequence increments visible in callback scope.
 grep -nE '\+\+\s*;|\$[a-z_]+\s*\+=\s*1\b' <file>
 ```
+
+Patterns that *don't* violate core's idempotent (do not auto-FAIL — kept
+here so the check doesn't snare them):
+
+- `rand()`, `wp_rand()`, `wp_generate_uuid4()`, `wp_create_nonce()` —
+  produce a different return value per call, but the environment is
+  unchanged. Idempotent under core's reading.
+- `time()`, `current_time()`, `microtime()` — read-only clock access.
+  Embedding the result in the response is fine; only flag if the value
+  is *written* into per-call growing state.
 
 ## Precedence and severity
 
@@ -240,8 +261,8 @@ in a real audit.
 
 ## Runtime check complement
 
-When runtime mode is on, add one more check that static cannot do:
-**twin-invocation diff for `idempotent: true` abilities**.
+When runtime mode is on, add a heuristic for `idempotent: true`
+abilities: invoke twice with the same input, then inspect what changed.
 
 ```bash
 # Via wp-cli (substitute the plugin's env-up + wp-cli invocation per AGENTS.md).
@@ -249,19 +270,30 @@ When runtime mode is on, add one more check that static cannot do:
 $a = wp_get_ability( "<plugin>/<ability>" );
 $r1 = $a->execute( [ <same-input> ] );
 $r2 = $a->execute( [ <same-input> ] );
-echo var_export( $r1 === $r2, true ) . PHP_EOL;  // should print "true"
+echo var_export( $r1 === $r2, true ) . PHP_EOL;
 echo md5( serialize( $r1 ) ) . PHP_EOL;
 echo md5( serialize( $r2 ) ) . PHP_EOL;
 '
 ```
 
-Expected output: `true` followed by two identical hashes. Differ → FAIL
-with the two serialized payloads as evidence.
+Interpretation:
 
-Note: `idempotent: true` abilities that legitimately embed a timestamp
-(e.g. `generated_at` in the response) will fail this strict check. Either
-remove the timestamp (preferred — it's never load-bearing for the agent)
-or loosen the annotation to `idempotent: false`.
+- Hashes match → cheap PASS. Same input produced the same response, and
+  any environmental writes (write abilities) were the same on both calls.
+- Hashes differ → *signal*, not verdict. Per core's definition, idempotent
+  means "no additional effect on the environment" — return-value equality
+  is neither necessary nor sufficient. Inspect what changed:
+  - Response embeds a per-call timestamp / nonce / random ID → environment
+    unchanged. Still idempotent. Optionally remove the field if the agent
+    doesn't need it.
+  - Response reflects a counter or sequence that grew between calls →
+    real environmental change. FAIL: drop the `idempotent: true`
+    annotation or fix the underlying write to be input-determined.
+
+For ambiguous cases (response varies but no obvious counter), supplement
+with a state diff: snapshot a representative table or option before call
+1, snapshot after call 2, diff. If state changed by more than what the
+input writes would explain, the ability is non-idempotent.
 
 ## Report format
 
