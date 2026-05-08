@@ -146,7 +146,7 @@ schema isn't in the same document. Inline the shape instead.
 
 **Check:** any `'$ref'` in an `input_schema` → FAIL.
 
-### Lint 5 — default values are primitive or `null`
+### Lint 5 — default values are statically constant
 
 ```php
 // OK — primitive defaults.
@@ -155,18 +155,43 @@ schema isn't in the same document. Inline the shape instead.
 'status'   => [ 'type' => 'string',  'default' => 'pending' ],
 'metadata' => [ 'type' => 'object',  'default' => null ],
 
-// WRONG — complex expression as default.
+// OK — literal empty object/array. The cast and `new stdClass()` always
+// produce the same shape on every call. `(object) array()` is the
+// recommended top-level default for zero-arg-allowed abilities — see
+// `../../wp-abilities-api/references/input-schema-gotchas.md` §4.
+'input_schema' => [
+    'type'    => 'object',
+    'default' => (object) array(),
+    // ...
+],
+'tags' => [ 'type' => 'array', 'default' => [] ],
+
+// WRONG — expression that evaluates differently per call.
 'created_at' => [ 'type' => 'string', 'default' => gmdate( 'c' ) ],
+'token'      => [ 'type' => 'string', 'default' => wp_generate_uuid4() ],
 ```
 
-**Why:** a default that evaluates per-call is both non-deterministic
-(twin invocations can differ, violating `idempotent: true`) and
-surprising to agents that expect defaults to be static values.
+**Why:** a default that evaluates differently per call is both
+non-deterministic and surprising to agents that expect defaults to be
+static values. A type-cast of a literal (`(object) array()`,
+`(object) []`) or a `new stdClass()` always produces the same shape, so
+they're constant for this lint's purposes even though they're not
+scalar literals.
 
-**Check:** each `'default'` value must be a scalar literal (`true`,
-`false`, integer, float, quoted string, `null`) or an empty array
-literal. A function call, variable reference, or computed expression →
-FAIL.
+**Check:** each `'default'` value must be one of:
+
+- A scalar literal (`true`, `false`, integer, float, quoted string, `null`).
+- An empty or all-literal array (`[]`, `array()`, `[ 'a', 'b' ]`).
+- A literal cast to an empty object (`(object) array()`, `(object) []`).
+- `new stdClass()` with no arguments.
+
+A function call (`gmdate(...)`, `wp_generate_*(...)`, `time()`),
+variable reference, or other computed expression → FAIL.
+
+Note: this lint deliberately accepts the `(object) array()` form so it
+agrees with the recommended fix in `input-schema-gotchas.md` for
+top-level schema defaults on zero-arg-allowed abilities. Flagging it
+here would create a contradiction across sister skills.
 
 ### Lint 6 — `reference_ability: true` implies no required inputs
 
