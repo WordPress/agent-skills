@@ -55,14 +55,35 @@ an empty inventory.
 
 ## Step 2 — extract each ability name
 
-The first argument to `wp_register_ability` is the ability name. Usually
-a literal string:
+The first argument to `wp_register_ability` is the ability name —
+usually a literal string. Real-world formatting splits the call across
+lines (the canonical shape at the top of this file is itself
+multi-line), so a single-line regex misses common cases. Use a
+multi-line tool, or fall back to reading a small window after each
+call site.
 
 ```bash
-# Greedy capture of single- or double-quoted first argument.
-grep -rn --include='*.php' -E "wp_register_ability\s*\(\s*['\"]([^'\"]+)['\"]" <plugin-root>/ \
-    | sed -nE "s/.*wp_register_ability\s*\(\s*['\"]([^'\"]+)['\"].*/\1/p"
+# Preferred: ripgrep with multi-line + PCRE2 captures the name whether
+# it sits on the same line as `wp_register_ability(` or on the next
+# non-blank line.
+rg --multiline --pcre2 --type=php -n \
+   "wp_register_ability\s*\(\s*['\"]([^'\"]+)['\"]" <plugin-root>/
+
+# Single-line grep also works for the inline form (name on the same
+# line as the call) but misses the multi-line canonical shape:
+grep -rn --include='*.php' -E \
+   "wp_register_ability\s*\(\s*['\"]([^'\"]+)['\"]" <plugin-root>/
+
+# Fallback when only POSIX grep is available: locate the call sites,
+# then read the next 5-10 lines of each match and pick the first
+# quoted token. Either pcregrep -M or perl -0777 works:
+pcregrep -M -n --include='\.php$' -r \
+   "wp_register_ability\s*\(\s*['\"]([^'\"]+)['\"]" <plugin-root>/
 ```
+
+If the regex still misses a registration (heredoc/HEREDOC name,
+deeply-conditional formatting), fall back to inspecting the call-site
+window by hand — record the line number, open the file, copy the name.
 
 If the first argument is a variable (`wp_register_ability( $ability_name, ... )`),
 trace the variable:
