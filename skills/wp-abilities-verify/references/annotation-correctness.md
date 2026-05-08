@@ -105,8 +105,13 @@ grep -nE '\b(update|add|delete)_term_meta\s*\(' <file>
 # Comment writes.
 grep -nE '\bwp_(insert|update|delete|trash|spam)_comment\s*\(' <file>
 
-# Method-name write-verb patterns on controllers / services.
-grep -nE '->(create|insert|update|delete|remove|save|store|write|destroy|purge|archive|restore|disable|enable|activate|deactivate|revoke|grant)_' <file>
+# Method-name write-verb patterns on controllers / services. The verb
+# list below is a representative starting set — extend with verbs in
+# the plugin's own vocabulary (e.g. `->markAsPaid()`, `->commit()`,
+# domain-specific writes). The trailing `(_|\()` matches either a
+# verb-prefixed method name (`->save_record()`) or a direct call
+# (`->save()`).
+grep -nE '->(add|set|save|create|insert|update|delete|remove|destroy|purge|trash|archive|restore|store|write|disable|enable|activate|deactivate|revoke|grant)(_|\()' <file>
 
 # Non-GET HTTP delegations.
 grep -nE '\bwp_remote_(post|request|delete)\b' <file>
@@ -134,7 +139,11 @@ Against callbacks annotated `destructive: false`:
 ```bash
 # Deletion verbs.
 grep -nE '\bwp_(delete|trash)_(post|user|term|comment|attachment)\s*\(' <file>
-grep -nE '->(delete|destroy|purge|revoke|forfeit|cancel|refund|chargeback|close_dispute|void|terminate)_' <file>
+
+# Mutator method calls — same verb-followed-by-(_|\() pattern as the
+# readonly check, narrowed to verbs that imply destruction. Treat the
+# verb list as illustrative, not exhaustive.
+grep -nE '->(delete|destroy|purge|revoke|forfeit|cancel|refund|chargeback|close_dispute|void|terminate)(_|\()' <file>
 
 # Payment-system destructive verbs.
 grep -nE '->(refund|cancel|void|dispute|chargeback)\s*\(' <file>
