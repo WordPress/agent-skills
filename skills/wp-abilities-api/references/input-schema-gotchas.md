@@ -170,7 +170,7 @@ Use the standardized `<plugin>_missing_<field>` error code (see `error-code-voca
 The guard is load-bearing enough that it deserves an explicit test — otherwise someone will simplify it back to `empty()` in a future refactor:
 
 ```php
-public function test_execute_returns_wp_error_when_id_not_a_string(): void {
+public function test_execute_returns_wp_error_when_id_not_a_string() {
     $result = My_Plugin_Abilities::execute_get_thing( [ 'order_id' => 123 ] );
     $this->assertInstanceOf( \WP_Error::class, $result );
     $this->assertSame( '<plugin>_missing_order_id', $result->get_error_code() );
