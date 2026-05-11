@@ -33,7 +33,7 @@ annotation says it does.
 |---|---|
 | `readonly: true` | No writes. GET-style side-effect-free. |
 | `destructive: false` | Won't irreversibly destroy data or forfeit money. |
-| `idempotent: true` | Repeated calls with the same arguments produce no additional effect on the environment (core's docblock at `class-wp-ability.php` lines 47-48). |
+| `idempotent: true` | Repeated calls with the same arguments produce no additional effect on the environment (per the `idempotent` annotation's docblock in `class-wp-ability.php`). |
 
 These overlap but are not redundant: `readonly` is the strictest;
 `destructive: false` is weaker (updates that don't destroy are OK);
@@ -43,7 +43,7 @@ both "writes" and "idempotent").
 The Abilities REST run controller operationalizes annotations into
 HTTP method routing (`readonly: true` → GET, `destructive && idempotent`
 → DELETE, otherwise POST — see
-`class-wp-rest-abilities-v1-run-controller.php` lines 110-116). That
+`WP_REST_Abilities_V1_Run_Controller::validate_request_method()`). That
 mapping is the load-bearing semantic; verify checks that each
 callback's behavior is consistent with how the routing will treat it.
 

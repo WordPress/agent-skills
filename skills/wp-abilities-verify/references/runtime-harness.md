@@ -257,8 +257,9 @@ threw — also a hard FAIL.
 Only apply this to abilities annotated `idempotent: true` whose `execute()`
 returned without error in Check 3. Per `annotation-correctness.md` step
 "Runtime check complement", this is a *heuristic*: idempotent in core
-means "no additional effect on the environment" (`class-wp-ability.php`
-lines 47-48), not "byte-identical return values."
+means "no additional effect on the environment" (per the `idempotent`
+annotation's docblock in `class-wp-ability.php`), not "byte-identical
+return values."
 
 ```bash
 <env-cli> wp --user=admin eval '

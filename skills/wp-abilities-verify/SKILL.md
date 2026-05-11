@@ -104,10 +104,10 @@ and verify it matches the annotation claim:
 - `destructive: false` → callback must not delete, refund, void,
   cancel, or trash.
 - `idempotent: true` → repeated calls with the same input have no
-  additional effect on the environment (core's wording at
-  `class-wp-ability.php` lines 47-48). Static catches counter writes
-  and per-call cron schedules; runtime adds a twin-invocation
-  heuristic for visible state changes.
+  additional effect on the environment (per the `idempotent`
+  annotation's docblock in `class-wp-ability.php`). Static catches
+  counter writes and per-call cron schedules; runtime adds a
+  twin-invocation heuristic for visible state changes.
 
 The reference lists common write patterns as a starting set, not a
 checklist — plugin vocabularies vary, and the agent extends with verbs

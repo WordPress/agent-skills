@@ -9,8 +9,8 @@ unauthenticated, subscriber, and admin contexts.
 
 When an ability is invoked, the registered `permission_callback` is
 called through `WP_Ability::check_permissions( $input )`, which
-dispatches to `WP_Ability::invoke_callback( $callback, $input )`
-(`class-wp-ability.php` lines 541-551 and 507-526 in WordPress core).
+dispatches to `WP_Ability::invoke_callback( $callback, $input )` (both
+defined in `class-wp-ability.php` in WordPress core).
 
 `invoke_callback`'s contract:
 
