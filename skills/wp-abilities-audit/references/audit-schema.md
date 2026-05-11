@@ -112,7 +112,7 @@ as a warning, not an error:
 | Field | Type | Description |
 |---|---|---|
 | `callback` | string | The method name used as `permission_callback`. |
-| `resolves_to` | string | The `current_user_can()` call(s) it ultimately resolves to. For compound gates, include both (e.g. `"current_user_can('read_private_shop_orders')` for read; `current_user_can('edit_shop_orders')` for write"). |
+| `resolves_to` | string | The `current_user_can()` call(s) it ultimately resolves to. For compound gates, include both (e.g. `"current_user_can('read_private_pages')` for read; `current_user_can('edit_others_pages')` for write"). |
 | `confirmed` | bool | `true` if verified against source; `false` if inferred. |
 
 ## `excluded_from_mvp` — array

@@ -128,7 +128,7 @@ Some earlier audits encoded compound gates as a single string with a `/`
 separator:
 
 ```yaml
-capability_gate: read_private_shop_orders / edit_shop_orders
+capability_gate: read_private_pages / edit_others_pages
 ```
 
 This is accepted for backwards compatibility, but:
