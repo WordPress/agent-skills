@@ -48,7 +48,17 @@ Shape E → static FAIL. Shapes C and F → WARN. Shapes A, B, D → OK.
 ## Runtime check
 
 Exercise the gate against three user contexts using
-`WP_Ability::check_permissions()`:
+`WP_Ability::check_permissions( $input )`.
+
+`check_permissions()` accepts an optional input value and passes it
+through to the registered `permission_callback`. Shape A callbacks
+(`return current_user_can('cap')`) don't read it. Shape B callbacks
+that branch on `$input` (the smell the static check flags) need a
+representative value to exercise the real gate; otherwise they
+receive `null` and the roundtrip result is misleading. The snippet
+below passes `array()` — the minimal safe input for object-typed
+schemas. For abilities with a non-object root schema, substitute a
+representative value of the declared root type.
 
 ```bash
 <env-cli> wp --user=admin eval '
@@ -58,11 +68,12 @@ if ( ! $ability ) {
     exit( 1 );
 }
 
+$input   = array(); // representative input; substitute for non-object root schemas.
 $results = array();
 
 // Unauthenticated.
 wp_set_current_user( 0 );
-$results["anon"] = $ability->check_permissions();
+$results["anon"] = $ability->check_permissions( $input );
 
 // Subscriber (create a fresh user).
 $sub_login = "verify_sub_" . time();
@@ -71,12 +82,12 @@ if ( ! is_wp_error( $sub_id ) ) {
     $sub_user = get_user_by( "id", $sub_id );
     $sub_user->set_role( "subscriber" );
     wp_set_current_user( $sub_id );
-    $results["subscriber"] = $ability->check_permissions();
+    $results["subscriber"] = $ability->check_permissions( $input );
 }
 
 // Admin.
 wp_set_current_user( 1 );
-$results["admin"] = $ability->check_permissions();
+$results["admin"] = $ability->check_permissions( $input );
 
 foreach ( $results as $context => $result ) {
     if ( true === $result ) {

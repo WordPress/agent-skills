@@ -203,10 +203,11 @@ no-input and proceeded to do something it shouldn't have.
 ```bash
 <env-cli> wp --user=admin eval '
 $ability = wp_get_ability( "<plugin>/<any-ability>" );
+$input   = array(); // representative input; substitute for non-object root schemas.
 
 // Admin path.
 wp_set_current_user( 1 );
-$admin_result = $ability->check_permissions();
+$admin_result = $ability->check_permissions( $input );
 
 // Subscriber path.
 $sub_login = "verify_sub_" . time();
@@ -215,7 +216,7 @@ if ( ! is_wp_error( $sub_id ) ) {
     $user = get_user_by( "id", $sub_id );
     $user->set_role( "subscriber" );
     wp_set_current_user( $sub_id );
-    $sub_result = $ability->check_permissions();
+    $sub_result = $ability->check_permissions( $input );
 } else {
     $sub_result = $sub_id; // surface the create_user error in the report
 }
