@@ -8,7 +8,7 @@
     "Step 3: Enumerate abilities statically per static-enumeration.md; record 7 registrations and resolve each callback to file + line range",
     "Step 4: Run the adversarial readonly-but-writes check per annotation-correctness.md against every callback body",
     "Step 5: FLAG the offending read ability with FAIL, citing file + line of the $wpdb->update(...) call",
-    "Step 6: Return OK on the adversarial check for the other 5 readonly abilities and N/A for the write ability (readonly not claimed)",
+    "Step 6: Return OK on the adversarial check for the other 5 readonly abilities and OK (write path confirmed) for the write ability (readonly=false annotation acknowledged; check only applies when readonly=true)",
     "Step 7: Run schema lints and permission roundtrip in static-only mode",
     "Step 8: Cross-reference error codes (non-vocabulary codes WARN, not FAIL)",
     "Step 9: Write a structured markdown report at the user-specified path with Last updated header and Status: FAIL"

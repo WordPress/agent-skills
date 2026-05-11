@@ -31,9 +31,16 @@ annotation says it does.
 
 | Annotation | What it promises (from core) |
 |---|---|
-| `readonly: true` | No writes. GET-style side-effect-free. |
+| `readonly: true` | No durable writes to user / business state. GET-style side-effect-free. |
 | `destructive: false` | Won't irreversibly destroy data or forfeit money. |
 | `idempotent: true` | Repeated calls with the same arguments produce no additional effect on the environment (per the `idempotent` annotation's docblock in `class-wp-ability.php`). |
+
+`readonly: true` prohibits durable writes to user or business state.
+Read-through cache writes (e.g. `set_transient`) and observability
+timestamps (e.g. `last_read_at`) are acceptable when explicitly
+annotated with `verify-ignore` — see the "Suppressing legitimate
+exceptions" section below. The static check treats unannotated writes
+as FAILs; annotated ones pass with the reason recorded as evidence.
 
 These overlap but are not redundant: `readonly` is the strictest;
 `destructive: false` is weaker (updates that don't destroy are OK);
@@ -138,7 +145,7 @@ Each finding gets one row in the run's "Annotation correctness" table:
 | myplugin/get-things | readonly=true | OK | callback reads only |
 | myplugin/get-things-with-counts | readonly=true | FAIL | `src/Abilities/Things.php:142`: `$wpdb->update( $table, ... )` |
 | myplugin/submit-thing | destructive=false | OK | no destructive patterns |
-| myplugin/submit-thing | idempotent=false | N/A | not claimed idempotent |
+| myplugin/submit-thing | idempotent=false | OK | check only applies when idempotent=true; false annotation acknowledged |
 ```
 
 The evidence column MUST cite file + line so a reviewer can jump
