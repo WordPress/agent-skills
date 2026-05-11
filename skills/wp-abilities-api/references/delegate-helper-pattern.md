@@ -44,11 +44,11 @@ If the plugin only ever ships one or two abilities, inline the code. The helper'
  * @return array|\WP_Error             Response payload as an array, or WP_Error on failure.
  */
 private static function delegate_to_rest_controller(
-    string $controller_class,
-    string $method,
-    string $route,
-    ?array $input,
-    string $http_method = 'GET'
+    $controller_class,
+    $method,
+    $route,
+    $input,
+    $http_method = 'GET'
 ) {
     $fqcn = '\\' . $controller_class;
 
