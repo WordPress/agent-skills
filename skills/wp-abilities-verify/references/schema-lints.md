@@ -82,15 +82,22 @@ bootstrap call an implementer lands first; it must work with
 (No audit provided → this lint is skipped — no reference ability is
 declared.)
 
-## Cross-reference: the four runtime gotchas
+## Cross-reference: gotchas 1-3 (callback hardening) and gotcha 4 (structural default)
 
-Static lints catch shape; the three runtime gotchas in
-`../../wp-abilities-api/references/input-schema-gotchas.md` need
-defensive code in the execute callback (`array_key_exists` instead of
-`isset`-only for property defaults, pagination key translation, ID
-validation that accepts `"0"`). Gotcha #4 — the direct vs indirect
-invocation strictness — is what motivates the `(object) array()`
-top-level default that Lint 5 explicitly accepts.
+Static lints catch shape; the four runtime gotchas in
+`../../wp-abilities-api/references/input-schema-gotchas.md` split into
+two kinds.
+
+Gotchas 1-3 need defensive code in the execute callback —
+`array_key_exists` instead of `isset`-only for property defaults,
+pagination key translation, ID validation that accepts `"0"`. These
+are runtime behaviors the callback itself must handle; static schema
+lints can't enforce them.
+
+Gotcha 4 — the direct vs indirect invocation strictness — is what
+motivates the `(object) array()` top-level default that Lint 5
+explicitly accepts. This one IS structural and Lint 5 carries the
+enforcement.
 
 ## Output format
 
