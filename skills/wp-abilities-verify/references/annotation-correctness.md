@@ -102,6 +102,8 @@ means "no obvious-shape violations," not "verified write-free."
 |---|---|---|
 | Indirected service writes — `$repo->persist()`, `$service->commit()`, custom verbs. | Any finite verb list drifts; domain vocabulary varies. | Inspect callbacks that touch custom services or repositories. |
 | `do_action()` whose listeners write. | Provenance ambiguity: ability looks clean; system mutates state in a listener. | Audit listeners on the action. If any writes, downgrade or split. |
+| Implicit core hooks fired by WP API calls — `wp_insert_post()` fires `save_post`; `update_option()` fires `updated_option`; `wp_create_user()` fires `user_register`; etc. | The WP API call IS the write; the hooks fire automatically as a side effect. Agents looking for `do_action()` won't see this. | Treat any WP write-API call as a write regardless of whether the callback also calls `do_action()`. |
+| Action Scheduler / deferred writes — `as_schedule_single_action()`, `WC()->queue()->schedule_single()`, custom job dispatchers. | The callback returns cleanly with no immediately visible DB mutation; the durable write lands later in the AS tables. A static grep for `$wpdb->insert` won't catch it. | Treat scheduler dispatches as writes. The "no additional effect on the environment" promise of `idempotent: true` is violated by accumulating queued jobs even if the immediate return value is constant. |
 | Variable-built HTTP methods on delegate helpers. | Static can't follow runtime values. | Treat callers of helpers whose default method isn't `GET` as suspect. |
 | Tautological capability gates — `current_user_can('read')` on a "private" ability. | The cap looks valid; subscribers happen to hold it. | Cross-reference the permission roundtrip — subscribers should be denied. |
 
