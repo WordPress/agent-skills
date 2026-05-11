@@ -26,18 +26,20 @@ NOT assume `npm run wp-env start` works for every plugin. Common patterns
 seen in real plugin trees:
 
 - `npm run wp-env start` — projects using `@wordpress/env` with a checked-in
-  `.wp-env.json` (typical for many WooCommerce-family plugins).
+  `.wp-env.json`.
 - `npx wp-env start` — projects using `@wordpress/env` without a custom
   npm script wrapper.
-- `jetpack docker up` — Jetpack-family monorepo packages.
 - `composer install && composer test-php --setup-only` — package-local
   test bootstraps that don't run a full WordPress install.
 - `docker-compose up -d` — plugin-specific dev Docker stacks.
 
+Plugin families with their own dev tooling will have their own bring-up
+command in `AGENTS.md`; follow it as documented.
+
 If `AGENTS.md` doesn't document it, ask the user rather than guessing.
 Record the env-up command + the corresponding wp-cli invocation (e.g.
-`npx wp-env run cli wp`, `jetpack docker cli wp`) and use them uniformly
-for the rest of the harness.
+`npx wp-env run cli wp`) and use them uniformly for the rest of the
+harness.
 
 In this file, `<env-cli>` is shorthand for whatever wp-cli invocation the
 plugin uses.

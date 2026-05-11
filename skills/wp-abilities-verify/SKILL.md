@@ -52,8 +52,10 @@ for the static blind spots.
 1. **Plugin checkout path** — working tree to verify.
 2. **Mode** — `static` or `runtime`. Default to static if unspecified.
 3. **(Runtime only) Env-up command** — read the plugin's `AGENTS.md`.
-   Common patterns: `npm run wp-env start`, `jetpack docker up`, or a
-   composer-based bring-up. Do NOT assume `npm run wp-env` works.
+   Common patterns: `npm run wp-env start`, `npx wp-env start`, or a
+   composer-based bring-up. Plugin families with their own dev tooling
+   will document their own command. Do NOT assume `npm run wp-env`
+   works.
 4. **(Optional) Audit doc path** — enables cross-checks between the
    audit and the registered abilities, and validates the audit itself.
 5. **Report output path** — explicit path, typically the user's vault.
