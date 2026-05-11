@@ -99,6 +99,14 @@ foreach ( $results as $context => $result ) {
     }
     echo $context . "=" . $printable . PHP_EOL;
 }
+
+// Cleanup the test subscriber so repeated harness runs don't accumulate users
+// on shared dev environments. Already running as admin (line above), so the
+// caller has the delete_users capability.
+if ( isset( $sub_id ) && ! is_wp_error( $sub_id ) ) {
+    require_once ABSPATH . "wp-admin/includes/user.php";
+    wp_delete_user( $sub_id );
+}
 '
 ```
 
