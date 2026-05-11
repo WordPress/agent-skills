@@ -102,10 +102,17 @@ foreach ( $results as $context => $result ) {
 
 // Cleanup the test subscriber so repeated harness runs don't accumulate users
 // on shared dev environments. Already running as admin (line above), so the
-// caller has the delete_users capability.
+// caller has the delete_users capability. On multisite, wp_delete_user() only
+// removes the user from the current site's membership — wpmu_delete_user() in
+// wp-admin/includes/ms.php is the network-wide delete.
 if ( isset( $sub_id ) && ! is_wp_error( $sub_id ) ) {
-    require_once ABSPATH . "wp-admin/includes/user.php";
-    wp_delete_user( $sub_id );
+    if ( is_multisite() ) {
+        require_once ABSPATH . "wp-admin/includes/ms.php";
+        wpmu_delete_user( $sub_id );
+    } else {
+        require_once ABSPATH . "wp-admin/includes/user.php";
+        wp_delete_user( $sub_id );
+    }
 }
 '
 ```

@@ -234,11 +234,18 @@ foreach ( array( "admin" => $admin_result, "subscriber" => $sub_result ) as $con
 
 // Cleanup the test subscriber so repeated harness runs don't accumulate users
 // on shared dev environments. Switch back to admin first since we last ran as
-// the subscriber and that role doesn't hold delete_users.
+// the subscriber and that role doesn't hold delete_users. On multisite,
+// wp_delete_user() only removes the user from the current site's membership —
+// wpmu_delete_user() in wp-admin/includes/ms.php is the network-wide delete.
 if ( isset( $sub_id ) && ! is_wp_error( $sub_id ) ) {
     wp_set_current_user( 1 );
-    require_once ABSPATH . "wp-admin/includes/user.php";
-    wp_delete_user( $sub_id );
+    if ( is_multisite() ) {
+        require_once ABSPATH . "wp-admin/includes/ms.php";
+        wpmu_delete_user( $sub_id );
+    } else {
+        require_once ABSPATH . "wp-admin/includes/user.php";
+        wp_delete_user( $sub_id );
+    }
 }
 '
 ```
