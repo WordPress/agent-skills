@@ -202,7 +202,7 @@ WARNs without FAILs → WARN; otherwise PASS.
   `annotation-correctness.md`. Don't broaden the candidate-pattern
   list speculatively.
 - Audit-schema validator rejects a legitimate audit → the canonical
-  schema in `wp-abilities-audit/references/audit-schema.md` has
+  schema in `../wp-abilities-audit/references/audit-schema.md` has
   evolved. Update `references/audit-schema-validation.md` to match.
 
 ## Out of scope
