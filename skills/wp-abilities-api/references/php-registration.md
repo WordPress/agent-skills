@@ -28,7 +28,7 @@ add_action( 'wp_abilities_api_init', function() {
         'label'       => __( 'Get Site Info', 'my-plugin' ),
         'description' => __( 'Returns basic site information.', 'my-plugin' ),
         'category'    => 'my-plugin',
-        'callback'    => 'my_plugin_get_info_callback',
+        'execute_callback' => 'my_plugin_get_info_callback',
         'meta'        => [ 'show_in_rest' => true ],
     ] );
 } );
@@ -46,7 +46,7 @@ add_action( 'wp_abilities_api_init', function() {
 | `label` | Human-readable name for UI (e.g., command palette) |
 | `description` | What the ability does |
 | `category` | Category ID (must be registered first) |
-| `callback` | Function that executes the ability |
+| `execute_callback` | Function that executes the ability |
 | `input_schema` | JSON Schema for expected input (enables validation) |
 | `output_schema` | JSON Schema for returned output |
 | `permission_callback` | Optional function to check if current user can execute |
@@ -64,4 +64,3 @@ add_action( 'wp_abilities_api_init', function() {
 
 - Abilities API handbook: https://developer.wordpress.org/apis/abilities-api/
 - Dev note: https://make.wordpress.org/core/2025/11/10/abilities-api-in-wordpress-6-9/
-
