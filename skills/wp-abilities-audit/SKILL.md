@@ -91,7 +91,15 @@ variants into 1.
 
 For each proposed ability, fill in every field in the `proposed_abilities`
 schema: `name`, `intent`, `backing`, `permission`, `return_type`, `effort`
-(S/M/L), `annotations` (readonly/destructive/idempotent), `notes`, `risks`.
+(S/M/L), `annotations` (readonly/destructive/idempotent), `notes`, `risks`,
+`use_case_fit`, `side_effects`, `seed_data_needs`.
+
+The last three are the implementation-readiness facts the implementer
+and the verify-mode tooling both need: which human/agent workflow this
+ability serves (`use_case_fit`), what the backing path emits on every
+call (`side_effects` — empty array is a fact, not a missing value), and
+what representative data must exist in the test environment for the
+ability to execute through the public boundary (`seed_data_needs`).
 
 ### 5. Surface gaps and deferred items
 

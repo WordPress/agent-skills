@@ -81,6 +81,9 @@ Each entry:
 | `annotations` | object | `{ readonly: bool, destructive: bool, idempotent: bool }`. All three required. |
 | `notes` | array of strings | Implementer-facing detail (filter params, edge cases, alternative backings). |
 | `risks` | array of strings | Anything the implementer must handle (missing idempotency key, two-phase behavior, `permission_callback => '__return_true'` at the REST layer that must not copy into the ability, etc.). |
+| `use_case_fit` | string | One sentence naming the human or agent workflow this ability serves. The use-case-contract check (see `wp-abilities-api/references/domain-vs-projection.md`): if no human would intentionally do this through a supported UI or workflow, the entry probably belongs in `excluded_from_mvp` instead. |
+| `side_effects` | array of strings | Side effects the backing path emits on every call: telemetry hooks fired, audit-log rows written, notifications dispatched, cache writes, lock acquisitions, expensive bootstrap on cold paths. One short line per effect. Empty array (`[]`) when the backing is a pure data-fetch — and that is *itself* a fact downstream tooling uses to decide whether delegation is safe. |
+| `seed_data_needs` | string OR `null` | One line describing what representative data must exist in the test environment for the ability to execute through the public boundary and return something meaningful (e.g. `"at least one completed order under the configured gateway"`, `"no seed required"`). `null` when the auditor has not yet identified the seed shape; downstream verify-mode tooling treats `null` as "ask the implementer" rather than guessing. |
 | `reference_ability` | bool (optional) | If `true`, marks this ability as the reference implementation — the first one an implementer should land (smallest, safest, highest-leverage read). Exactly zero or one ability per audit may set this. |
 
 ### `backing: null` semantics
@@ -193,6 +196,9 @@ proposed_abilities:
     notes:
       - "get_items(WP_REST_Request $request) requires a WP_REST_Request; construct one in the ability execute_callback."
     risks: []
+    use_case_fit: "Agent answers 'which items need attention right now?' in a single call without paging through a UI."
+    side_effects: []
+    seed_data_needs: "at least one item exists in any non-trashed status"
     reference_ability: true
 
   - name: example-plugin/close-item
@@ -216,6 +222,11 @@ proposed_abilities:
       - "Close is terminal — no reopen endpoint exists."
     risks:
       - "No idempotency key on the backing endpoint; duplicate POSTs may produce inconsistent audit trails."
+    use_case_fit: "User or agent closes a stale item from a workflow that surfaces stale items (admin list view, daily-digest agent)."
+    side_effects:
+      - "fires action `example_plugin/item_closed` (downstream listeners may dispatch email)"
+      - "writes audit-log row to `example_plugin_audit_log`"
+    seed_data_needs: "one open item to close; the test must capture the item id before invocation"
 
 excluded_from_mvp:
   - name: example-plugin/delete-item
