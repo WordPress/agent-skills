@@ -101,20 +101,22 @@ as a warning, not an error:
 
 | Field | Type | Description |
 |---|---|---|
-| `class` | string | Fully-qualified PHP class name. |
+| `kind` | enum (optional, default `rest_controller`) | The implementation path the ability should use or inspect. One of `rest_controller`, `service`, `helper`, `data_store`. When omitted, defaults to `rest_controller` for backwards compatibility with audits authored before this field landed. The kind tells downstream tooling whether the delegation pattern from `wp-abilities-api/references/shared-core-service.md` applies (only `rest_controller` is a candidate; the others select the shared-service shape from the start). |
+| `class` | string | Fully-qualified PHP class name (controller class for `rest_controller`; service / helper / data-store class for the other kinds). May be omitted when `kind: data_store` and the backing is a bare option key, post-meta key, or table without an owning class. |
 | `file` | string | Path relative to plugin root. |
-| `method` | enum | HTTP method: `GET`, `POST`, `PUT`, `DELETE`, `PATCH`. |
-| `route` | string | Full REST route path. |
-| `route_registration_line` | integer OR `null` | Line number of the `register_rest_route(` call, or `null` when inherited from a parent controller that lives outside the plugin repo. |
-| `callback` | string | Controller method name that handles the route. |
-| `callback_line` | integer OR `null` | Line number of the callback method definition, or `null` when inherited. |
-| `inherited_from` | string (optional) | Fully-qualified parent class name when the route and/or callback is inherited from a class outside this plugin's repo (e.g. `WP_REST_Posts_Controller` from WordPress core, or another plugin's REST base class for extension plugins). Pair with `null` line numbers. Lets downstream tooling skip the re-grep step cleanly. |
+| `method` | enum (required when `kind: rest_controller`) | HTTP method: `GET`, `POST`, `PUT`, `DELETE`, `PATCH`. Not applicable when `kind` is `service`, `helper`, or `data_store`. |
+| `route` | string (required when `kind: rest_controller`) | Full REST route path. Not applicable to non-REST kinds. |
+| `route_registration_line` | integer OR `null` | For `kind: rest_controller`: line number of the `register_rest_route(` call, or `null` when inherited. Omit for other kinds. |
+| `callback` | string | For `kind: rest_controller`: controller method name that handles the route. For `kind: service` / `helper`: method name on the service / helper class. For `kind: data_store`: the operation name (`get_option`, `get_post_meta`) or the table-read pattern; may be omitted. |
+| `callback_line` | integer OR `null` | Line number of the callback or method definition, or `null` when inherited or not applicable. |
+| `inherited_from` | string (optional) | Fully-qualified parent class name when the route and/or callback is inherited from a class outside this plugin's repo (e.g. `WP_REST_Posts_Controller` from WordPress core, or another plugin's REST base class for extension plugins). Pair with `null` line numbers. Lets downstream tooling skip the re-grep step cleanly. Primarily relevant for `kind: rest_controller`. |
 
 ### `permission` object
 
 | Field | Type | Description |
 |---|---|---|
-| `callback` | string | The method name used as `permission_callback`. |
+| `source` | enum (optional, default `rest_controller`) | Where the canonical permission for this behavior lives — not always the REST controller's `permission_callback`. One of `rest_controller`, `admin_action`, `service`, `domain_policy`, `post_type_map`, `none`. When omitted, defaults to `rest_controller` for backwards compatibility. `admin_action` for behaviors gated by `check_admin_referer` / `current_user_can` on an admin handler; `service` when a shared method enforces the cap; `domain_policy` for plugins with a policy / authorization layer; `post_type_map` for capabilities resolved through `map_meta_cap` on a post-type cap shadow; `none` for genuinely public behavior. Tells the implementer whether the ability's `permission_callback` can mirror the REST callback or must consult a different source of truth. |
+| `callback` | string | The method or function name that enforces the cap at the recorded `source`. For `source: rest_controller`, this is the `permission_callback` value. For `source: admin_action`, the admin handler function or method. For `source: service`, the service method that performs the cap check. |
 | `resolves_to` | string | The `current_user_can()` call(s) it ultimately resolves to. For compound gates, include both (e.g. `"current_user_can('read_private_pages')` for read; `current_user_can('edit_others_pages')` for write"). |
 | `confirmed` | bool | `true` if verified against source; `false` if inferred. |
 
@@ -179,6 +181,7 @@ proposed_abilities:
   - name: example-plugin/get-items
     intent: "List items with filters (status, owner, date range) so an agent can answer 'which items need attention?' in one call."
     backing:
+      kind: rest_controller
       class: Example_REST_Items_Controller
       file: includes/rest-api/class-example-rest-items-controller.php
       method: GET
@@ -187,6 +190,7 @@ proposed_abilities:
       callback: get_items
       callback_line: 52
     permission:
+      source: rest_controller
       callback: check_permission
       resolves_to: "current_user_can('manage_options')"
       confirmed: true
@@ -204,15 +208,14 @@ proposed_abilities:
   - name: example-plugin/close-item
     intent: "Close a single item — terminal state transition, non-reversible."
     backing:
-      class: Example_REST_Items_Controller
-      file: includes/rest-api/class-example-rest-items-controller.php
-      method: POST
-      route: /example/v1/items/{id}/close
-      route_registration_line: 41
-      callback: close_item
-      callback_line: 120
+      kind: service
+      class: Example_Items_Service
+      file: src/Service/class-items-service.php
+      callback: close
+      callback_line: 88
     permission:
-      callback: check_permission
+      source: service
+      callback: Example_Items_Service::assert_can_close
       resolves_to: "current_user_can('manage_options')"
       confirmed: true
     return_type: "WP_REST_Response (updated item object)"
@@ -284,3 +287,14 @@ Documented so downstream skills have an explicit contract:
   fields to nudge backfill the next time the audit is touched; they do
   NOT FAIL, mirroring the legacy `capability_gate` posture above. New
   audits MUST populate all three.
+- **`backing.kind` and `permission.source` added 2026-05-21.** Both
+  are optional with default `rest_controller` so older audits validate
+  as-is. New audits SHOULD populate both explicitly — `backing.kind`
+  to record whether the ability backs a REST controller, a shared
+  service, a helper, or a data store (because the answer drives the
+  delegate-vs-extract-service decision in `wp-abilities-api/references/
+  shared-core-service.md`); `permission.source` to record where the
+  canonical permission lives (REST callback is the common case, but
+  admin actions, service methods, domain policies, and post-type cap
+  maps each happen). Validators treat a missing field as the default,
+  not as an error.
