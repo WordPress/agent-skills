@@ -21,7 +21,7 @@ Decoupling them means registrations stay where they are while projections evolve
 |---|---|---|
 | **Domain capability** | Stable, transport-neutral, permission-checked. The plugin's contract for "what can this do." | `myplugin/list-things`, `myplugin/update-thing`, `myplugin/get-overview` |
 | **Workflow** *(optional)* | Compositions of one or more abilities into a human- or agent-friendly task. | "Onboard a new merchant" = `verify-account` → `enable-feature` → `send-welcome` |
-| **Projection** | Consumer-specific view of the domain layer. Token-efficient compression for MCP, curated workflows for Command Palette, discoverable execution surface for REST, forms for admin UI, chainable commands for CLI. | An MCP projection might expose three meta-tools (`tools-list` / `tools-describe` / `tools-invoke`) over the same set of domain abilities that Command Palette shows flat. |
+| **Projection** | Consumer-specific view of the domain layer. Token-efficient compression for MCP, curated workflows for Command Palette, discoverable execution surface for REST, forms for admin UI, chainable commands for CLI. | The bundled WordPress MCP adapter projects every published ability through three meta-abilities (`mcp-adapter/discover-abilities`, `mcp-adapter/execute-ability`, `mcp-adapter/get-ability-info`) — agents traverse those three rather than seeing the full registry flat. Command Palette, by contrast, can show the same domain abilities flat because token budget is not a constraint. |
 
 The domain layer is what the registry holds. The projection layer is what each consumer sees. The workflow layer is optional and exists when a user-or-agent-meaningful task needs more than one ability.
 
