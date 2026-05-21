@@ -15,7 +15,7 @@ Without a convention, every plugin invents its own codes and agents can't reason
 
 ## Vocabulary
 
-Substitute `<plugin>` with the plugin's slug in lowercase, underscores only (e.g. `woopayments`, `jetpack_forms`). This matches WordPress error-code conventions. If the plugin already has a house style for error codes (WooPayments uses `woopayments`, not `woo_payments`), mirror that — consistency within a plugin trumps consistency across the vocabulary.
+Substitute `<plugin>` with the plugin's slug in lowercase, underscores only. This matches WordPress error-code conventions. If the plugin already has a house style — for example, a single-word slug that deliberately omits underscores between elided words — mirror that. Consistency within a plugin trumps consistency across the vocabulary.
 
 | Code | When to use | Agent behavior |
 |---|---|---|
