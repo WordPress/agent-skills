@@ -89,10 +89,22 @@ re-derive the rules here. Short version: one ability per real-world question
 or state transition, with filter parameters in `input_schema` collapsing N
 variants into 1.
 
-For each proposed ability, fill in every field in the `proposed_abilities`
-schema: `name`, `intent`, `backing`, `permission`, `return_type`, `effort`
-(S/M/L), `annotations` (readonly/destructive/idempotent), `notes`, `risks`,
-`use_case_fit`, `side_effects`, `seed_data_needs`.
+**Apply the use-case sanity check before populating any candidate.** Per
+`../wp-abilities-api/references/domain-vs-projection.md`'s use-case-contract
+test: would a human or agent intentionally perform this behavior through a
+supported plugin workflow? If yes, the candidate is a real ability —
+proceed to fill in fields. If no, the route is internal transport plumbing
+(cache invalidation, scheduler ticks, bookkeeping endpoints, debug
+introspection) — keep it in the Controller Inventory section for
+completeness, but do NOT promote it to `proposed_abilities`. The route may
+be useful to inventory; the proposed ability must represent a real
+user/operator question or action.
+
+For each proposed ability that passes the sanity check, fill in every
+field in the `proposed_abilities` schema: `name`, `intent`, `backing`,
+`permission`, `return_type`, `effort` (S/M/L), `annotations`
+(readonly/destructive/idempotent), `notes`, `risks`, `use_case_fit`,
+`side_effects`, `seed_data_needs`.
 
 The last three are the implementation-readiness facts the implementer
 and the verify-mode tooling both need: which human/agent workflow this
