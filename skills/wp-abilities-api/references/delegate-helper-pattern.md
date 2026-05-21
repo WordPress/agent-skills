@@ -1,6 +1,6 @@
 # Delegate helper pattern
 
-When an ability's execute callback needs to hand work to an existing REST controller instead of duplicating business logic, extract a `delegate_to_rest_controller` helper. This reference documents the canonical signature, the three guards every implementation needs, the dual response-shape unwrap, and when NOT to use the helper at all.
+Once you've decided delegation is the right shape for an ability — that is, the backing REST controller is a pure data-fetch, the operation is a read, and the ability runs predominantly inside REST contexts (see `shared-core-service.md` for when the answer is "no, extract a shared service" instead) — extract a `delegate_to_rest_controller` helper rather than open-coding the request-build/dispatch/unwrap pipeline in each execute callback. This reference documents the canonical signature, the three guards every implementation needs, the dual response-shape unwrap, and when NOT to use the helper at all.
 
 Read `plugin-family-patterns.md` first — the helper's exact shape depends on whether your plugin follows the shared-API-client pattern or the zero-arg-controllers pattern.
 
