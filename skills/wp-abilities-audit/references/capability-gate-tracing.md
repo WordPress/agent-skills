@@ -141,20 +141,46 @@ This is accepted for backwards compatibility, but:
 
 Prefer the structured form for any new audit.
 
-## Procedure — trace every route you'll back
+## Procedure — trace the permission source for each proposed behavior
+
+The ability's permission should match the plugin's intended gate for the
+proposed *behavior*, not necessarily the REST route. Often the REST
+controller's `permission_callback` is the right source of truth, but in
+some plugins the canonical permission lives elsewhere — an admin-action
+handler with its own `check_admin_referer` + `current_user_can` block, a
+service / helper method that performs the check before doing the work, a
+domain-policy / authorization layer, or a post-type cap shadow resolved
+through core's `map_meta_cap`. The audit should preserve where the
+permission canonically lives so the implementer doesn't silently drift
+to whichever source the REST layer happens to expose.
 
 For each proposed ability, walk the chain once:
 
-1. Find the route's `permission_callback` in the controller.
-2. Determine whether it's Mechanism A (local method, single cap) or
-   Mechanism B (inherited, post-type-backed, dynamic).
-3. Resolve to the actual `current_user_can()` call(s). For B, resolve BOTH
-   read and write if the ability crosses contexts.
-4. Record in the ability's `permission.resolves_to` field verbatim — the
+1. Identify the *behavior* the ability surfaces, then locate where the
+   plugin enforces the cap for that behavior. Check the REST controller's
+   `permission_callback` first; if the REST callback is `'__return_true'`,
+   delegates entirely, or doesn't match the behavior's intended gate,
+   look for the canonical source in an admin handler, a shared service
+   method, a domain-policy class, or a post-type cap map.
+2. Record where the gate lives in the ability's `permission.source` field
+   per `audit-schema.md`: one of `rest_controller`, `admin_action`,
+   `service`, `domain_policy`, `post_type_map`, `none`. Default
+   `rest_controller`; pick another value when the canonical source is
+   elsewhere.
+3. Determine whether the gate is Mechanism A (local method, single cap)
+   or Mechanism B (inherited, post-type-backed, dynamic).
+4. Resolve to the actual `current_user_can()` call(s). For Mechanism B,
+   resolve BOTH read and write if the ability crosses contexts.
+5. Record in the ability's `permission.resolves_to` field verbatim — the
    string should read as an actual trace, not a best-guess summary.
-5. If every route in the plugin resolves to the same cap (or same
-   `{read, write}` pair), hoist it into the top-level `capability_gate`. If
-   any route diverges, record the divergence in "Notes and Surprises".
+6. Add a risk note when the canonical permission source diverges from
+   the REST controller's callback: the ability's `permission_callback`
+   must consult the canonical source (or replicate its check), not
+   copy the REST callback by reflex.
+7. If every behavior in the plugin resolves to the same cap (or same
+   `{read, write}` pair) at the same source, hoist it into the top-level
+   `capability_gate`. If any behavior diverges in cap OR in source,
+   record the divergence in "Notes and Surprises".
 
 ## Common pitfall — `permission_callback => '__return_true'`
 
