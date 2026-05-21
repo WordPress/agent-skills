@@ -1,6 +1,8 @@
 # Shared core service — keeping abilities in lockstep with REST and UI
 
-When an ability mirrors something a human can already do through a supported UI or workflow, the ability MUST consume the same code path as that UI or workflow — same permissions, same validation, same business rules. Three call sites for the same operation (UI, REST, ability — possibly CLI too) drift apart over time unless they all delegate to a shared service. This reference covers when to delegate to an existing REST controller (the delegation pattern), when to extract a service class instead, and the side effects on the existing REST path that often force the second choice.
+When an ability mirrors something a human can already do through a supported UI or workflow, the ability MUST consume the same code path as that UI or workflow — same permissions, same validation, same business rules. Three call sites for the same operation (UI, REST, ability — possibly CLI too) drift apart over time unless they all delegate to a shared service.
+
+The default shape this reference recommends is a shared service that the ability, the REST controller, and the UI all consume. Routing the ability through the existing REST controller (the "delegation pattern" below) is a conditional shortcut — fine when the controller is a pure data-fetch and the ability runs predominantly inside REST contexts, but the wrong default for any ability with real growth surface. This reference covers when the shortcut is safe, when it isn't, and the side effects on the existing REST path that most often disqualify it.
 
 Read `domain-vs-projection.md` first — abilities are use-case contracts at the domain layer; UI/REST/CLI/MCP are projections. This reference is the implementation mechanism that keeps those projections honest.
 
@@ -22,10 +24,10 @@ The fix is to keep one source of business logic and treat ability/REST/UI/CLI as
 | Shape | Example | Verdict |
 |---|---|---|
 | **Re-implement** the logic in the execute callback. | The callback runs its own SQL, applies its own permission checks, builds its own response. | **Avoid.** Guaranteed drift the first time the original code path changes. |
-| **Delegate to the existing REST controller** via `WP_REST_Request`. | The ability builds a `WP_REST_Request` from its input, dispatches via `rest_do_request()`, and returns the response data. The dispatched request flows through the registered controller's permission check, validation, and handler. | **OK for low-stakes reads** — but read "Side effects on the existing REST path" below first. |
-| **Extract a service class** that ability + REST controller + UI handler all consume. | `My_Plugin::get_things_service()->list( $args )` called from the ability, the REST controller, and an admin-side handler. | **Recommended** for writes and for any read whose backing endpoint records usage metrics. |
+| **Delegate to the existing REST controller** via `WP_REST_Request`. | The ability builds a `WP_REST_Request` from its input, dispatches via `rest_do_request()`, and returns the response data. The dispatched request flows through the registered controller's permission check, validation, and handler. | **Conditional shortcut.** Acceptable only when *all three* hold: the backing handler is a pure data-fetch (read-only, no side effects), the operation is itself a read, and the ability runs predominantly inside REST contexts. Read "Side effects on the existing REST path" below before assuming the conditions hold. |
+| **Extract a service class** that ability + REST controller + UI handler all consume. | `My_Plugin::get_things_service()->list( $args )` called from the ability, the REST controller, and an admin-side handler. | **Default.** Choose this unless every delegation condition above holds. It is the only shape that removes drift entirely and the only shape that scales when an endpoint later grows a side effect, a write counterpart, or a non-REST caller. |
 
-The middle row is fine when the backing endpoint is light, read-only, and metric-neutral. The third row is what removes drift entirely; it is also more invasive because it usually means refactoring the existing REST controller to call the service rather than embed the logic.
+The third row is the default because it is the only one that decouples the ability (a domain-layer capability) from the REST transport. The middle row is a real shortcut — there is no point extracting a service class for `get_option('something')` — but its applicability is bounded enough that it should be reached for deliberately, not by default. Extracting a service is more invasive at first (it usually means refactoring the existing REST controller to call the service rather than embed the logic), but it is also the move that holds up under change.
 
 ## What the delegation pattern looks like
 
@@ -151,20 +153,15 @@ The ability and the REST endpoint now share business logic. Side effects (audit,
 
 ## Rule of thumb
 
-- **Read with no side effects on the REST path, light logic, predominantly invoked through REST** → route the ability through the existing REST handler via the delegation pattern. Cheapest. Drift risk is bounded because the REST controller is one short hop away.
+Start from the assumption that the ability extracts (or consumes an already-extracted) service. Walk back to delegation only when every condition for it holds.
+
+- **Write of any kind** → extract a service. Drift is most damaging on writes (lost validation, missing audit hooks). Non-negotiable.
+- **No existing REST endpoint** → start at the service. The first ability you ship is also the right time to add the structure that a future REST endpoint will consume.
 - **Read where the REST handler does more than data-fetch** (audit, hooks, notifications, telemetry) → extract a service. Don't fire UI-scoped side effects on agent invocations.
 - **Read predominantly invoked outside REST** (CLI, cron, agent, non-REST MCP transport) → prefer direct invocation of the service or the underlying request class. Delegation pays the first-call REST bootstrap cost on every cold path.
-- **Write of any kind** → extract a service. Drift is most damaging on writes (lost validation, missing audit hooks).
-- **No existing REST endpoint** → start at the service. The first ability you ship is also the right time to add the structure that a future REST endpoint will consume.
+- **Read with no side effects on the REST path, light logic, predominantly invoked through REST** → the delegation pattern is acceptable as a shortcut. Drift risk is bounded because the REST controller is one short hop away — but only as long as those three conditions hold.
 
-The side-effect, write, and non-REST-context rules **override** the
-lighter "if the backing takes a `WP_REST_Request`, just delegate"
-heuristic. The signature test is sufficient only when the REST handler
-is a pure data-fetch, the operation is a read, and the ability runs
-mostly inside REST contexts. If the handler emits side effects, the
-operation writes, or the ability runs predominantly through CLI / cron /
-agent paths, extract a service even when delegating would otherwise be
-the easy path.
+The bias is intentional. Service-extraction is the only shape that holds up when the REST handler later grows a side effect, when a write counterpart shows up, or when a non-REST caller appears (a new CLI command, a cron job, an agent invocation off a non-REST MCP transport). Delegation re-couples the domain layer to the REST transport; that re-coupling is fine when the conditions hold *and* unlikely to change, but the cost of unwinding it later is higher than starting at the service.
 
 ## Escape hatch — when re-implementation is OK
 
@@ -174,6 +171,12 @@ Two narrow cases:
 2. **The plugin is single-purpose and will not grow surfaces.** A 200-line plugin with one ability and no REST surface to drift against can keep logic in the execute callback. The drift risk only shows up at 2+ adapters.
 
 In both cases, leave a `// TODO: extract to service if a REST/UI surface gets added` comment so the next person sees the trigger condition.
+
+## Plugin-family override
+
+This reference describes the generic baseline. Specific plugin families can — and routinely do — tighten the rules further. A payments-family plugin might forbid the delegation pattern outright on the grounds that no payments endpoint is safe to treat as side-effect-free. A subscription plugin might require service extraction even for one-line option reads if the option is read in more than one transport. A plugin that ships its own MCP transport might rule out delegation for any ability exposed through it.
+
+When the plugin you are working in is one of those, the local rules win. Check the plugin's `AGENTS.md`, contributor guide, or ability-registration playbook before reaching for the delegation shortcut taught here.
 
 ## Related references
 
