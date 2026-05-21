@@ -1,8 +1,12 @@
 # Plugin-family patterns
 
-When you adopt the Abilities API inside an existing plugin, the plugin's architecture dictates HOW your execute callbacks call the existing business logic. Two patterns cover most real-world WordPress plugins. Pick one up front — the choice ripples through your delegate helper, your tests, and your error codes.
+This reference covers shared implementation *mechanics* — the call-shape pattern your execute callbacks follow when handing work to existing business logic. Two patterns cover most real-world WordPress plugins; pick one up front, because the choice ripples through your delegate helper, your tests, and your error codes.
 
-## Pattern A — Shared-API-client ("Woo-family")
+Family-specific *registration* conventions — loader path, ability category, MCP exposure defaults, error-code prefix house style — live in separate plugin-family overlays (for example, a WooCommerce-extension overlay), not in this reference. Apply any relevant overlay before scaffolding registration. The patterns below should stay portable: they describe how the execute callback talks to backing code, not what the registration metadata should look like for your plugin family.
+
+There is also a third option that sits *outside* this dichotomy. If the operation does not yet have a shared service class — or if you can refactor toward one — extracting a service that the ability, the REST controller, and the UI all consume is the default per `shared-core-service.md`. Delegation through an existing REST controller (Patterns A and B below) is a conditional shortcut for low-stakes reads, not the starting point. Confirm the shape is right before you reach for either pattern.
+
+## Pattern A — Shared API client
 
 Common in plugins that talk to a remote service (Stripe, a first-party SaaS, an upstream API). The plugin bootstraps a single API client, exposes it via a static accessor on a main plugin class, and every REST controller takes that client as a constructor argument.
 
@@ -106,9 +110,9 @@ class Abilities_Registrar {
 - **The "not initialized" error path is reachable and must be covered.** One unit test should stub the accessor to return null and assert the ability returns `<plugin>_not_initialized`. This is a common failure during partial bootstraps (WP-CLI with restricted loading, test harnesses, admin pages with conditional autoloading).
 - **Integration tests need real or faked HTTP.** The backing controller will hit the upstream unless the API client is mocked, so integration harnesses typically route through a fake transport.
 
-Worked example: WooPayments' `Abilities_Registrar` uses this pattern. Controllers extend `WC_Payments_REST_Controller`, whose constructor takes a `WC_Payments_API_Client`; the shared client comes from `WC_Payments::get_payments_api_client()`.
+Worked example: a plugin that talks to an external SaaS or upstream HTTP service typically follows this pattern. The plugin's main class exposes the API client via a static accessor (e.g. `Plugin_Main::get_api_client()`); REST controllers extend a base class whose constructor takes that client as a typed argument; the abilities registrar pulls the client through the same accessor before constructing controllers.
 
-## Pattern B — Zero-arg controllers ("Jetpack-family")
+## Pattern B — Zero-arg controllers
 
 Common in plugins/packages that delegate primarily to WordPress core mechanisms (custom post types, options, meta) and don't maintain a single shared API client. Controllers instantiate cleanly without a dependency graph.
 
@@ -202,7 +206,7 @@ See `delegate-helper-pattern.md` for the full helper signature and guards.
 - **Test at the `wp_get_ability()` level when possible.** In Pattern B the backing controller often exists in WordPress core territory (e.g. custom post types), so integration tests can exercise the full pipeline without a fake transport.
 - **The `<plugin>_not_initialized` failure mode is less common.** It still exists — if a package isn't loaded, `class_exists` on the backing controller still fails — but the surface area is smaller.
 
-Worked example: Jetpack Forms' `Forms_Abilities` class instantiates `Contact_Form_Endpoint( 'feedback' )` per execute callback. No shared helper in the registrar; the construction step is inline. Canonical file: [`Automattic/jetpack/projects/packages/forms/src/abilities/class-forms-abilities.php`](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/forms/src/abilities/class-forms-abilities.php).
+Worked example: a plugin whose REST controllers wrap a custom post type, taxonomy, option, or meta typically follows this pattern. Each execute callback constructs its controller inline (e.g. `new My_CPT_Endpoint( 'my_cpt' )`), passing whatever scalar (post-type slug, taxonomy name) the controller needs. No shared helper in the registrar; the construction step is small enough to inline.
 
 ## Hybrid cases
 
@@ -226,4 +230,4 @@ Don't introduce a fake shared API client to fit Pattern A's helper shape. If the
 | Plugin talks to an external SaaS / upstream HTTP service | A |
 | Backing controller `__construct` is zero-arg or only takes scalars | B |
 | Backing is a CPT / options / meta wrapper | B |
-| Plugin is a Jetpack-style first-party WordPress package | B |
+| Plugin's REST surface wraps WP-core post types, taxonomies, options, or meta | B |
