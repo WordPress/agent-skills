@@ -82,8 +82,8 @@ Each entry:
 | `notes` | array of strings | Implementer-facing detail (filter params, edge cases, alternative backings). |
 | `risks` | array of strings | Anything the implementer must handle (missing idempotency key, two-phase behavior, `permission_callback => '__return_true'` at the REST layer that must not copy into the ability, etc.). |
 | `use_case_fit` | string | One sentence naming the human or agent workflow this ability serves. The use-case-contract check (see `wp-abilities-api/references/domain-vs-projection.md`): if no human would intentionally do this through a supported UI or workflow, the entry probably belongs in `excluded_from_mvp` instead. |
-| `side_effects` | array of strings | Side effects the backing path emits on every call: telemetry hooks fired, audit-log rows written, notifications dispatched, cache writes, lock acquisitions, expensive bootstrap on cold paths. One short line per effect. Empty array (`[]`) when the backing is a pure data-fetch — and that is *itself* a fact downstream tooling uses to decide whether delegation is safe. |
-| `seed_data_needs` | string OR `null` | One line describing what representative data must exist in the test environment for the ability to execute through the public boundary and return something meaningful (e.g. `"at least one completed order under the configured gateway"`, `"no seed required"`). `null` when the auditor has not yet identified the seed shape; downstream verify-mode tooling treats `null` as "ask the implementer" rather than guessing. |
+| `side_effects` | array of strings | Side effects the backing path emits on every call: telemetry hooks, audit-log rows, notifications, cache writes. One short line per effect. Empty array (`[]`) when the backing is a pure data-fetch — that is *itself* a load-bearing fact: it is what unlocks the conditional delegation shortcut in `wp-abilities-api/references/shared-core-service.md`. A non-empty array tells the implementer (and downstream verify-mode tooling) that this ability needs the shared-service shape, not the delegate-through-REST shortcut. |
+| `seed_data_needs` | string OR `null` | One line describing what representative data must exist in the test environment for the ability to execute through the public boundary and return something meaningful (e.g. `"at least one entity in the plugin's primary table"`, `"no seed required"`). `null` when the auditor has not yet identified the seed shape; downstream verify-mode tooling treats `null` as "ask the implementer" rather than guessing. |
 | `reference_ability` | bool (optional) | If `true`, marks this ability as the reference implementation — the first one an implementer should land (smallest, safest, highest-leverage read). Exactly zero or one ability per audit may set this. |
 
 ### `backing: null` semantics
@@ -276,3 +276,11 @@ Documented so downstream skills have an explicit contract:
   gaps and MUST also appear in `surfaced_gaps` by `name`. Validators FAIL
   audits where this invariant is violated (a `null` backing without a
   matching `surfaced_gaps` entry indicates inconsistent audit output).
+- **Implementation-readiness fields added 2026-05-21.** `use_case_fit`,
+  `side_effects`, and `seed_data_needs` are required in the per-ability
+  schema as of this date. Audits authored against an earlier revision of
+  this schema will be missing the three fields. Validators (e.g.
+  `wp-abilities-verify`) emit WARN on missing implementation-readiness
+  fields to nudge backfill the next time the audit is touched; they do
+  NOT FAIL, mirroring the legacy `capability_gate` posture above. New
+  audits MUST populate all three.

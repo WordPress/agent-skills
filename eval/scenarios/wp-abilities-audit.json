@@ -10,7 +10,8 @@
     "Step 5: Apply semantic-intent grouping per wp-abilities-api/references/grouping-heuristic.md; do NOT atomize one ability per HTTP method",
     "Step 6: Mark inherited routes with backing.inherited_from and null line numbers per audit-schema.md",
     "Step 7: Write the audit doc to the user-provided output path, NOT into the plugin worktree",
-    "Step 8: Include at least one entry in surfaced_gaps for a high-leverage zero-arg candidate or a backing: null gap"
+    "Step 8: Include at least one entry in surfaced_gaps for a high-leverage zero-arg candidate or a backing: null gap",
+    "Step 9: For each proposed ability, record the implementation-readiness fields per audit-schema.md: use_case_fit (one-sentence workflow), side_effects (array; empty list is a load-bearing fact, not a missing value), seed_data_needs (representative-data shape or null)"
   ],
   "success_criteria": [
     "Routes to wp-abilities-audit skill",
@@ -19,6 +20,7 @@
     "proposed_abilities has at least 3 entries with at least one read and one write",
     "surfaced_gaps array has at least one entry",
     "Controller Inventory table lists every controller grep enumerated",
-    "Notes and Surprises section captures at least one judgment call"
+    "Notes and Surprises section captures at least one judgment call",
+    "Every entry in proposed_abilities populates use_case_fit, side_effects, and seed_data_needs (the implementation-readiness fields)"
   ]
 }
