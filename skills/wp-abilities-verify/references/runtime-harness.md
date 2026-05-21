@@ -124,7 +124,18 @@ This check complements the static adversarial check from
 behavior; runtime checks what the registration hook resolved to at boot
 time. Both must agree for the annotations to be trustworthy.
 
-## Check 3 — each read ability's `execute()` returns OK or a standard-vocabulary WP_Error
+## Check 3 — each read ability's `execute()` behaves as the contract claims
+
+Two verification levels. The smoke level catches bootstrap and gross-error
+regressions; the high-confidence level is the one that actually exercises
+the ability against the data shape it will see in production. Run both
+when the audit doc provides `seed_data_needs`; run the smoke level alone
+when it doesn't.
+
+### Level 1 — smoke execution (synthetic inputs)
+
+Confirm each read returns `OK` or a vocabulary `WP_Error`. Catches PHP
+fatals, un-bootstrapped services, registration failures.
 
 ```bash
 <env-cli> wp --user=admin eval '
@@ -169,7 +180,78 @@ echo "<ability>: " . ( is_wp_error( $r ) ? "WP_Error(" . $r->get_error_code() . 
 
 A synthetic ID on a fresh install typically triggers
 `<plugin>_<resource>_data_unavailable` or an upstream-equivalent code.
-Both are acceptable.
+Both are acceptable for Level 1 — they mean "ability dispatched cleanly,
+the backing reported no data," which is the smoke signal.
+
+### Level 2 — high-confidence verification (representative seeded data)
+
+Synthetic inputs catch fatals and gross errors. They do NOT catch wrong
+IDs returning the wrong record, cached sentinel values being served
+instead of fresh data, permission gates appearing correct against a
+synthetic ID but not against a real one, filtered labels diverging from
+the unfiltered claim, missing capabilities surfacing only when a real
+record is in scope, or curated output drift (a new field added to the
+controller that the ability inherits and now leaks). These are the
+failure modes that matter and they only fall out when the ability runs
+against the data shape it will see in production.
+
+For each ability whose audit entry declares a non-null `seed_data_needs`,
+seed the environment per that field, then call the ability with
+representative inputs (a real id, a real slug — not a synthetic
+placeholder), and assert the output shape AND the privacy contract:
+
+```bash
+<env-cli> wp --user=admin eval '
+// Seed once at the top of the harness run, per the audit doc:
+// e.g. wp post create, wp user create, wp option update, factory helpers.
+
+$ability = wp_get_ability( "<plugin>/<read-ability>" );
+$result  = $ability->execute( array( "<field>" => "<real-id-from-the-seeded-data>" ) );
+
+if ( is_wp_error( $result ) ) {
+    echo "FAIL: " . $result->get_error_code() . PHP_EOL;
+    exit;
+}
+
+// Assert the documented output shape — keys present, types correct.
+$expected_keys = array( "id", "label", "status" );  // from the ability schema or audit return_type
+foreach ( $expected_keys as $k ) {
+    if ( ! array_key_exists( $k, (array) $result ) ) {
+        echo "FAIL: missing output key " . $k . PHP_EOL;
+        exit;
+    }
+}
+
+// Assert the privacy contract: sensitive fields the contract does NOT
+// promise must not appear (e.g. full PAN, full bank account, raw token,
+// internal-only debug fields).
+$forbidden_keys = array( "full_pan", "card_number", "bank_account_number", "iban" );
+foreach ( $forbidden_keys as $k ) {
+    if ( array_key_exists( $k, (array) $result ) ) {
+        echo "FAIL: privacy leak — " . $k . " present in output." . PHP_EOL;
+        exit;
+    }
+}
+
+echo "PASS: shape OK, privacy OK." . PHP_EOL;
+'
+```
+
+Adapt `$expected_keys` and `$forbidden_keys` to each ability. The audit
+doc's `return_type` field hints at the shape; the privacy keys depend on
+the plugin's domain. For payments-family plugins, full PANs / bank
+numbers / raw tokens are the canonical forbidden set; other families
+substitute appropriately. The plugin's in-tree contract tests (the
+overlay's `test-the-public-contract.md` for WooCommerce extensions) are
+the durable home for these assertions on every CI run — this Level 2
+check is the one-off harness run that produces the PR artifact.
+
+When the audit doc declares `seed_data_needs: null`, Level 2 is not yet
+runnable: the auditor has not identified the seed shape. The harness
+reports `LEVEL 2: pending (seed_data_needs is null — ask the
+implementer)` and proceeds. When `seed_data_needs` is a string, the
+harness operator seeds per that description before running the
+representative-input block above.
 
 ## Check 4 — each write ability's missing-input returns `ability_invalid_input` or `<plugin>_missing_<field>`
 
