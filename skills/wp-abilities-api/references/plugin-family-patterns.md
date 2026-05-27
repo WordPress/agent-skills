@@ -1,12 +1,12 @@
 # Plugin-family patterns
 
-This reference covers shared implementation *mechanics* — the call-shape pattern your execute callbacks follow when handing work to existing business logic. Two patterns cover most real-world WordPress plugins; pick one up front, because the choice ripples through your delegate helper, your tests, and your error codes.
+This reference covers shared implementation *mechanics* — the call shape your execute callbacks follow when handing work to existing business logic. Two shapes are common enough across real-world WordPress plugins to be worth naming; which one fits is determined by how the backing controller is constructed, not by a choice you make up front. The choice still ripples through your delegate helper, your tests, and your error codes, so it's worth confirming early.
 
 Family-specific *registration* conventions — loader path, ability category, MCP exposure defaults, error-code prefix house style — live in separate plugin-family overlays (for example, a WooCommerce-extension overlay), not in this reference. Apply any relevant overlay before scaffolding registration. The patterns below should stay portable: they describe how the execute callback talks to backing code, not what the registration metadata should look like for your plugin family.
 
-There is also a third option that sits *outside* this dichotomy. If the operation does not yet have a shared service class — or if you can refactor toward one — extracting a service that the ability, the REST controller, and the UI all consume is the default per `shared-core-service.md`. Delegation through an existing REST controller (Patterns A and B below) is a conditional shortcut for low-stakes reads, not the starting point. Confirm the shape is right before you reach for either pattern.
+There is also a third option that sits *outside* this dichotomy. If the operation does not yet have a shared service class — or if you can refactor toward one — extracting a service that the ability, the REST controller, and the UI all consume is the default per `shared-core-service.md`. Delegation through an existing REST controller (either shape below) is a conditional shortcut for low-stakes reads, not the starting point. Confirm the shape is right before you reach for either.
 
-## Pattern A — Shared API client
+## Shape: shared API client
 
 Common in plugins that talk to a remote service (Stripe, a first-party SaaS, an upstream API). The plugin bootstraps a single API client, exposes it via a static accessor on a main plugin class, and every REST controller takes that client as a constructor argument.
 
@@ -17,7 +17,7 @@ Common in plugins that talk to a remote service (Stripe, a first-party SaaS, an 
 grep -n "public function __construct" <path/to/rest-controller.php>
 ```
 
-If the constructor takes a required typed argument (e.g. `My_Plugin_API_Client $api_client`), you're in Pattern A. Confirm the plugin has a central accessor:
+If the constructor takes a required typed argument (e.g. `My_Plugin_API_Client $api_client`), you're in the shared-API-client shape. Confirm the plugin has a central accessor:
 
 ```bash
 grep -rn "get_api_client\|get_.*_api_client\|get_service" <path/to/plugin/main-class.php>
@@ -73,7 +73,7 @@ class Abilities_Registrar {
             return new \WP_Error( 'my_plugin_not_initialized', __( 'My Plugin is not initialized.', 'my-plugin' ) );
         }
 
-        // Pattern A specifics: fetch the shared API client and null-check.
+        // Shape specifics: fetch the shared API client and null-check.
         $api_client = null;
         if ( class_exists( '\My_Plugin' ) && method_exists( '\My_Plugin', 'get_api_client' ) ) {
             $api_client = \My_Plugin::get_api_client();
@@ -112,7 +112,7 @@ class Abilities_Registrar {
 
 Worked example: a plugin that talks to an external SaaS or upstream HTTP service typically follows this pattern. The plugin's main class exposes the API client via a static accessor (e.g. `Plugin_Main::get_api_client()`); REST controllers extend a base class whose constructor takes that client as a typed argument; the abilities registrar pulls the client through the same accessor before constructing controllers.
 
-## Pattern B — Zero-arg controllers
+## Shape: zero-arg controllers
 
 Common in plugins/packages that delegate primarily to WordPress core mechanisms (custom post types, options, meta) and don't maintain a single shared API client. Controllers instantiate cleanly without a dependency graph.
 
@@ -122,9 +122,9 @@ Common in plugins/packages that delegate primarily to WordPress core mechanisms 
 grep -n "public function __construct" <path/to/rest-controller.php>
 ```
 
-If the constructor takes no required arguments, or takes only simple scalars you can hardcode at the ability call site (e.g. a post-type string), you're in Pattern B.
+If the constructor takes no required arguments, or takes only simple scalars you can hardcode at the ability call site (e.g. a post-type string), you're in the zero-arg shape.
 
-Also grep the plugin's main bootstrap class for the absence of a singleton API accessor — if there isn't one, Pattern B is the honest choice.
+Also grep the plugin's main bootstrap class for the absence of a singleton API accessor — if there isn't one, the zero-arg shape is the honest choice.
 
 ### Minimal skeleton
 
@@ -203,7 +203,7 @@ See `delegate-helper-pattern.md` for the full helper signature and guards.
 ### Testing implications
 
 - **No API-client mock needed.** Unit tests instantiate the ability registrar directly and call `execute_*` with input arrays.
-- **Test at the `wp_get_ability()` level when possible.** In Pattern B the backing controller often exists in WordPress core territory (e.g. custom post types), so integration tests can exercise the full pipeline without a fake transport.
+- **Test at the `wp_get_ability()` level when possible.** With zero-arg controllers the backing often exists in WordPress core territory (e.g. custom post types), so integration tests can exercise the full pipeline without a fake transport.
 - **The `<plugin>_not_initialized` failure mode is less common.** It still exists — if a package isn't loaded, `class_exists` on the backing controller still fails — but the surface area is smaller.
 
 Worked example: a plugin whose REST controllers wrap a custom post type, taxonomy, option, or meta typically follows this pattern. Each execute callback constructs its controller inline (e.g. `new My_CPT_Endpoint( 'my_cpt' )`), passing whatever scalar (post-type slug, taxonomy name) the controller needs. No shared helper in the registrar; the construction step is small enough to inline.
@@ -212,14 +212,14 @@ Worked example: a plugin whose REST controllers wrap a custom post type, taxonom
 
 A single plugin can legitimately use both patterns across different abilities:
 
-- A Pattern A ability for backing controllers that talk to the upstream service.
-- A Pattern B ability for backing controllers that only touch WP core (e.g. a CPT-based settings endpoint in the same plugin).
+- A shared-API-client ability for backing controllers that talk to the upstream service.
+- A zero-arg ability for backing controllers that only touch WP core (e.g. a CPT-based settings endpoint in the same plugin).
 
-If this happens, the helper in `delegate-helper-pattern.md` can support both via optional `constructor_args` — but resist the temptation to over-engineer until you have at least two Pattern B abilities that would share the helper.
+If this happens, the helper in `delegate-helper-pattern.md` can support both via optional `constructor_args` — but resist the temptation to over-engineer until you have at least two zero-arg abilities that would share the helper.
 
 ## Anti-pattern — inventing an API client where there isn't one
 
-Don't introduce a fake shared API client to fit Pattern A's helper shape. If the plugin is genuinely stateless / CPT-driven, Pattern B's inline construction is the honest answer. The helper is scaffolding that pays back when you have 4+ abilities sharing the build-request → instantiate → unwrap flow; before that, inline code is faster to read and review.
+Don't introduce a fake shared API client to fit the shared-client helper shape. If the plugin is genuinely stateless / CPT-driven, inline construction is the honest answer. The helper is scaffolding that pays back when you have 4+ abilities sharing the build-request → instantiate → unwrap flow; before that, inline code is faster to read and review.
 
 ## Picking quickly
 
