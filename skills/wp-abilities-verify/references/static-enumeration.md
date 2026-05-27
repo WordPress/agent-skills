@@ -7,7 +7,7 @@ means a complete inventory only comes from a live `wp_get_abilities()`
 call. When static and runtime inventories diverge, trust runtime;
 static drives the diff so the reviewer knows where to look.
 
-## Canonical registration shape
+## Typical registration shape
 
 ```php
 wp_register_ability(
@@ -43,8 +43,8 @@ SKILL.md "Failure modes." Don't fabricate an empty inventory.
 ## Step 2 — extract each ability name
 
 The first argument is the ability name — usually a literal string.
-Real-world formatting splits the call across lines (the canonical
-shape above is itself multi-line), so single-line regexes miss common
+Real-world formatting splits the call across lines (the example
+above is itself multi-line), so single-line regexes miss common
 cases. Use a multi-line tool:
 
 ```bash
