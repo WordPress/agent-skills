@@ -1,8 +1,8 @@
 # Delegate helper pattern
 
-Once you've decided delegation is the right shape for an ability — that is, the backing REST controller is a pure data-fetch, the operation is a read, and the ability runs predominantly inside REST contexts (see `shared-core-service.md` for when the answer is "no, extract a shared service" instead) — extract a `delegate_to_rest_controller` helper rather than open-coding the request-build/dispatch/unwrap pipeline in each execute callback. This reference documents the canonical signature, the three guards every implementation needs, the dual response-shape unwrap, and when NOT to use the helper at all.
+Once you've decided delegation is the right shape for an ability — that is, the backing REST controller is a pure data-fetch, the operation is a read, and the ability runs predominantly inside REST contexts (see `shared-core-service.md` for when the answer is "no, extract a shared service" instead) — extract a `delegate_to_rest_controller` helper rather than open-coding the request-build/dispatch/unwrap pipeline in each execute callback. This reference documents one helper shape that works, the three guards every implementation needs, the dual response-shape unwrap, and when NOT to use the helper at all. Adapt the exact signature to the plugin you're working in — the guards and unwrap matter more than the parameter list.
 
-Read `plugin-family-patterns.md` first — the helper's exact shape depends on whether your plugin follows the shared-API-client pattern or the zero-arg-controllers pattern.
+Read `plugin-family-patterns.md` first — the helper's exact shape depends on how the backing controller is constructed (shared API client vs. zero-arg).
 
 ## Why this helper exists
 
@@ -21,7 +21,7 @@ After the **second** list-style ability lands. Before the third ability gets add
 
 If the plugin only ever ships one or two abilities, inline the code. The helper's payoff is at 3+ callers.
 
-## Canonical signature (Pattern A — shared-API-client)
+## Helper shape
 
 ```php
 /**
@@ -107,11 +107,11 @@ Note `'\\' . $controller_class` — accept controller class names without a lead
 
 ### 2. Required dependency (API client) null-check
 
-For Pattern A plugins the accessor is a `public static` method on the main plugin class. Both `class_exists` on the plugin class AND `method_exists` on the accessor are guarded because either could be absent during partial bootstraps. A null return from the accessor is also treated as "not initialized".
+When the controller takes a shared API client as a constructor argument, the accessor is typically a `public static` method on the main plugin class. Guard both `class_exists` on the plugin class AND `method_exists` on the accessor because either could be absent during partial bootstraps. Treat a null return from the accessor as "not initialized".
 
 Missing this argument produces `ArgumentCountError: Too few arguments to function <Controller>::__construct(), 0 passed` — a PHP fatal. The standardized `<plugin>_not_initialized` error code is documented in `error-code-vocabulary.md`.
 
-For Pattern B plugins, this guard is either skipped entirely (zero-arg constructor) or replaced with construction-time scalar args passed in via an optional `constructor_args` parameter.
+When the controller takes no constructor args, skip this guard entirely. When it takes only simple scalars (e.g. a post-type string), pass them in via an optional `constructor_args` parameter on the helper.
 
 ### 3. `is_wp_error` short-circuit
 
