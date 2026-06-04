@@ -27,6 +27,9 @@ directory rules (GPL, naming/trademark), use `wp-plugin-directory-guidelines`.
 
 ## Procedure
 
+For category details, result interpretation, and CI usage, see:
+- `references/usage.md`
+
 ### 0) Confirm the tooling
 
 - Confirm WP-CLI is available (`wp --info`).

@@ -93,6 +93,9 @@ See:
 - If the plugin depends on other WordPress.org plugins, declare them with the `Requires Plugins` header (WordPress 6.5+, a comma-separated list of WordPress.org slugs) instead of bundling or silently failing. Still guard calls with `class_exists()` / `function_exists()` so the plugin degrades gracefully.
 - Keep `Requires at least`, `Requires PHP`, `Text Domain`, and (when self-updating) `Update URI` headers accurate; they gate install/activation and update behavior.
 
+See:
+- `references/dependencies-and-headers.md`
+
 Upstream reference:
 - https://developer.wordpress.org/plugins/plugin-basics/header-requirements/
 

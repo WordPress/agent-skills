@@ -33,6 +33,8 @@ Route by intent even if repo kind is broad (like `wp-site`):
   - Route → `wp-block-themes`.
 - **Plugins / hooks / activation hook / uninstall / Settings API / admin pages**
   - Route → `wp-plugin-development`.
+- **Plugin Check / PCP / pre-submission or pre-release quality gate / "will this pass review" / wp plugin check**
+  - Route → `wp-plugin-check`.
 - **REST endpoint / register_rest_route / permission_callback**
   - Route → `wp-rest-api`.
 - **WP-CLI / wp-cli.yml / commands**
