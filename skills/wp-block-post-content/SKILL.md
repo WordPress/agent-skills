@@ -47,9 +47,9 @@ Before outputting final block markup or inserting it into the database, you must
 
 Execute the highest-tier validation protocol available to you:
 
-- **[TIER 1] WP-CLI Live Environment:** Use `wp eval` to perform a PHP round-trip structural validation. Run `wp eval "$c = 'YOUR_MARKUP'; var_dump(serialize_blocks(parse_blocks($c)) === $c);"`. This must return `bool(true)`. A successful round-trip catches HTML structure mismatches that `parse_blocks()` alone ignores.
+- **[TIER 1] WP-CLI Live Environment:** Use `wp eval-file` to perform a PHP round-trip structural validation. Write a script to `/wordpress/wp-content/uploads/validate.php` that calls `parse_blocks()` → `serialize_blocks()` and confirms the round-trip returns `TRUE` with `0 freeform blocks`. A successful round-trip catches delimiter mismatches but **cannot** catch JS `save()` contract violations.
 - **[TIER 2] Node.js Sandbox:** Run `node scripts/validate-markup.mjs` against your generated code.
-- **[TIER 3] Chrome DevTools MCP:** Run the verification snippet directly in the browser console. This is the ONLY automated way to verify the JS `save()` contract.
+- **[TIER 3] Chrome DevTools MCP:** Navigate to the post editor, then run the verification snippet from `references/wp-block-validation.md`. This is the ONLY automated way to verify the JS `save()` contract. `invalidCount` must equal `0` before the task is complete.
 - **[TIER 4] Manual Signature Cross-Reference (Fallback):** Manually cross-reference generated static blocks against their exact `save()` output signatures in `references/core-block-markup-reference.md`. If not documented there, fetch the `.html` fixture from `https://github.com/WordPress/gutenberg/blob/trunk/test/integration/fixtures/blocks/`.
 
 **Interpreting Tiers 1 & 2 Output:** Any block entry with an empty or null `blockName` represents content WordPress could not parse as a valid block. Resolve all such syntax entries before proceeding to Tiers 3 or 4.
