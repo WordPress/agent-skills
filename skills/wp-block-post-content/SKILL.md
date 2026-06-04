@@ -24,18 +24,21 @@ Do not use this skill when:
 - Editing theme templates, template parts, or theme.json → use `wp-block-themes`
 
 ## Inputs required
-- The specific block namespace and name (e.g., `wp:paragraph` or `wp:image`) [2].
-- The necessary attributes, content, and whether the block is static or dynamic [2].
+- The specific block namespace and name (e.g., `wp:paragraph` or `wp:image`).
+- The necessary attributes, content, and whether the block is static or dynamic.
 
 ## Procedure
 1. **Identify Block Type:** Determine if the block is static (stores HTML) or dynamic (stores only the comment).
 2. **Format Dynamic Blocks:** Most dynamic blocks (like `wp:latest-posts`) require only the comment delimiter with no HTML body. However, structural dynamic blocks (like `wp:query`) do contain inner blocks and HTML wrappers.
 3. **Format Static Blocks:** Generate the exact HTML wrapper and inner content. Use the core block namespace shorthand (omit `core/`, e.g., `wp:paragraph`).
 4. **Consult References:** Keep this procedure short. For exact `save()` output signatures of specific blocks, refer to `references/core-block-markup-reference.md`.
-5. **Validate before delivery:** Do not insert or return content until validation passes. For programmatic insertion via `wp_insert_post` or WP-CLI:
-   a. Write the generated content to a temp file (e.g. `/tmp/wp-content-draft.html`)
-   b. Run Tier 1 or Tier 2 validation against that file before inserting
-   c. Only call `wp_insert_post` / `wp post create` after validation is clean
+5. **Validate before delivery — three-gate process:**
+   a. Write the generated content as a PHP eval-file into the site's uploads directory via the filesystem MCP — **never `/tmp/`**. WP-CLI in WordPress Studio runs inside a container whose filesystem root is `/wordpress/`, so `/tmp/` from the host is invisible to it. The correct writable path is `/wordpress/wp-content/uploads/your-script.php` (host path: `/Users/.../Studio/sitename/wp-content/uploads/your-script.php`).
+   b. **Gate 1 (Tier 1):** Run `wp eval-file /wordpress/wp-content/uploads/your-script.php`. Must report `Round-trip: TRUE` and `Freeform: 0` before proceeding.
+   c. **Gate 2 (Tier 3) — MANDATORY for any content containing static blocks:** Navigate to the editor page in Chrome DevTools MCP, then run the JS validation snippet from `references/wp-block-validation.md`. `invalidCount` must be `0`.
+   d. Only call `$wpdb->update` after **both gates pass**.
+
+> ⚠️ **Gate 2 is not optional.** The Tier 1 PHP round-trip cannot catch JS `save()` contract mismatches. A page that passes Tier 1 and looks correct in a browser screenshot can still have invalid blocks. The only way to confirm zero invalid blocks is to query `wp.data.select('core/block-editor').getBlocks()` in the live editor.
 
 ## Verification
 Before outputting final block markup or inserting it into the database, you must perform an internal environment discovery audit to determine your available toolsets. 
@@ -58,6 +61,42 @@ The most common source of silent breakage is incorrect whitespace and formatting
 3. **JSON Attribute Formatting:** JSON keys must be strictly double-quoted, and values must be the correct type (e.g., integer vs string: `{"level":2}` not `{"level":"2"}`) [2].
 
 If the block's `save()` has changed since the content was written, the stored markup may be legitimately "old" — update it to match the current `save()` output, or add a deprecation entry. For deeper troubleshooting and template source diagnostics (such as verifying if a `wp_template_part` is loaded from the filesystem or database), refer to `references/wp-block-validation.md`.
+
+## Surgical content replacement
+
+When updating a single section of an existing page, **do not rebuild the entire post content**. Use depth-aware string walking to locate and replace only the target block, then validate and update. This avoids re-introducing errors in sections that were already valid.
+
+**Pattern — replace the last occurrence of a top-level block:**
+
+```php
+$content = get_post($post_id)->post_content;
+$new_section = '<!-- wp:group ... -->...</ wp:group -->';
+
+// Find the last opener of the target block type
+$start = strrpos($content, '<!-- wp:group');
+$depth = 0;
+$pos = $start;
+$end = false;
+
+while ($pos < strlen($content)) {
+    $next_open  = strpos($content, '<!-- wp:group', $pos + 1);
+    $next_close = strpos($content, '<!-- /wp:group -->', $pos);
+    if ($next_close === false) break;
+    if ($next_open !== false && $next_open < $next_close) {
+        $depth++;
+        $pos = $next_open;
+    } else {
+        if ($depth === 0) { $end = $next_close + strlen('<!-- /wp:group -->'); break; }
+        $depth--;
+        $pos = $next_close + strlen('<!-- /wp:group -->');
+    }
+}
+
+$new_content = substr($content, 0, $start) . $new_section . substr($content, $end);
+// Then validate and $wpdb->update as normal
+```
+
+This pattern works for any block type — replace `<!-- wp:group` and `<!-- /wp:group -->` with the target block's opener and closer. Use `strpos` (first) or `strrpos` (last) to target specific occurrences.
 
 ## Escalation
 If the block markup continues to trigger "unexpected or invalid content" errors despite adhering to the strict whitespace and class rules above, escalate and ask the human user for assistance.
