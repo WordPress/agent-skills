@@ -1,0 +1,21 @@
+{
+  "name": "Run Plugin Check and fix findings",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-plugin-check", "wp-plugin-development"],
+  "query": "Run Plugin Check on this plugin before I submit it to WordPress.org and fix the security and i18n problems it reports.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router / wp-project-triage to classify the repo and locate the plugin",
+    "Step 2: Route to wp-plugin-check",
+    "Step 3: Run detect_plugin_check.mjs to confirm WP-CLI and the plugin-check plugin, and get the suggested command",
+    "Step 4: Run static checks first with wp plugin check <slug>",
+    "Step 5: Triage by category, focusing on security and internationalization",
+    "Step 6: Treat errors as blocking; route fixes (escaping/nonces/capabilities) to wp-plugin-development security guidance",
+    "Step 7: Fix the underlying code rather than excluding files or suppressing findings",
+    "Step 8: Re-run the same wp plugin check command and confirm no errors remain in the required categories"
+  ],
+  "success_criteria": [
+    "Plugin Check is actually run via wp plugin check (not guessed)",
+    "Security and i18n findings are fixed in code",
+    "No findings are suppressed or excluded to force a pass",
+    "Command is re-run after fixes and reports clean required categories"
+  ]
+}
