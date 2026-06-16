@@ -18,7 +18,7 @@ When passed to `rest_ensure_response()`, a `WP_Error` automatically receives a m
 
 ## Common error categories
 
-Specific error codes depend on the provider plugin and the failure mode. General categories you should handle:
+The Core wrapper maps caught SDK exceptions to a small set of **stable `WP_Error` codes** in `WP_AI_Client_Prompt_Builder::exception_to_wp_error()` (for example, a prevented prompt yields code `prompt_prevented` with HTTP status 503). The code is assigned by Core, not the provider plugin; the provider- and failure-specific detail rides in the error *message* and `get_error_data()`. Read that method for the current code list. General categories you should handle:
 
 - **No provider configured / no compatible model.** `is_supported_*()` would have returned `false` had you checked first. The error from a generator in this state is still meaningful, but the user-facing fix is "configure a provider in Settings → Connectors."
 - **Rate limited / quota exhausted.** Provider-specific. Usually `429`-class. Surface a generic "try again shortly" to the user; log the upstream message for ops.

@@ -44,7 +44,7 @@ The AI plugin uses this gate internally before initializing experiments (#268). 
 
 - `WordPress\AI\normalize_content( string $content ): string` — strips HTML, collapses whitespace, applies `wpai_pre_normalize_content` and `wpai_normalize_content` filters.
 - `WordPress\AI\format_guidelines_for_prompt( array $categories, ?string $block_name = null ): string` — convenience wrapper around `Guidelines::get_instance()->format_for_prompt()`.
-- `WordPress\AI\get_post_context( int $post_id ): string` — formatted post context for prompts.
+- `WordPress\AI\get_post_context( int $post_id ): array` — associative post-context array for prompts (callers read keys like `$context['content']`); it is **not** a pre-formatted string.
 - `WordPress\AI\get_preferred_models_for_text_generation(): array` — returns the plugin's preferred model list for `using_model_preference()`.
 
 These are namespaced functions in `WordPress\AI`. Import as `use function WordPress\AI\normalize_content;` (or use the fully qualified name).
@@ -74,9 +74,15 @@ These are namespaced functions in `WordPress\AI`. Import as `use function WordPr
 | `wpai_pre_normalize_content` | `WordPress\AI\normalize_content()` | input | Modify content before normalization |
 | `wpai_normalize_content` | `WordPress\AI\normalize_content()` | output | Modify content after normalization |
 
-### Per-Ability filters
+### Ability system-instruction filter
 
-Each Ability fires filters around its system instruction loading and prompt construction. The exact names are `wpai_{ability_id}_*` patterns and vary per Ability. Search the source:
+Every Ability's `get_system_instruction()` fires one shared filter — `wpai_system_instruction` — over the final instruction string:
+
+```php
+apply_filters( 'wpai_system_instruction', string $instruction, string $name, array $data );
+```
+
+It is **not** ability-id-scoped; the `$name` / `$data` arguments identify which Ability is running. Individual Abilities may also add their own `apply_filters()` calls — grep to find them:
 
 ```bash
 grep -rn "apply_filters" wp-content/plugins/ai/includes/Abilities/

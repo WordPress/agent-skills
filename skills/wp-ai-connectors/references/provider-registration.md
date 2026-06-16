@@ -57,35 +57,39 @@ Other authentication methods (OAuth, JWT, mTLS) are not yet supported by the Set
 
 ## API key naming convention
 
-For `api_key` connectors, names are derived from the provider ID (lowercase alphanumeric + underscores):
+For an **auto-discovered AI provider** (`type` `ai_provider`, `method` `api_key`), Core derives the key names from the provider ID — which is constrained to lowercase `/^[a-z0-9_-]+$/`:
 
 | Source | Pattern | Example for ID `my_provider` |
 | --- | --- | --- |
 | Database setting | `connectors_ai_{id}_api_key` | `connectors_ai_my_provider_api_key` |
-| Environment variable | `{ID}_API_KEY` (uppercased) | `MY_PROVIDER_API_KEY` |
-| PHP constant | `{ID}_API_KEY` (uppercased) | `define( 'MY_PROVIDER_API_KEY', '...' );` |
+| Environment variable | `{ID}_API_KEY` | `MY_PROVIDER_API_KEY` |
+| PHP constant | `{ID}_API_KEY` | `define( 'MY_PROVIDER_API_KEY', '...' );` |
 
-For auto-discovered AI providers, Core assigns these names automatically (`connectors_ai_{id}_api_key` for the DB option, plus `{ID}_API_KEY` for both the env var and the constant). The registry *does* honor explicit `setting_name`, `constant_name`, and `env_var_name` overrides in the `authentication` array — the built-in Akismet connector uses this to read `WPCOM_API_KEY` / `wordpress_api_key`. AI provider plugins normally rely on the automatic names and don't need to set them.
+Two precision notes, because the rule above is the *AI-provider* path, not a universal one:
+
+- The `ai` segment in the DB setting is a **literal** for auto-discovered AI providers — it is not the connector's `type`. A *generic* connector registered directly via `WP_Connector_Registry::register()` instead gets `connectors_{type}_{id}_api_key` (e.g. `connectors_email_delivery_sendgrid_api_key`) and gets **no** automatic env var / constant at all — `constant_name` / `env_var_name` exist only if you pass them explicitly.
+- `{ID}` is CONSTANT_CASE, not a naïve uppercase: Core applies a camelCase→`CONSTANT_CASE` split before uppercasing (`getName` → `GET_NAME`). Because AI-provider IDs must be lowercase, that reduces to a plain uppercase here (`my_provider` → `MY_PROVIDER`), which is why the example looks like a simple uppercase.
+
+Core assigns these automatically for auto-discovered providers. The registry *does* honor explicit `setting_name`, `constant_name`, and `env_var_name` overrides in the `authentication` array — the built-in Akismet connector uses this to read `WPCOM_API_KEY` / `wordpress_api_key`. AI provider plugins normally rely on the automatic names and don't need to set them.
 
 ## Provider class contract
 
-The exact PHP interface lives in `wordpress/php-ai-client` and may evolve as the SDK matures. Read the source rather than memorizing it:
+The PHP interface lives in `wordpress/php-ai-client`. It may evolve as the SDK matures, so confirm against the source — but as of the bundled SDK it is concrete:
 
-- Source: https://github.com/WordPress/php-ai-client
-- Look for the `ProviderInterface` (or equivalent) and the existing flagship provider implementations under `src/Providers/` for working examples.
-
-The shape is roughly:
-
-- A class with a static or instance method that returns the provider's metadata (name, ID, description, logo, credentials URL).
-- A method to list available models with their capabilities (modalities supported, context window, pricing, recency).
-- A method to execute a request given a normalized prompt builder result and an authenticated credential.
-- The provider is expected to translate from the SDK's normalized request shape to the upstream API and back.
+- Interface: `WordPress\AiClient\Providers\Contracts\ProviderInterface` — an **all-static** contract with four methods:
+  - `metadata(): ProviderMetadata` — provider name, ID, description, logo, credentials URL.
+  - `model( string $modelId, ?ModelConfig $config = null ): ModelInterface` — resolve a model instance.
+  - `availability(): ProviderAvailabilityInterface` — whether the provider is configured/reachable.
+  - `modelMetadataDirectory(): ModelMetadataDirectoryInterface` — the catalog of models and their capabilities (modalities, context window, pricing, recency).
+- The flagship providers don't implement `ProviderInterface` directly — they extend the SDK's `AbstractApiProvider` (under `src/Providers/`) and supply `createProviderMetadata()` / `createModel()` / `createProviderAvailability()` / `createModelMetadataDirectory()`. Copy that shape.
+- The provider translates between the SDK's normalized request/response shape and the upstream API.
+- Source: https://github.com/WordPress/php-ai-client (`src/Providers/`).
 
 When in doubt, copy from `wordpress/ai-provider-for-anthropic`, `wordpress/ai-provider-for-google`, or `wordpress/ai-provider-for-openai`. They are the reference implementations.
 
 ## Canonical bootstrap (adapted from `ai-provider-for-anthropic`)
 
-This mirrors the `plugin.php` from `WordPress/ai-provider-for-anthropic` v1.0.3 (reformatted to WordPress-style spacing; the upstream file uses tight PSR-12 spacing — e.g. `if (!class_exists(AiClient::class))`). Copy this shape — it's the documented pattern across all three flagship plugins:
+This mirrors the `plugin.php` from `WordPress/ai-provider-for-anthropic` v1.0.3 (reformatted to WordPress-style spacing; the upstream file uses tight PSR-12 spacing — e.g. `if (!class_exists(AiClient::class))`). Copy this shape — it's the documented pattern across all three flagship plugins (the registration shape is identical even though their version numbers aren't in lockstep; `1.0.3` here is Anthropic's, while Google was at `1.1.0` when last checked):
 
 ```php
 <?php

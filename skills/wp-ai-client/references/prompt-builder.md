@@ -123,13 +123,15 @@ $result = wp_ai_client_prompt( 'Recipe for chocolate cake with step photos.' )
     ->generate_result();
 
 foreach ( $result->toMessage()->getParts() as $part ) {
-    if ( $part->isText() ) {
+    if ( $part->getType()->isText() ) {
         echo wp_kses_post( $part->getText() );
-    } elseif ( $part->isFile() && $part->getFile()->isImage() ) {
+    } elseif ( $part->getType()->isFile() && $part->getFile()->isImage() ) {
         echo '<img src="' . esc_url( $part->getFile()->getDataUri() ) . '">';
     }
 }
 ```
+
+The `isText()` / `isFile()` predicates live on the `MessagePartTypeEnum` returned by `$part->getType()`, **not** on `MessagePart` itself — `$part->isText()` raises `Error: Call to undefined method`. Use `$part->getType()->isText()`. The value accessors (`getText()`, `getFile()`) are on `MessagePart` directly.
 
 ## Feature detection
 
@@ -171,14 +173,14 @@ The AI Client is two layers:
 
 `wp_ai_client_prompt()` is the recommended entry point. It returns the wrapper, which catches SDK exceptions and converts them to `WP_Error` for you.
 
-**Argument-typing caveat.** The wrapper forwards your arguments to the SDK method unchanged and its `__call` only `catch`es `Exception`. Passing a wrong *type* — e.g. an `array` to `using_stop_sequences( string ...$sequences )` or `with_history( Message ...$messages )` — raises a PHP `TypeError`, which extends `Error`, **not** `Exception`, so it is *not* converted to `WP_Error` and will fatal. Match the signatures in the table above (the variadic methods take spread arguments / DTO objects, not arrays). The wrapper also defers errors: once any call in a chain throws, the instance enters an error state and later non-generating calls become no-ops; the `WP_Error` surfaces only when a generating method is called.
+**Argument-typing caveat.** The wrapper forwards your arguments to the SDK method unchanged and its `__call` only `catch`es `Exception`. Passing a wrong *type* — e.g. an `array` to `using_stop_sequences( string ...$sequences )` or `with_history( Message ...$messages )` — raises a PHP `TypeError`, which extends `Error`, **not** `Exception`, so it is *not* converted to `WP_Error` and will fatal. Match the signatures in the table above (the variadic methods take spread arguments / DTO objects, not arrays). By contrast, `using_model_preference( ...$models )` is tolerant of value *shape* — each argument may be a model-ID string, a `ModelInterface` instance, or a `[ provider_id, model_id ]` tuple; a malformed tuple raises `InvalidArgumentException` (an `Exception`, so it *is* converted to `WP_Error`), not a `TypeError`. The wrapper also defers errors: once any call in a chain throws, the instance enters an error state and later non-generating calls become no-ops; the `WP_Error` surfaces only when a generating method is called.
 
 ### A class-name nuance worth knowing
 
 The dev note documents the Core 7.0 wrapper class as `WP_AI_Client_Prompt_Builder`. The standalone `wordpress/wp-ai-client` package (used on WP < 7.0) returns a different class name — `WordPress\AI_Client\Builders\Prompt_Builder_With_WP_Error`, a subclass of `WordPress\AI_Client\Builders\Prompt_Builder` that adds the `WP_Error` translation. The fluent method names are identical between the two; both proxy to the underlying `php-ai-client` SDK via `__call`. So:
 
 - **Type hints in published code**: prefer interface-style typing over the concrete class name when possible. If you must reference the class, use `WP_AI_Client_Prompt_Builder` for Core 7.0+ and the fully-qualified plugin class for WP < 7.0 — handle both paths if your plugin supports both.
-- **Method names**: identical across both. Code that uses `wp_ai_client_prompt( ... )->using_temperature( 0.7 )->generate_text()` works on either.
+- **Method names**: identical across both for the common surface. Code that uses `wp_ai_client_prompt( ... )->using_temperature( 0.7 )->generate_text()` works on either. The standalone package predates the video generators (`generate_video*`) and the newer media-output methods (`as_output_media_orientation` / `as_output_media_aspect_ratio` / `as_output_speech_voice`) the Core 7.0 wrapper exposes — verify those exist before relying on them on WP < 7.0.
 
 ## Migration
 

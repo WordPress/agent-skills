@@ -22,10 +22,10 @@ From `includes/Abstracts/Abstract_Feature.php`:
 - **`abstract public static function get_id(): string`** — return a unique slug-style ID. Called statically.
 - **`abstract protected function load_metadata(): array`** — return `['label', 'description', 'category', 'stability'?, 'image'?]`. `label` and `description` are required; missing them throws `InvalidArgumentException`. `category` defaults to `Feature_Category::OTHER` if empty. `stability` defaults to `'experimental'`.
 - **`abstract public function register(): void`** — set up hooks. Called by `Loader::initialize_features()` only if `is_enabled()` returns true.
-- **`final public function is_enabled(): bool`** — checks the global features toggle (`wpai_features_enabled` option) AND the per-feature toggle (`wpai_feature_{$id}_enabled` option), runs the `wpai_feature_{$id}_enabled` filter, caches the result. Cannot be overridden.
+- **`final public function is_enabled(): bool`** — returns `is_globally_enabled() && is_individually_enabled()`, cached on the instance; cannot be overridden. The per-feature logic lives in `is_individually_enabled()` (added 1.0.1): it reads the `wpai_feature_{$id}_enabled` option and runs the `wpai_feature_{$id}_enabled` filter (plus the deprecated legacy filter). `is_globally_enabled()` (added 1.0.1) checks the global features toggle.
 - **`public function register_settings(): void`** — optional override. Use `register_setting()` for custom feature settings.
 - **`public function get_settings_fields(): array`** — optional override. Return field definitions for the DataForm UI on the AI settings page.
-- **`final protected function get_field_option_name( string $name ): string`** — generates `wpai_feature_{$id}_field_{$name}`. Use for namespaced option storage.
+- **`final public static function get_field_option_name( string $option_name ): string`** — generates `wpai_feature_{$id}_field_{$option_name}`. Use for namespaced option storage.
 
 The interface (`Contracts\Feature`) lists twelve public methods (as of v1.0.2): `get_id` (static), `get_label`, `get_description`, `get_category`, `get_stability`, `register`, `is_globally_enabled` (added v1.0.1), `is_individually_enabled` (added v1.0.1), `is_enabled`, `get_settings_fields_metadata` (added v0.7.0), `get_image` (added v0.8.0), and `get_capability` (added v0.9.0).
 
@@ -43,7 +43,7 @@ Read it before writing your own; that's what it's there for.
 
 ## Registration: the two extension points
 
-From `includes/Features/Loader.php`. Both fire inside `Loader::register_features()`, which runs early in the plugin's bootstrap (after the Loader is constructed in `Main`).
+From `includes/Features/Loader.php`. The Loader runs via `Loader::init()`, called by `Main::initialize_features()` on the **`init` hook at priority 15** — `init()` calls `register_features()` then `initialize_features()`. The `wpai_default_feature_classes` filter is applied inside `register_features()`'s helper `get_default_features()`; the `wpai_register_features` action fires in `register_features()` directly. So both run during the AI plugin's `init` priority-15 handler — attach your callbacks by `plugins_loaded`, or on `init` before priority 15.
 
 ### `wpai_default_feature_classes` filter
 

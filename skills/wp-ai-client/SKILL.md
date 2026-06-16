@@ -63,7 +63,7 @@ Model preferences are *preferences*, not requirements. The Client falls back to 
 
 ### 3) Expose to JS via a per-feature REST endpoint
 
-Do **not** use the client-side JS prompt API in distributed plugins — it requires `manage_options` and lets the caller send any prompt to any configured provider. Instead, register a REST endpoint scoped to your single feature, with a tight permission callback:
+Do **not** use the client-side JS prompt API in distributed plugins — its REST route is gated behind the `prompt_ai` capability (granted to administrators by default) and lets the caller send any prompt to any configured provider. Instead, register a REST endpoint scoped to your single feature, with a tight permission callback:
 
 ```php
 register_rest_route( 'my-plugin/v1', '/summarize', array(

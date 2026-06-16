@@ -148,7 +148,7 @@ Naming convention: ability IDs use the `ai/` prefix when registered by the AI pl
 
 ### 5) Opt into Guidelines (if your Ability generates content)
 
-Guidelines integration is automatic at the Ability level — set `guideline_categories()` on your `Abstract_Ability` subclass and `Abstract_Ability::load_system_instruction_from_file()` will append the formatted guidelines to your system instruction:
+Guidelines integration is automatic at the Ability level — set `guideline_categories()` on your `Abstract_Ability` subclass and `Abstract_Ability::get_system_instruction()` (which loads the base text via `load_system_instruction_from_file()`, then appends guidelines) folds the formatted guidelines into your system instruction:
 
 ```php
 class My_Internal_Linker_Ability extends \WordPress\AI\Abstracts\Abstract_Ability {
@@ -204,7 +204,7 @@ For the full filter list at the version you're targeting, grep the source — se
 
 ## Failure modes / debugging
 
-- **Experiment doesn't show in Settings → AI**: filter or action hook is registered too late. The filter `wpai_default_feature_classes` runs inside `Loader::register_features()` which is called early in plugin bootstrap; register your hook on `plugins_loaded` priority 10 or earlier. Action `wpai_register_features` runs inside the same `register_features()` call — same timing constraint.
+- **Experiment doesn't show in Settings → AI**: filter or action hook is registered too late. The Loader runs on the AI plugin's **`init` hook at priority 15** (`Main::initialize_features()`); the `wpai_default_feature_classes` filter is applied inside `Loader::get_default_features()` and the `wpai_register_features` action fires in `Loader::register_features()`. Register your callback by `plugins_loaded`, or on `init` before priority 15.
 - **`Class not found: WP\AI\Features\Abstract_Feature`**: namespace is wrong. Correct path is `WordPress\AI\Abstracts\Abstract_Feature`. (Common error — earlier docs used `WP\AI`.)
 - **Filter never fires**: spelled the filter name wrong. Real names are `wpai_default_feature_classes`, `wpai_register_features`, `wpai_features_enabled`, `wpai_features_initialized`. The legacy `ai_experiments_*` prefix was deprecated in 0.6.0 and exists only via `apply_filters_deprecated` for the per-feature toggle.
 - **Guidelines do nothing**: either `guideline_categories()` returned empty, the Gutenberg `wp_guideline` CPT isn't registered, or `wpai_use_guidelines` filter returned false. Check `Guidelines::get_instance()->is_available()`.

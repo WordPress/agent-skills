@@ -1,6 +1,6 @@
 # Dashboard widgets
 
-The AI plugin ships two dashboard widgets (since v0.8.0; still two as of v1.0.2) and uses standard WordPress for registration. **There is no AI-plugin-specific widget framework.** Earlier drafts of this skill claimed there was — they were wrong.
+The AI plugin ships two dashboard widgets (since v0.8.0; still two as of v1.0.2) and uses standard WordPress for registration. **There is no public, third-party widget-registration API in the v1.0.2 source.** Note: the v0.8.0 changelog (#311) mentions a "framework for registering new dashboard widgets," but `Dashboard_Widgets.php` only hard-codes the plugin's own two `wp_add_dashboard_widget()` calls — there is no reusable hook for your widget. Earlier drafts of this skill implied one existed to hook into; there isn't.
 
 ## What ships in v0.8.0
 

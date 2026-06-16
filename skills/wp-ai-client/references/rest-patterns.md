@@ -4,7 +4,7 @@ Why per-feature endpoints, what they should look like, and what to avoid.
 
 ## Why not the client-side prompt API
 
-WordPress 7.0 ships a client-side JavaScript prompt builder in the `wordpress/wp-ai-client` package. It works, but it's intentionally locked behind a `manage_options` capability check. The reason: the JS API lets the caller send *any* prompt to *any* configured provider. That's fine for Core's own admin tooling. It is not safe for distributed plugins, where you can't predict what user role will hit the UI or what prompts will be constructed client-side.
+WordPress 7.0 ships a client-side JavaScript prompt builder in the `wordpress/wp-ai-client` package. It works, but its REST route is gated behind a dedicated capability — `prompt_ai` (defined by `Capabilities_Manager`), which is granted to administrators by default via a removable `user_has_cap` filter and is meant to be customized. The reason for the gate: the JS API lets the caller send *any* prompt to *any* configured provider. That's fine for Core's own admin tooling. It is not safe for distributed plugins, where you can't predict what user role will hit the UI or what prompts will be constructed client-side.
 
 The recommended pattern: a separate REST endpoint per AI feature, scoped to that feature's permissions and inputs. The actual prompt construction stays server-side. The JS just calls your endpoint with structured input.
 
@@ -41,7 +41,17 @@ function my_plugin_summarize_post( WP_REST_Request $request ) {
         ->using_temperature( 0.3 )
         ->generate_text_result();
 
-    return rest_ensure_response( $result );
+    if ( is_wp_error( $result ) ) {
+        return $result; // Serializes with its HTTP status attached.
+    }
+
+    // GenerativeAiResult has NO top-level `text` key — its serialized shape is
+    // id / candidates / tokenUsage / providerMetadata / modelMetadata. Project
+    // the success response down to just what your JS needs.
+    return rest_ensure_response( array(
+        'text'       => $result->toText(),        // SDK DTO method (camelCase).
+        'tokenUsage' => $result->getTokenUsage(),
+    ) );
 }
 ```
 
@@ -50,7 +60,7 @@ What this gives you:
 - **Per-feature capability.** `edit_post` on the specific post, not `manage_options`. Editors and authors can use the feature without being admins.
 - **Validated input.** `sanitize_callback` runs before your callback, so you never see a non-int post_id.
 - **Server-side prompt construction.** The user can't inject system instructions or change the model preference — those are baked into your endpoint.
-- **Free error handling.** Both `GenerativeAiResult` and `WP_Error` serialize through `rest_ensure_response()` with the right HTTP status.
+- **Free error handling.** A `WP_Error` serializes through `rest_ensure_response()` with its HTTP status intact. `GenerativeAiResult` is `JsonSerializable` too, but its top-level keys are `id` / `candidates` / `tokenUsage` / `providerMetadata` / `modelMetadata` (no `text`) — so project the success shape your client needs, as above.
 
 ## Calling from JS
 
@@ -63,7 +73,7 @@ const result = await apiFetch( {
     data: { post_id: postId },
 } );
 
-console.log( result.text, result.tokenUsage, result.providerMetadata );
+console.log( result.text, result.tokenUsage ); // The shape your callback projected above.
 ```
 
 `@wordpress/api-fetch` injects the REST nonce automatically when called from an admin page.

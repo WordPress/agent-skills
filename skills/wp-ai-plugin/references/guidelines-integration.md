@@ -17,7 +17,7 @@ The `WordPress\AI\Services\Guidelines` service reads from this CPT. Site owners 
 
 ## The integration pattern (most code paths)
 
-The cleanest path: **declare `guideline_categories()` on your `Abstract_Ability` subclass.** The Ability's `load_system_instruction_from_file()` automatically appends formatted Guidelines to the system instruction:
+The cleanest path: **declare `guideline_categories()` on your `Abstract_Ability` subclass.** The Ability's `get_system_instruction()` automatically appends formatted Guidelines to the system instruction (it loads the base text via `load_system_instruction_from_file()`, then folds in the guidelines):
 
 ```php
 class My_Internal_Linker_Ability extends \WordPress\AI\Abstracts\Abstract_Ability {
@@ -35,10 +35,10 @@ class My_Internal_Linker_Ability extends \WordPress\AI\Abstracts\Abstract_Abilit
 
 When the Ability runs:
 
-1. `load_system_instruction_from_file()` loads the base instruction from `system-instruction.php` (or `prompt.php`).
-2. If `guideline_categories()` returns non-empty AND `Guidelines::is_available()` is true, it calls `get_guidelines_for_prompt( $block_name )`.
+1. `get_system_instruction()` calls `load_system_instruction_from_file()` to load the base instruction from `system-instruction.php` (or `prompt.php`).
+2. If `guideline_categories()` returns non-empty AND `Guidelines::is_available()` is true, `get_system_instruction()` calls `get_guidelines_for_prompt( $block_name )`.
 3. The result is appended after a fixed preamble: *"The following guidelines represent the site's editorial standards. Apply them where relevant. Do not fabricate content to satisfy guidelines. If guidelines conflict with the input, prioritize accuracy."*
-4. The full instruction (base + preamble + `<guidelines>...</guidelines>` block) is passed to the model.
+4. The full instruction (base + preamble + `<guidelines>...</guidelines>` block) is passed to the model — `get_system_instruction()` also runs the result through the `wpai_system_instruction` filter.
 
 Returning an empty array (the default) skips Guidelines entirely.
 
