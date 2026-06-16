@@ -4,7 +4,7 @@ The AI Client follows WordPress conventions: `WP_Error` on failure, semantic HTT
 
 ## Generators return `WP_Error`
 
-The wrapper catches exceptions from the underlying SDK and converts them. Never wrap calls in try/catch — check `is_wp_error()`:
+The wrapper catches `Exception` subclasses from the underlying SDK and converts them to `WP_Error`. (It does **not** catch a PHP `TypeError` from a wrong-typed argument — that's an `Error`, not an `Exception` — so match the builder signatures in `references/prompt-builder.md`.) Never wrap calls in try/catch for SDK failures — check `is_wp_error()`:
 
 ```php
 $result = wp_ai_client_prompt( 'Hello' )->generate_text_result();

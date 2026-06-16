@@ -19,7 +19,7 @@ The exact PHP shape is in the SDK source — the existing flagship providers are
 
 `using_model_preference()` is a *preference*, not a constraint. If none of the preferred models are available on the site, the AI Client falls back to "the first compatible model in the registered order." That means **your provider's model ordering directly affects which model handles a request when no preference matches.**
 
-The convention (followed by the three flagship providers): list newer models before older ones within a family. So `gpt-5.4` before `gpt-5.0` before `gpt-4.5-turbo`. A feature plugin that says "give me your best Anthropic model" gets `claude-opus-4-7` instead of a 2-year-old Claude 3.
+The convention (followed by the three flagship providers): list newer models before older ones within a family. So `gpt-5.4` before `gpt-5.0` before `gpt-4.5-turbo`. A feature plugin that says "give me your best Anthropic model" gets `claude-opus-4-7` instead of a 2-year-old Claude 3. (Model IDs throughout this skill are illustrative — use the IDs your provider actually advertises.)
 
 ## Modality declarations
 

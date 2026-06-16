@@ -1,6 +1,6 @@
 # Experiments framework
 
-The conceptual model and lifecycle for AI plugin Experiments, anchored to `WordPress/ai` v0.8.0 source.
+The conceptual model and lifecycle for AI plugin Experiments, anchored to `WordPress/ai` v1.0.2 source.
 
 ## What an Experiment is
 
@@ -12,7 +12,7 @@ Three stability levels exist (declared in `load_metadata()` or defaulted):
 - **`'stable'`** — graduated through testing and contributor consensus
 - **`'deprecated'`** — slated for removal
 
-Image Generation was promoted from `'experimental'` to `'stable'` in v0.8.0 (#418). Title Generation has been stable for several releases. Refine from Notes is currently experimental (added v0.8.0, #289). The path is experimental → stable → potentially core.
+Image Generation is a stable Feature (promoted from `'experimental'` to `'stable'` in v0.8.0, #418; registered via `Loader::get_default_features()`). Title Generation has been stable for several releases. In v1.0.0, the *Review Notes* and *Refine from Notes* experiments were renamed to **Editorial Notes** (`editorial-notes`) and **Editorial Updates** (`editorial-updates`) respectively. The path is experimental → stable → potentially core.
 
 ## The contract (`Abstract_Feature`)
 
@@ -27,7 +27,7 @@ From `includes/Abstracts/Abstract_Feature.php`:
 - **`public function get_settings_fields(): array`** — optional override. Return field definitions for the DataForm UI on the AI settings page.
 - **`final protected function get_field_option_name( string $name ): string`** — generates `wpai_feature_{$id}_field_{$name}`. Use for namespaced option storage.
 
-The interface (`Contracts\Feature`) lists eight public methods total: `get_id` (static), `get_label`, `get_description`, `get_category`, `get_stability`, `register`, `is_enabled`, `get_settings_fields_metadata`, plus `get_image` (added v0.8.0).
+The interface (`Contracts\Feature`) lists twelve public methods (as of v1.0.2): `get_id` (static), `get_label`, `get_description`, `get_category`, `get_stability`, `register`, `is_globally_enabled` (added v1.0.1), `is_individually_enabled` (added v1.0.1), `is_enabled`, `get_settings_fields_metadata` (added v0.7.0), `get_image` (added v0.8.0), and `get_capability` (added v0.9.0).
 
 ## The canonical example
 
@@ -72,12 +72,13 @@ Use this action when you need custom construction (dependency injection, factory
 
 ### Built-in Experiments
 
-The plugin's own Experiments are registered via `Experiments::register_default_experiment_classes()` hooked to `wpai_default_feature_classes` at priority 9. The current list (v0.8.0):
+The plugin's own Experiments are registered via `Experiments::register_default_experiment_classes()` hooked to `wpai_default_feature_classes` at priority 9. The current list (v1.0.2, from `Experiments::EXPERIMENT_CLASSES`):
 
 ```
-Abilities_Explorer, Content_Classification, Content_Resizing, Excerpt_Generation,
-Alt_Text_Generation, Meta_Description, Review_Notes, Refine_Notes,
-Summarization, Title_Generation
+Abilities_Explorer, Connector_Approval, AI_Request_Logging,
+Content_Classification, Content_Resizing, Excerpt_Generation,
+Alt_Text_Generation, Meta_Description, Editorial_Notes, Editorial_Updates,
+Summarization, Title_Generation, Comment_Moderation
 ```
 
 Plus the internal `Image_Generation` Feature (registered separately as a stable Feature in `Loader::get_default_features()`).
@@ -125,7 +126,7 @@ The `ability_class` key is the AI plugin's convention — it points to a class e
 - `category(): string` (defaults to `WPAI_DEFAULT_ABILITY_CATEGORY`)
 - `guideline_categories(): array` (optional, for Guidelines integration)
 
-The Ability is what the Abilities API exposes (and therefore what's reachable via REST and MCP). The Experiment is the Settings → AI surface.
+The Ability is what the Abilities API exposes — reachable via REST when its `meta` sets `show_in_rest => true` (as the canonical abilities do). MCP exposure is **not** automatic: the MCP Adapter only surfaces abilities whose `meta.mcp.public` is `true`, which the canonical abilities don't set. The Experiment is the Settings → AI surface.
 
 ## Promotion path
 

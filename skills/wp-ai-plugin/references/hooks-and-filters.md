@@ -1,6 +1,6 @@
 # Hooks, filters, constants, and gates
 
-The public extension surface of the AI plugin v0.8.0. Anchored to source — the source is canonical.
+The public extension surface of the AI plugin v1.0.2. Anchored to source — the source is canonical.
 
 ## Constants (v0.6.0+)
 
@@ -8,7 +8,7 @@ Defined in `ai.php` `constants()`. The 0.6.0 release renamed the family from `AI
 
 | Constant | Source | Use |
 | --- | --- | --- |
-| `WPAI_VERSION` | `'0.8.0'` (string literal) | Version detection in downstream code |
+| `WPAI_VERSION` | `'1.0.2'` (string literal) | Version detection in downstream code |
 | `WPAI_PLUGIN_FILE` | `__FILE__` (ai.php) | The main plugin file path |
 | `WPAI_PLUGIN_DIR` | `plugin_dir_path( WPAI_PLUGIN_FILE )` | Filesystem path to the plugin directory |
 | `WPAI_PLUGIN_URL` | `plugin_dir_url( WPAI_PLUGIN_FILE )` | URL to the plugin directory (for asset references) |
@@ -28,7 +28,7 @@ if ( defined( 'WPAI_VERSION' ) && version_compare( WPAI_VERSION, '0.8.0', '>=' )
 
 ### `wp_supports_ai()` (v0.8.0+ usage)
 
-The primary gate. Returns `true` when AI features are usable on the site (provider configured, capability checks pass). The function itself is not defined in the AI plugin — it's provided by Core (WP 7.0) or the bundled SDK. Use `function_exists()`:
+The primary *global* gate. It returns `true` unless AI is turned off for the request — Core only checks the `WP_AI_SUPPORT` constant and the `wp_supports_ai` filter (`wp-includes/ai-client.php`). It does **not** check whether a provider is configured or a model is available; use the builder's `is_supported_for_*()` methods for provider/model readiness. The function is provided by Core (WP 7.0), not the AI plugin, so guard with `function_exists()`:
 
 ```php
 if ( ! function_exists( 'wp_supports_ai' ) || ! wp_supports_ai() ) {

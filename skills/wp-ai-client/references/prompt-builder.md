@@ -15,18 +15,19 @@ Returns a `WP_AI_Client_Prompt_Builder`. Chain configuration methods, then call 
 | Configuration | Method |
 | --- | --- |
 | Prompt text | `with_text( string )` |
-| File input | `with_file( File )` |
-| Conversation history (multi-turn) | `with_history( array )` |
+| File input | `with_file( $file, ?string $mimeType = null )` |
+| Conversation history (multi-turn) | `with_history( Message ...$messages )` |
 | Function call response (multi-turn function calling) | `with_function_response( FunctionResponse )` |
 | Pre-built message parts | `with_message_parts( MessagePart ...)` |
 | System instruction | `using_system_instruction( string )` |
 | Temperature | `using_temperature( float )` |
 | Max tokens | `using_max_tokens( int )` |
 | Top-p / Top-k | `using_top_p( float )`, `using_top_k( int )` |
-| Stop sequences | `using_stop_sequences( array )` |
+| Stop sequences | `using_stop_sequences( string ...$sequences )` |
 | Candidate count | `using_candidate_count( int )` |
 | Model preference (ordered list) | `using_model_preference( ...$model_ids )` |
 | Force a specific model | `using_model( ModelInterface )` |
+| Model configuration object | `using_model_config( ModelConfig )` |
 | Force a specific provider | `using_provider( string $providerIdOrClassName )` |
 | Bind registered Abilities for function calling | `using_abilities( ...$ability_ids )` |
 | Function declarations (manual) | `using_function_declarations( FunctionDeclaration ...)` |
@@ -37,6 +38,8 @@ Returns a `WP_AI_Client_Prompt_Builder`. Chain configuration methods, then call 
 | Output modalities | `as_output_modalities( ...$modality_enums )` |
 | Output file type (image/audio/video) | `as_output_file_type( FileTypeEnum )` |
 | Output media orientation | `as_output_media_orientation( MediaOrientationEnum )` |
+| Output media aspect ratio | `as_output_media_aspect_ratio( string )` |
+| Output speech voice | `as_output_speech_voice( string )` |
 | Output MIME type | `as_output_mime_type( string )` |
 | Output schema (raw JSON Schema) | `as_output_schema( array )` |
 | Structured JSON response | `as_json_response( ?array $schema = null )` |
@@ -167,6 +170,8 @@ The AI Client is two layers:
 2. **`WP_AI_Client_Prompt_Builder`** — Core's WordPress wrapper. snake_case methods, returns `WP_Error`, integrates with WordPress HTTP, the Connectors API, and the hooks system.
 
 `wp_ai_client_prompt()` is the recommended entry point. It returns the wrapper, which catches SDK exceptions and converts them to `WP_Error` for you.
+
+**Argument-typing caveat.** The wrapper forwards your arguments to the SDK method unchanged and its `__call` only `catch`es `Exception`. Passing a wrong *type* — e.g. an `array` to `using_stop_sequences( string ...$sequences )` or `with_history( Message ...$messages )` — raises a PHP `TypeError`, which extends `Error`, **not** `Exception`, so it is *not* converted to `WP_Error` and will fatal. Match the signatures in the table above (the variadic methods take spread arguments / DTO objects, not arrays). The wrapper also defers errors: once any call in a chain throws, the instance enters an error state and later non-generating calls become no-ops; the `WP_Error` surfaces only when a generating method is called.
 
 ### A class-name nuance worth knowing
 

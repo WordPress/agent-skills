@@ -20,7 +20,7 @@ If the task is to *consume* AI features (build a summarization endpoint, add ima
 ## Inputs required
 
 - Repo root (run `wordpress-router` and `wp-project-triage` first).
-- Provider being integrated: name, ID slug (lowercase alphanumeric + underscores), authentication method (`api_key` or `none`).
+- Provider being integrated: name, ID slug (must match `/^[a-z0-9_-]+$/` — lowercase alphanumeric, hyphens, underscores), authentication method (`api_key` or `none`).
 - Models the provider exposes and the modalities each supports.
 - Public credentials URL (where users go to get an API key) and a logo URL if you have one.
 
@@ -38,7 +38,7 @@ If the task is to *consume* AI features (build a summarization endpoint, add ima
 
 Provider registration happens at the SDK level, not the WordPress level. The `wordpress/php-ai-client` package (bundled in WP 7.0 Core) maintains a registry accessed via `AiClient::defaultRegistry()`. Your plugin's bootstrap registers a provider class on that registry — passing the class name, not an instance.
 
-The canonical pattern, taken verbatim from `WordPress/ai-provider-for-anthropic` `plugin.php`:
+The canonical pattern, adapted from `WordPress/ai-provider-for-anthropic`'s `plugin.php` (v1.0.3; reformatted here to WordPress-style spacing — the upstream file uses tight PSR-12 spacing):
 
 ```php
 namespace WordPress\AnthropicAiProvider;
@@ -68,7 +68,7 @@ Notes:
 - The method is `registerProvider()`, not `register()`. Argument is a class name string, not an instance.
 - `class_exists( AiClient::class )` makes the plugin safely activate on sites without the SDK.
 - `hasProvider()` makes the registration idempotent.
-- `init` priority 5 runs before `_wp_connectors_init` at priority 10. Priorities between `plugins_loaded` and `init` priority 9 also work; `init` priority 5 is what every official provider plugin uses, so match it for consistency.
+- `init` priority 5 runs before `_wp_connectors_init`, which Core hooks on `init` at **priority 15** (`wp-includes/default-filters.php`). Any priority earlier than 15 works (`plugins_loaded`, or `init` ≤ 14); `init` priority 5 is what every official provider plugin uses, so match it for consistency.
 
 The provider class itself (`AnthropicProvider` in this example) implements the SDK's provider interface and lives in your plugin's `src/` directory. See `references/provider-registration.md` for the full annotated pattern and where to look in the SDK source for the current interface contract.
 
@@ -101,7 +101,7 @@ Notes:
 
 - Always `is_registered()` before `unregister()`. Unregistering a missing connector triggers `_doing_it_wrong()`.
 - `unregister()` returns the data; mutate it; pass back to `register()`.
-- IDs must match `/^[a-z0-9_]+$/`.
+- IDs must match `/^[a-z0-9_-]+$/` (lowercase alphanumeric, hyphens, underscores). Hyphens are normalized to underscores when Core derives the setting / env var / constant names.
 - Outside the `wp_connectors_init` callback, query through `wp_get_connector()` / `wp_get_connectors()` — do not access the registry directly.
 
 ### 4) Confirm the API key source order
@@ -121,14 +121,14 @@ Check Settings → Connectors. You should see a card with your provider's name, 
 If the connector isn't showing up:
 
 - Confirm the provider class actually registers — add a temporary `error_log()` in your registration callback and reload.
-- Confirm the registration runs *before* `_wp_connectors_init` (priority 10 on `init`). Use `init` priority 5 or earlier.
-- Confirm the connector ID matches `/^[a-z0-9_]+$/` — uppercase or hyphens silently fail.
-- Confirm `type` is `ai_provider`. The Settings → Connectors screen currently only renders that type; other types are stored but not surfaced.
+- Confirm the registration runs *before* `_wp_connectors_init` (priority 15 on `init`). Use `init` priority 5 or earlier (anything ≤ 14).
+- Confirm the connector ID matches `/^[a-z0-9_-]+$/` — hyphens are allowed (normalized to underscores in the derived key names); an invalid ID (e.g. uppercase) triggers `_doing_it_wrong()` and `register()` returns `null`.
+- Confirm `type` is `ai_provider` so the connector is treated as an AI provider and discovered from the AI Client registry. (The admin screen actually renders a card for *any* connector whose `authentication.method` is `api_key` — the built-in Akismet connector is `type` `spam_filtering` and still appears — so a missing card isn't explained by `type` alone.)
 
 ## Verification
 
 - `wp_is_connector_registered( 'your_provider_id' )` returns `true` after `init`.
-- `wp_get_connector( 'your_provider_id' )` returns the expected `name`, `description`, `type`, `authentication`, and `plugin.slug` (if set).
+- `wp_get_connector( 'your_provider_id' )` returns the expected `name`, `description`, `type`, `authentication`, and `plugin.file` (if set).
 - The connector card renders on Settings → Connectors with the correct logo, description, and credentials link.
 - Setting an API key via env var, constant, and database (in turn) shows the right source on the card.
 - A feature plugin calling `wp_ai_client_prompt()->is_supported_for_text_generation()` returns `true` once your provider is configured.

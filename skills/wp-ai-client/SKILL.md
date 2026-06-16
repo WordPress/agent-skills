@@ -59,7 +59,7 @@ $result = wp_ai_client_prompt( 'Summarize the following post.' )
     ->generate_text_result();
 ```
 
-Model preferences are *preferences*, not requirements. The Client falls back to any compatible model. See `references/prompt-builder.md` for the full method list (with_text/with_file/with_history, using_max_tokens/top_p/top_k/stop_sequences, as_json_response, as_output_modalities).
+Model preferences are *preferences*, not requirements. The Client falls back to any compatible model. The model IDs shown above (`claude-sonnet-4-6`, etc.) are **illustrative** — pass whatever IDs your configured providers actually advertise. See `references/prompt-builder.md` for the full method list (with_text/with_file/with_history, using_max_tokens/top_p/top_k/stop_sequences, as_json_response, as_output_modalities).
 
 ### 3) Expose to JS via a per-feature REST endpoint
 
@@ -86,7 +86,7 @@ function my_plugin_rest_summarize( WP_REST_Request $request ) {
 
 ### 4) Handle errors
 
-Generator methods return `WP_Error` on failure (no exceptions — the WordPress wrapper catches them). Always check:
+Generator methods return `WP_Error` on SDK failures — the wrapper converts caught `Exception`s to `WP_Error` (but **not** an argument `TypeError`; match the signatures in `references/prompt-builder.md`). Always check:
 
 ```php
 $result = wp_ai_client_prompt( $prompt )->generate_text_result();

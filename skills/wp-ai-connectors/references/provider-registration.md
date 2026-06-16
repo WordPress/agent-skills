@@ -12,11 +12,13 @@ There are two registries involved. You only register against the first one:
 The auto-discovery flow:
 
 ```
-init priority 10 → _wp_connectors_init() runs:
-  1. Registers built-in connectors (Anthropic, Google, OpenAI) with hardcoded defaults.
-  2. Iterates AiClient::defaultRegistry()->getProviders().
-  3. For each provider, builds a connector array; merges metadata on top of any defaults
-     (provider registry values take precedence).
+init priority 15 → _wp_connectors_init() runs:
+  1. Creates the WP_Connector_Registry singleton.
+  2. If wp_supports_ai(): registers the built-in AI providers (Anthropic, Google,
+     OpenAI) with hardcoded defaults, then iterates the providers registered in
+     AiClient::defaultRegistry(), merging each provider's metadata on top of the
+     defaults (provider registry values take precedence).
+  3. Registers non-AI built-in connectors (e.g. Akismet).
   4. Fires the `wp_connectors_init` action with the WP_Connector_Registry instance.
 ```
 
@@ -31,14 +33,15 @@ array(
     'name'           => 'My Provider',                 // Display name on the card.
     'description'    => 'Text and image generation.',  // Short description on the card.
     'logo_url'       => 'https://example.com/logo.svg',// Optional. SVG preferred.
-    'type'           => 'ai_provider',                 // Currently the only type rendered on the screen.
+    'type'           => 'ai_provider',                 // Use 'ai_provider' for AI providers (grouped + discovered from the AI Client registry).
     'authentication' => array(
         'method'          => 'api_key',                            // 'api_key' or 'none'.
         'credentials_url' => 'https://provider.example/api-keys',  // Where users get their key.
-        'setting_name'    => 'connectors_ai_my_provider_api_key',  // Auto-generated; don't customize.
+        'setting_name'    => 'connectors_ai_my_provider_api_key',  // Auto-assigned for AI providers; overridable (see below).
     ),
     'plugin'         => array(
-        'slug' => 'ai-provider-for-my-provider',  // Optional. Enables install/activate UI.
+        'file'      => 'ai-provider-for-my-provider/plugin.php',  // Optional. Plugin file; enables install/activate UI.
+        'is_active' => '__return_true',                          // Optional callable; defaults to '__return_true'.
     ),
 )
 ```
@@ -62,7 +65,7 @@ For `api_key` connectors, names are derived from the provider ID (lowercase alph
 | Environment variable | `{ID}_API_KEY` (uppercased) | `MY_PROVIDER_API_KEY` |
 | PHP constant | `{ID}_API_KEY` (uppercased) | `define( 'MY_PROVIDER_API_KEY', '...' );` |
 
-These naming patterns are not configurable — overriding `setting_name` in the connector array does not work.
+For auto-discovered AI providers, Core assigns these names automatically (`connectors_ai_{id}_api_key` for the DB option, plus `{ID}_API_KEY` for both the env var and the constant). The registry *does* honor explicit `setting_name`, `constant_name`, and `env_var_name` overrides in the `authentication` array — the built-in Akismet connector uses this to read `WPCOM_API_KEY` / `wordpress_api_key`. AI provider plugins normally rely on the automatic names and don't need to set them.
 
 ## Provider class contract
 
@@ -80,9 +83,9 @@ The shape is roughly:
 
 When in doubt, copy from `wordpress/ai-provider-for-anthropic`, `wordpress/ai-provider-for-google`, or `wordpress/ai-provider-for-openai`. They are the reference implementations.
 
-## Canonical bootstrap (verbatim from `ai-provider-for-anthropic`)
+## Canonical bootstrap (adapted from `ai-provider-for-anthropic`)
 
-This is the actual `plugin.php` from `WordPress/ai-provider-for-anthropic` v1.0.2. Copy this shape — it's the documented pattern across all three flagship plugins:
+This mirrors the `plugin.php` from `WordPress/ai-provider-for-anthropic` v1.0.3 (reformatted to WordPress-style spacing; the upstream file uses tight PSR-12 spacing — e.g. `if (!class_exists(AiClient::class))`). Copy this shape — it's the documented pattern across all three flagship plugins:
 
 ```php
 <?php
@@ -92,7 +95,7 @@ This is the actual `plugin.php` from `WordPress/ai-provider-for-anthropic` v1.0.
  * Description: AI Provider for Anthropic for the WordPress AI Client.
  * Requires at least: 6.9
  * Requires PHP: 7.4
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: WordPress AI Team
  * Author URI: https://make.wordpress.org/ai/
  * License: GPL-2.0-or-later
@@ -138,17 +141,18 @@ What each part does:
 - **`class_exists( AiClient::class )`** — guards against the SDK not being loaded. Without this, the plugin fatals on sites where the SDK isn't bundled and Core hasn't yet provided it.
 - **`hasProvider( AnthropicProvider::class )`** — makes registration idempotent.
 - **`registerProvider( AnthropicProvider::class )`** — the actual registration call. Argument is a class name string, not an instance. The SDK instantiates the provider lazily.
-- **`add_action( 'init', ..., 5 )`** — runs before `_wp_connectors_init` at priority 10.
+- **`add_action( 'init', ..., 5 )`** — runs before `_wp_connectors_init` at priority 15.
 
 ## Hook timing — what works and what doesn't
 
-The Connectors API runs `_wp_connectors_init()` on `init` priority 10. Your provider must be registered before that.
+The Connectors API runs `_wp_connectors_init()` on `init` priority 15 (`wp-includes/default-filters.php`). Your provider must be registered before that.
 
 | Hook | Priority | Works? |
 | --- | --- | --- |
 | `plugins_loaded` | any | yes |
-| `init` | 0–9 | yes |
-| `init` | 10+ | no (registry already queried) |
+| `init` | 0–14 | yes |
+| `init` | 15 | unsafe (same priority as `_wp_connectors_init`; depends on registration order) |
+| `init` | 16+ | no (registry already queried) |
 | `wp_loaded` | any | no (too late) |
 | `wp_connectors_init` | any | no (this is for *overriding* connectors, not adding providers) |
 
@@ -176,4 +180,4 @@ Use these — not the registry directly — outside the `wp_connectors_init` cal
 
 ## What `Settings → Connectors` actually shows
 
-Per the dev note, only `ai_provider` connectors with `api_key` (or `none`) authentication get the full admin UI in WP 7.0. The PHP registry accepts other types and methods, but the screen ignores them. Future releases are expected to expand this — track #64789 and the Connectors API dev note's "Looking ahead" section.
+The admin screen renders the API-key card for any connector whose `authentication.method` is `api_key`, regardless of `type` — the built-in Akismet connector (`type` `spam_filtering`) appears alongside the AI providers. `none`-auth connectors (e.g. a local Ollama) are also supported. AI providers should still use `type => 'ai_provider'` so they're grouped and auto-discovered from the AI Client registry. Connectors using other auth methods (OAuth, etc.) aren't rendered by the default card. Track #64789 and the Connectors API dev note's "Looking ahead" section for expansion.

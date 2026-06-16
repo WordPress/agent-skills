@@ -1,6 +1,6 @@
 # Dashboard widgets
 
-The AI plugin v0.8.0 ships two dashboard widgets and uses standard WordPress for registration. **There is no AI-plugin-specific widget framework.** Earlier drafts of this skill claimed there was — they were wrong.
+The AI plugin ships two dashboard widgets (since v0.8.0; still two as of v1.0.2) and uses standard WordPress for registration. **There is no AI-plugin-specific widget framework.** Earlier drafts of this skill claimed there was — they were wrong.
 
 ## What ships in v0.8.0
 
@@ -87,7 +87,7 @@ The widget IDs (`wpai_status`, `wpai_capabilities`) are stable across the v0.8.x
 
 ## What might land later
 
-The AI plugin's roadmap mentions an "AI Request Logging & Observability Dashboard" as planned (per the readme). If that ships with a registration framework for third-party widgets, this reference will need an update. As of v0.8.0, no such framework exists in source — confirmed by reading `includes/Admin/Dashboard/Dashboard_Widgets.php` end to end.
+The AI plugin's "AI Request Logging & Observability" surface has since shipped — as the `AI_Request_Logging` experiment (`includes/Experiments/AI_Request_Logging/`, with an admin log page under `includes/Logging/`). It does **not** add a registration framework for third-party dashboard widgets — as of v1.0.2, no such framework exists in source, confirmed by reading `includes/Admin/Dashboard/Dashboard_Widgets.php` end to end.
 
 ## Source
 

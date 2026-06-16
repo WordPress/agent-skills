@@ -1,7 +1,7 @@
 ---
 name: wp-ai-plugin
-description: "Use when extending the canonical WordPress AI plugin (`wordpress.org/plugins/ai`, repo `WordPress/ai`, v0.8.0+) — adding a downstream Experiment via the `wpai_default_feature_classes` filter or `wpai_register_features` action, registering a paired Ability that consumes Guidelines automatically, customizing prompts/responses through documented filters, or respecting `wp_supports_ai()` and the `WPAI_*` constants. Use this — not `wp-ai-client` — when the user wants to add a feature *to the AI plugin itself* rather than build an independent AI feature in their own plugin."
-compatibility: "Targets WordPress 7.0+ (PHP 7.4+) and the AI plugin v0.6.0+ (Abstract_Feature) or v0.8.0+ (wp_supports_ai, Guidelines, dashboard widgets). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+description: "Use when extending the canonical WordPress AI plugin (`wordpress.org/plugins/ai`, repo `WordPress/ai`, v1.0+) — adding a downstream Experiment via the `wpai_default_feature_classes` filter or `wpai_register_features` action, registering a paired Ability that consumes Guidelines automatically, customizing prompts/responses through documented filters, or respecting `wp_supports_ai()` and the `WPAI_*` constants. Use this — not `wp-ai-client` — when the user wants to add a feature *to the AI plugin itself* rather than build an independent AI feature in their own plugin."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4+) and the AI plugin v0.6.0+ (Abstract_Feature); v0.8.0+ adds wp_supports_ai, Guidelines, and dashboard widgets (current canonical release: v1.0.2). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
 ---
 
 # WP AI Plugin
@@ -11,7 +11,7 @@ compatibility: "Targets WordPress 7.0+ (PHP 7.4+) and the AI plugin v0.6.0+ (Abs
 Use this skill when the task involves:
 
 - adding a new Experiment to the canonical AI plugin (a content-classification experiment, a new editorial workflow, a custom suggestion type),
-- pairing the Experiment with a registered Ability so it's reachable via the Abilities API, REST, and MCP,
+- pairing the Experiment with a registered Ability so it's reachable via the Abilities API and REST (and, if you opt in with `meta.mcp.public = true`, via the MCP Adapter),
 - opting into Guidelines so the Experiment respects site editorial standards,
 - customizing the AI plugin's behavior in your own plugin via its hooks/filters (prompt overrides, response filtering, feature visibility),
 - diagnosing "my Experiment doesn't appear in Settings → AI" or "the plugin works but my filter never fires".
@@ -165,7 +165,7 @@ Returning an empty array (the default) skips Guidelines entirely. When `guidelin
 
 ### 6) Add a dashboard widget if useful (optional)
 
-v0.8.0 ships two dashboard widgets: `wpai_status` and `wpai_capabilities`, both registered via standard `wp_add_dashboard_widget()` in `Dashboard_Widgets`. **There is no AI-plugin-specific widget framework** in v0.8.0 — to add your own, use standard WordPress:
+v0.8.0+ ships two dashboard widgets (still two as of v1.0.2): `wpai_status` and `wpai_capabilities`, both registered via standard `wp_add_dashboard_widget()` in `Dashboard_Widgets`. **There is no AI-plugin-specific widget framework** as of v1.0.2 — to add your own, use standard WordPress:
 
 ```php
 add_action( 'wp_dashboard_setup', function () {
