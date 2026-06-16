@@ -124,7 +124,9 @@ function findFilesRecursive(repoRoot, predicate, { maxFiles = 6000, maxDepth = 8
 function detectPluginHeaderFromPhpFile(filePath) {
   const contents = readFileSafe(filePath, 128 * 1024);
   if (!contents) return null;
-  const headerMatch = contents.match(/^\s*Plugin Name:\s*(.+)\s*$/im);
+  // Allow comment-leader chars (`*`, `#`) before the field so the standard
+  // docblock style (` * Plugin Name: ...`) is matched, not just bare `/* ... */`.
+  const headerMatch = contents.match(/^[\s*#]*Plugin Name:\s*(.+)\s*$/im);
   if (!headerMatch) return null;
   return headerMatch[1].trim();
 }
@@ -132,7 +134,8 @@ function detectPluginHeaderFromPhpFile(filePath) {
 function detectThemeHeaderFromStyleCss(filePath) {
   const contents = readFileSafe(filePath, 128 * 1024);
   if (!contents) return null;
-  const headerMatch = contents.match(/^\s*Theme Name:\s*(.+)\s*$/im);
+  // Mirror the plugin-header tolerance: allow comment-leader chars before the field.
+  const headerMatch = contents.match(/^[\s*#]*Theme Name:\s*(.+)\s*$/im);
   if (!headerMatch) return null;
   return headerMatch[1].trim();
 }
@@ -348,6 +351,54 @@ function main() {
   for (const styleCss of themeCandidates) {
     detectedThemeName = detectThemeHeaderFromStyleCss(styleCss);
     if (detectedThemeName) break;
+  }
+
+  // Fallback for standalone plugin/theme repos whose main file is nested in a
+  // subdirectory (e.g. an SVN `trunk/` checkout or a wrapper folder) rather than
+  // sitting at the repo root. Runs ONLY when root-level detection found nothing:
+  // a repo already identified as a plugin (or theme) at its root must not be
+  // relabelled because some nested test fixture ships a style.css/plugin header.
+  // Also skip core/gutenberg/site repos, which are classified by stronger signals
+  // and would surface bundled-plugin noise. findFilesRecursive walks breadth-first,
+  // so the shallowest header — the most likely "real" main file — wins.
+  const eligibleForNestedHeaderScan =
+    !detectedPluginName &&
+    !detectedThemeName &&
+    !isWpCoreCheckout &&
+    !isGutenbergRepo &&
+    !hasWpContentDir;
+
+  if (eligibleForNestedHeaderScan) {
+    const { results: nestedPhpFiles } = findFilesRecursive(
+      repoRoot,
+      (p) => p.toLowerCase().endsWith(".php"),
+      { maxFiles: 1500, maxDepth: 3 }
+    );
+    for (const phpFile of nestedPhpFiles) {
+      const name = detectPluginHeaderFromPhpFile(phpFile);
+      if (name) {
+        detectedPluginName = name;
+        break;
+      }
+    }
+
+    // Only look for a nested theme if no plugin was found anywhere — prevents a
+    // plugin repo that merely bundles a style.css (theme fixtures, vendored
+    // assets) from being reclassified as a theme.
+    if (!detectedPluginName) {
+      const { results: nestedStyleFiles } = findFilesRecursive(
+        repoRoot,
+        (p) => path.basename(p) === "style.css",
+        { maxFiles: 1500, maxDepth: 3 }
+      );
+      for (const styleCss of nestedStyleFiles) {
+        const name = detectThemeHeaderFromStyleCss(styleCss);
+        if (name) {
+          detectedThemeName = name;
+          break;
+        }
+      }
+    }
   }
 
   const { results: blockJsonFiles, truncated: scanTruncated } = findFilesRecursive(
