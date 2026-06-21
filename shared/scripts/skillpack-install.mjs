@@ -11,7 +11,7 @@ function usage() {
       "Options:",
       "  --dest=<path>       Destination repo root (required, unless using --global)",
       "  --from=<path>       Source directory (default: dist)",
-      "  --targets=<list>    Comma-separated targets: codex, vscode, claude, claude-global, cursor, cursor-global (default: codex,vscode)",
+      "  --targets=<list>    Comma-separated targets: codex, vscode, claude, claude-global, cursor, cursor-global, gemini, gemini-global (default: codex,vscode)",
       "  --skills=<list>     Comma-separated skill names to install (default: all)",
       "  --mode=<mode>       'replace' (default) or 'merge'",
       "  --global            Shorthand for --targets=claude-global (installs to ~/.claude/skills)",
@@ -25,11 +25,13 @@ function usage() {
       "  claude-global       Install to ~/.claude/skills/ (user-level, ignores --dest)",
       "  cursor              Install to <dest>/.cursor/skills/",
       "  cursor-global       Install to ~/.cursor/skills/ (user-level, ignores --dest)",
+      "  gemini              Install to <dest>/.gemini/",
+      "  gemini-global       Install to ~/.gemini/ (user-level, ignores --dest)",
       "",
       "Examples:",
       "  # Build and install to a WordPress project",
       "  node shared/scripts/skillpack-build.mjs --clean",
-      "  node shared/scripts/skillpack-install.mjs --dest=../my-wp-repo --targets=codex,vscode,claude,cursor",
+      "  node shared/scripts/skillpack-install.mjs --dest=../my-wp-repo --targets=codex,vscode,claude,cursor,gemini",
       "",
       "  # Install globally for Claude Code (all skills)",
       "  node shared/scripts/skillpack-install.mjs --global",
@@ -37,11 +39,14 @@ function usage() {
       "  # Install globally for Cursor (all skills)",
       "  node shared/scripts/skillpack-install.mjs --targets=cursor-global",
       "",
+      "  # Install globally for Gemini CLI (all skills)",
+      "  node shared/scripts/skillpack-install.mjs --targets=gemini-global",
+      "",
       "  # Install specific skills globally",
       "  node shared/scripts/skillpack-install.mjs --global --skills=wp-playground,wp-block-development",
       "",
       "  # Install to project with specific skills",
-      "  node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude,cursor --skills=wp-wpcli-and-ops",
+      "  node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude,cursor,gemini --skills=wp-wpcli-and-ops",
       "",
     ].join("\n")
   );
@@ -126,6 +131,22 @@ function copyDir({ srcDir, destDir }) {
 
 function listSkillDirs(skillsRoot) {
   if (!fs.existsSync(skillsRoot)) return [];
+  
+  // For Gemini extensions, the skills are usually in a 'skills' subdirectory
+  const geminiSkillsDir = path.join(skillsRoot, "skills");
+  if (fs.existsSync(geminiSkillsDir) && fs.statSync(geminiSkillsDir).isDirectory()) {
+    return fs
+      .readdirSync(geminiSkillsDir, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => path.join(geminiSkillsDir, d.name))
+      .filter((d) => fs.existsSync(path.join(d, "SKILL.md")));
+  }
+
+  // Legacy/Aggregated Gemini check
+  if (fs.existsSync(path.join(skillsRoot, "GEMINI.md")) && !fs.existsSync(geminiSkillsDir)) {
+    return [skillsRoot];
+  }
+  
   return fs
     .readdirSync(skillsRoot, { withFileTypes: true })
     .filter((d) => d.isDirectory())
@@ -133,31 +154,28 @@ function listSkillDirs(skillsRoot) {
     .filter((d) => fs.existsSync(path.join(d, "SKILL.md")));
 }
 
-const VALID_TARGETS = ["codex", "vscode", "claude", "claude-global", "cursor", "cursor-global"];
+const VALID_TARGETS = ["codex", "vscode", "claude", "claude-global", "cursor", "cursor-global", "gemini", "gemini-global"];
 
 // Map target to source subdirectory in dist
 function getSourceDir(fromDir, target) {
-  // claude-global uses the same source as claude; cursor-global uses the same as cursor
-  const sourceTarget =
-    target === "claude-global" ? "claude" : target === "cursor-global" ? "cursor" : target;
+  // Map global targets to their respective sources
+  const sourceTarget = target.endsWith("-global") ? target.replace("-global", "") : target;
   const targetDirMap = {
     codex: path.join(fromDir, "codex", ".codex", "skills"),
     vscode: path.join(fromDir, "vscode", ".github", "skills"),
     claude: path.join(fromDir, "claude", ".claude", "skills"),
     cursor: path.join(fromDir, "cursor", ".cursor", "skills"),
+    gemini: path.join(fromDir, "gemini", ".gemini"),
   };
   return targetDirMap[sourceTarget];
 }
 
 // Map target to destination directory
 function getDestDir(destRepoRoot, target) {
-  // claude-global and cursor-global don't need destRepoRoot
-  if (target === "claude-global") {
-    return path.join(os.homedir(), ".claude", "skills");
-  }
-  if (target === "cursor-global") {
-    return path.join(os.homedir(), ".cursor", "skills");
-  }
+  // Global targets don't need destRepoRoot
+  if (target === "claude-global") return path.join(os.homedir(), ".claude", "skills");
+  if (target === "cursor-global") return path.join(os.homedir(), ".cursor", "skills");
+  if (target === "gemini-global") return path.join(os.homedir(), ".gemini", "extensions", "wordpress-agent-skills");
 
   // Other targets require destRepoRoot
   const destDirMap = {
@@ -165,6 +183,7 @@ function getDestDir(destRepoRoot, target) {
     vscode: path.join(destRepoRoot, ".github", "skills"),
     claude: path.join(destRepoRoot, ".claude", "skills"),
     cursor: path.join(destRepoRoot, ".cursor", "skills"),
+    gemini: path.join(destRepoRoot, ".gemini"),
   };
   return destDirMap[target];
 }
@@ -179,8 +198,8 @@ function installTarget({ fromDir, destRepoRoot, target, skillsFilter, mode, dryR
   let skillDirs = listSkillDirs(srcSkillsRoot);
   assert(skillDirs.length > 0, `No skills found in: ${srcSkillsRoot}`);
 
-  // Filter skills if requested
-  if (skillsFilter.length > 0) {
+  // Filter skills if requested (only applies to non-aggregated targets)
+  if (skillsFilter.length > 0 && !target.includes("gemini")) {
     const requested = new Set(skillsFilter);
     const available = skillDirs.map((d) => path.basename(d));
 
@@ -202,25 +221,30 @@ function installTarget({ fromDir, destRepoRoot, target, skillsFilter, mode, dryR
 
   fs.mkdirSync(destSkillsRoot, { recursive: true });
 
-  for (const srcSkillDir of skillDirs) {
-    const name = path.basename(srcSkillDir);
-    const destSkillDir = path.join(destSkillsRoot, name);
+  if (target.includes("gemini")) {
+    // For Gemini, we copy the entire .gemini source directory contents
+    copyDir({ srcDir: srcSkillsRoot, destDir: destSkillsRoot });
+  } else {
+    for (const srcSkillDir of skillDirs) {
+      const name = path.basename(srcSkillDir);
+      const destSkillDir = path.join(destSkillsRoot, name);
 
-    if (mode === "replace") {
-      fs.rmSync(destSkillDir, { recursive: true, force: true });
+      if (mode === "replace") {
+        fs.rmSync(destSkillDir, { recursive: true, force: true });
+      }
+
+      copyDir({ srcDir: srcSkillDir, destDir: destSkillDir });
     }
-
-    copyDir({ srcDir: srcSkillDir, destDir: destSkillDir });
   }
 
-  const isGlobal = target === "claude-global" || target === "cursor-global";
+  const isGlobal = target.endsWith("-global");
   const location = isGlobal ? destSkillsRoot : path.relative(destRepoRoot, destSkillsRoot) || ".";
   process.stdout.write(`OK: installed ${skillDirs.length} skill(s) to ${location}\n`);
 }
 
 function listAvailableSkills(fromDir) {
   // Check all possible target sources
-  const sources = ["codex", "vscode", "claude", "cursor"]
+  const sources = ["codex", "vscode", "claude", "cursor", "gemini"]
     .map((t) => getSourceDir(fromDir, t))
     .filter((p) => fs.existsSync(p));
 
@@ -258,8 +282,8 @@ function main() {
     assert(VALID_TARGETS.includes(t), `Invalid target: ${t}. Valid targets: ${VALID_TARGETS.join(", ")}`);
   }
 
-  // --dest is required unless only using global targets (claude-global, cursor-global)
-  const needsDest = targets.some((t) => t !== "claude-global" && t !== "cursor-global");
+  // --dest is required unless only using global targets
+  const needsDest = targets.some((t) => !t.endsWith("-global"));
   if (needsDest && !args.dest) {
     process.stderr.write("Error: --dest is required for non-global targets.\n\n");
     usage();

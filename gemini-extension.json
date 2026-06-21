@@ -1,0 +1,6 @@
+{
+  "name": "wordpress-agent-skills",
+  "version": "1.0.0",
+  "description": "Official WordPress Core engineering standards and agent skills",
+  "contextFileName": "GEMINI.md"
+}
