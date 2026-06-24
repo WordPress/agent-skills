@@ -1,8 +1,9 @@
 {
   "source": "https://api.wordpress.org/core/version-check/1.7/",
-  "latest": "7.0.4",
+  "latest": "7.0",
   "recent": [
-    "7.0.4",
+    "7.0",
+    "6.9.4",
     "6.8.5",
     "6.7.5",
     "6.6.5",
@@ -25,19 +26,28 @@
   ],
   "offers": [
     {
-      "version": "7.0.4",
-      "current": "7.0.4",
-      "download": "https://downloads.wordpress.org/release/wordpress-7.0.4.zip",
+      "version": "7.0",
+      "current": "7.0",
+      "download": "https://downloads.wordpress.org/release/wordpress-7.0.zip",
       "phpVersion": "7.4.0",
       "mysqlVersion": "5.5.5",
       "response": "upgrade",
       "locale": "en_US"
     },
     {
+      "version": "6.9.4",
+      "current": "6.9.4",
+      "download": "https://downloads.w.org/release/wordpress-6.9.4.zip",
+      "phpVersion": "7.2.24",
+      "mysqlVersion": "5.5.5",
+      "response": "autoupdate",
+      "locale": "en_US"
+    },
+    {
       "version": "6.8.5",
       "current": "6.8.5",
       "download": "https://downloads.w.org/release/wordpress-6.8.5.zip",
-      "phpVersion": "7.4.0",
+      "phpVersion": "7.2.24",
       "mysqlVersion": "5.5.5",
       "response": "autoupdate",
       "locale": "en_US"
@@ -46,7 +56,7 @@
       "version": "6.7.5",
       "current": "6.7.5",
       "download": "https://downloads.w.org/release/wordpress-6.7.5.zip",
-      "phpVersion": "7.4.0",
+      "phpVersion": "7.2.24",
       "mysqlVersion": "5.5.5",
       "response": "autoupdate",
       "locale": "en_US"
@@ -55,7 +65,7 @@
       "version": "6.6.5",
       "current": "6.6.5",
       "download": "https://downloads.w.org/release/wordpress-6.6.5.zip",
-      "phpVersion": "7.4.0",
+      "phpVersion": "7.2.24",
       "mysqlVersion": "5.5.5",
       "response": "autoupdate",
       "locale": "en_US"
