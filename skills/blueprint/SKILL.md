@@ -35,7 +35,7 @@ All optional. Only documented keys are allowed — the schema rejects unknown pr
 | `meta` | object | `{ title, author, description?, categories? }` — title and author required |
 | `preferredVersions` | object | `{ php, wp }` — both required when present |
 | `features` | object | `{ networking?: boolean, intl?: boolean }` — **only** these two keys, nothing else. Networking defaults to `true` |
-| `phpExtensionBundles` | any | Deprecated/no longer used; omit in new Blueprints |
+| `phpExtensionBundles` | any | Deprecated/no longer used; the schema leaves the value unconstrained and says to remove it from Blueprints |
 | `extraLibraries` | array | `["wp-cli"]` — auto-included when any `wp-cli` step is present |
 | `constants` | object | Shorthand for `defineWpConfigConsts`. Values: string/boolean/number |
 | `plugins` | array | Shorthand for `installPlugin` steps. Strings = wp.org slugs |
