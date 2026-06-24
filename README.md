@@ -166,7 +166,7 @@ Copy any skill folder from `skills/` into your project's instructions directory 
 
 ## Compatibility
 
-- **WordPress 6.9+** (PHP 7.2.24+)
+- **WordPress 7.0+** (PHP 7.4.0+)
 - Works with any AI assistant that supports project-level instructions
 
 ## Contributing

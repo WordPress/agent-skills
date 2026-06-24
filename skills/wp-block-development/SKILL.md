@@ -1,7 +1,7 @@
 ---
 name: wp-block-development
 description: "Use when developing WordPress (Gutenberg) blocks: block.json metadata, register_block_type(_from_metadata), attributes/serialization, supports, dynamic rendering (render.php/render_callback), deprecations/migrations, viewScript vs viewScriptModule, and @wordpress/scripts/@wordpress/create-block build and test workflows."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
 ---
 
 # WP Block Development
@@ -50,9 +50,9 @@ After scaffolding:
 1. Re-run the block list script and confirm the new block root.
 2. Continue with the remaining steps (model choice, metadata, registration, serialization).
 
-### 2) Ensure apiVersion 3 (WordPress 6.9+)
+### 2) Ensure apiVersion 3 (WordPress 7.0+)
 
-WordPress 6.9 enforces `apiVersion: 3` in the block.json schema. Blocks with apiVersion 2 or lower trigger console warnings when `SCRIPT_DEBUG` is enabled.
+WordPress 7.0 enforces `apiVersion: 3` in the block.json schema. Blocks with apiVersion 2 or lower trigger console warnings when `SCRIPT_DEBUG` is enabled.
 
 **Why this matters:**
 - WordPress 7.0 will run the post editor in an iframe regardless of block apiVersion.

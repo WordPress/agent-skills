@@ -1,7 +1,7 @@
 ---
 name: wp-interactivity-api
 description: "Use when building or debugging WordPress Interactivity API features (data-wp-* directives, @wordpress/interactivity store/state/actions, block viewScriptModule integration, wp_interactivity_*()) including performance, hydration, and directive behavior."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
 ---
 
 # WP Interactivity API
@@ -119,7 +119,7 @@ When touching markup directives:
 - prefer stable data attributes that map clearly to store state,
 - ensure server-rendered markup + client hydration align.
 
-**WordPress 6.9 changes:**
+**WordPress 7.0 changes:**
 
 - **`data-wp-ignore` is deprecated** and will be removed in future versions. It broke context inheritance and caused issues with client-side navigation. Avoid using it.
 - **Unique directive IDs**: Multiple directives of the same type can now exist on one element using the `---` separator (e.g., `data-wp-on--click---plugin-a="..."` and `data-wp-on--click---plugin-b="..."`).
@@ -166,7 +166,7 @@ See `references/debugging.md`.
   - derived state like `state.hasItems` missing on server, causing `hidden` attribute to be absent.
 - Performance regressions:
   - overly broad interactive roots; scope interactivity to smaller subtrees.
-- Client-side navigation issues (WordPress 6.9):
+- Client-side navigation issues (WordPress 7.0):
   - `getServerState()` and `getServerContext()` now reset between page transitions—ensure your code doesn't assume stale values persist.
   - Router regions now support `attachTo` for rendering overlays (modals, pop-ups) dynamically.
 

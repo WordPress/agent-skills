@@ -24,12 +24,12 @@ Upstream references:
 - Prefer `styles` when you want consistent defaults without requiring user choice.
 - Be careful with specificity: user global styles override theme defaults.
 
-## WordPress 6.9 additions
+## WordPress 7.0 additions
 
 **Form element styling:**
 - Style text inputs and selects via `styles.elements` (e.g., `styles.elements.input`, `styles.elements.select`).
 - Supports border, color, outline, shadow, and spacing properties.
-- Note: Focus state styling is not yet available in 6.9.
+- Note: Focus state styling is not yet available in 7.0.
 
 **Border radius presets:**
 - Define presets in `settings.border.radiusSizes` for visual selection in the border radius control.

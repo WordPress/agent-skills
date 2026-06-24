@@ -1,7 +1,7 @@
 ---
 name: wp-performance
 description: "Use when investigating or improving WordPress performance (backend-only agent): profiling and measurement (WP-CLI profile/doctor, Server-Timing, Query Monitor via REST headers), database/query optimization, autoloaded options, object caching, cron, HTTP API calls, and safe verification."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Backend-only agent; prefers WP-CLI (doctor/profile) when available."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Backend-only agent; prefers WP-CLI (doctor/profile) when available."
 ---
 
 # WP Performance (backend-only)
@@ -104,9 +104,9 @@ Use the profile output to pick *one* primary bottleneck category:
 - Confirm the performance delta and that behavior is unchanged.
 - If the fix is risky, ship behind a feature flag or staged rollout when possible.
 
-## WordPress 6.9 performance improvements
+## WordPress 7.0 performance improvements
 
-Be aware of these 6.9 changes when profiling:
+Be aware of these 7.0 changes when profiling:
 
 **On-demand CSS for classic themes:**
 - Classic themes now get on-demand CSS loading (previously only block themes had this).

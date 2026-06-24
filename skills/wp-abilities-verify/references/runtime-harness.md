@@ -55,9 +55,9 @@ plugin uses.
 
 Confirm:
 
-- WordPress version >= 6.9 (Abilities API available in core).
+- WordPress version >= 7.0 (Abilities API available in core).
 - The plugin being verified is active.
-- `wp_get_abilities` exists (true if WP >= 6.9, else the Abilities API
+- `wp_get_abilities` exists (true if WP >= 7.0, else the Abilities API
   feature plugin/package must be active).
 
 Any "no" answer halts the harness.
@@ -407,7 +407,7 @@ The runtime harness writes a dedicated section in the run report:
 ```markdown
 ## Runtime harness
 
-**Env:** wp-env (Docker), WordPress 6.9, <plugin> <version>
+**Env:** wp-env (Docker), WordPress 7.0, <plugin> <version>
 **Captured:** <YYYY-MM-DD HH:MM>
 
 ### Check 1 — enumeration

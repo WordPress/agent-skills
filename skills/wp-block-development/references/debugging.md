@@ -18,7 +18,7 @@
 - If the value is in delimiter JSON, avoid brittle selectors.
 - Avoid `meta` attribute source (deprecated).
 
-## Console warnings about apiVersion (WordPress 6.9+)
+## Console warnings about apiVersion (WordPress 7.0+)
 
 If you see "The block 'namespace/block' is registered with API version 2 or lower":
 
