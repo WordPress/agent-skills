@@ -1,0 +1,25 @@
+{
+  "name": "Audit plugin for WordPress 6.9 compatibility",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-core-upgrade"],
+  "query": "I need to upgrade my plugin to be compatible with WordPress 6.9. Can you audit the codebase and tell me what needs to change?",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to understand plugin structure, PHP tooling, and test suite",
+    "Step 3: Route to wp-core-upgrade skill",
+    "Step 4: Fetch the WordPress 6.9 Field Guide from make.wordpress.org using ?output_format=markdown",
+    "Step 5: Identify relevant dev notes based on plugin type (PHP, blocks, REST API, etc.)",
+    "Step 6: Fetch and read each relevant dev note as Markdown",
+    "Step 7: Search the codebase for functions, hooks, and patterns mentioned in breaking-change and deprecation notes",
+    "Step 8: Produce a scoped upgrade checklist grouped by severity (breaking changes first)",
+    "Step 9: Include source URLs from make.wordpress.org for every finding",
+    "Step 10: Mark items as 'not applicable' with a reason when a release note area does not affect this plugin"
+  ],
+  "success_criteria": [
+    "Fetches content from make.wordpress.org (field guide and/or dev notes)",
+    "Does not fabricate findings — every item is backed by a source URL",
+    "Searches the actual codebase before declaring a finding applicable or not",
+    "Output is a prioritized checklist with breaking changes at the top",
+    "Deprecations are distinguished from breaking changes",
+    "Not-applicable areas are explicitly listed with reasoning"
+  ]
+}
