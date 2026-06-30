@@ -138,7 +138,13 @@ This copies skills into:
 - `.github/skills/` for VS Code / GitHub Copilot
 - `.claude/skills/` for Claude Code (project-level)
 - `.cursor/skills/` for Cursor (project-level)
-- `.agents/skills/` for Antigravity
+
+Antigravity is opt-in for project-level installs. To also copy skills into `.agents/skills/`, include `antigravity` when building and installing:
+
+```bash
+node shared/scripts/skillpack-build.mjs --clean --targets=codex,vscode,claude,cursor,antigravity
+node shared/scripts/skillpack-install.mjs --dest=../your-wp-project --targets=codex,vscode,claude,cursor,antigravity
+```
 
 ### Install globally for Cursor
 
@@ -151,6 +157,7 @@ This installs skills to `~/.cursor/skills/` where Cursor will discover them.
 ### Install globally for Antigravity
 
 ```bash
+node shared/scripts/skillpack-build.mjs --clean --targets=antigravity
 node shared/scripts/skillpack-install.mjs --targets=antigravity-global
 ```
 
