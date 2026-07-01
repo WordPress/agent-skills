@@ -75,6 +75,21 @@ You can use both at the same time. When a skill exists in both scopes, the proje
 
 ## Quick Start
 
+### Claude Code: just link the repo
+
+Claude Code can add this whole repository as a **plugin marketplace** — no cloning, no build step:
+
+```
+/plugin marketplace add henryperkins/agent-skills
+/plugin install wordpress-skills@wordpress-skills
+```
+
+That's it. All skills are installed and namespaced as `/wordpress-skills:<skill-name>` (e.g. `/wordpress-skills:wp-block-development`), and Claude automatically invokes them when relevant — same as any other skill. Keep them up to date with `/plugin marketplace update wordpress-skills`, or remove with `/plugin uninstall wordpress-skills@wordpress-skills`.
+
+Prefer the repo's canonical location? Once merged upstream, the same commands work with `WordPress/agent-skills` instead.
+
+### Other tools (Codex, Copilot/VS Code, Cursor)
+
 The fastest way to install a skill is with a single command:
 
 ```bash
@@ -103,7 +118,9 @@ Installing **globally** makes the skill available to your user (across **all** y
 npx skills add WordPress/agent-skills --skill wp-plugin-development --global
 ```
 
-### Install globally for Claude Code
+### Install globally for Claude Code (manual, unnamespaced)
+
+Prefer the [plugin marketplace method](#claude-code-just-link-the-repo) above for a zero-clone install. If you'd rather vendor plain, unnamespaced skills (invoked as `/wp-block-development` instead of `/wordpress-skills:wp-block-development`), install them as files instead:
 
 ```bash
 # Clone agent-skills

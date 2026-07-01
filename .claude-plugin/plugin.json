@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "wordpress-skills",
+  "displayName": "Agent Skills for WordPress",
+  "description": "Expert WordPress development knowledge for AI coding assistants: Gutenberg blocks, block themes, plugin architecture, REST API, Abilities API, AI Client/Connectors, WP-CLI, performance, PHPStan, and Playground.",
+  "version": "1.0.0",
+  "author": {
+    "name": "WordPress Contributors",
+    "url": "https://github.com/WordPress/agent-skills"
+  },
+  "homepage": "https://github.com/WordPress/agent-skills",
+  "repository": "https://github.com/henryperkins/agent-skills",
+  "license": "GPL-2.0-or-later",
+  "keywords": [
+    "wordpress",
+    "gutenberg",
+    "blocks",
+    "block-themes",
+    "plugin-development",
+    "rest-api",
+    "abilities-api",
+    "wp-cli",
+    "phpstan",
+    "playground"
+  ]
+}
