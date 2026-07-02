@@ -1,6 +1,6 @@
 # Experiments framework
 
-The conceptual model and lifecycle for AI plugin Experiments, anchored to `WordPress/ai` v1.0.2 source.
+The conceptual model and lifecycle for AI plugin Experiments, anchored to `WordPress/ai` v1.1.0 source.
 
 ## What an Experiment is
 
@@ -27,7 +27,7 @@ From `includes/Abstracts/Abstract_Feature.php`:
 - **`public function get_settings_fields(): array`** — optional override. Return field definitions for the DataForm UI on the AI settings page.
 - **`final public static function get_field_option_name( string $option_name ): string`** — generates `wpai_feature_{$id}_field_{$option_name}`. Use for namespaced option storage.
 
-The interface (`Contracts\Feature`) lists twelve public methods (as of v1.0.2): `get_id` (static), `get_label`, `get_description`, `get_category`, `get_stability`, `register`, `is_globally_enabled` (added v1.0.1), `is_individually_enabled` (added v1.0.1), `is_enabled`, `get_settings_fields_metadata` (added v0.7.0), `get_image` (added v0.8.0), and `get_capability` (added v0.9.0).
+The interface (`Contracts\Feature`) lists twelve public methods (unchanged as of v1.1.0): `get_id` (static), `get_label`, `get_description`, `get_category`, `get_stability`, `register`, `is_globally_enabled` (added v1.0.1), `is_individually_enabled` (added v1.0.1), `is_enabled`, `get_settings_fields_metadata` (added v0.7.0), `get_image` (added v0.8.0), and `get_capability` (added v0.9.0).
 
 ## The canonical example
 
@@ -72,16 +72,26 @@ Use this action when you need custom construction (dependency injection, factory
 
 ### Built-in Experiments
 
-The plugin's own Experiments are registered via `Experiments::register_default_experiment_classes()` hooked to `wpai_default_feature_classes` at priority 9. The current list (v1.0.2, from `Experiments::EXPERIMENT_CLASSES`):
+The plugin's own Experiments are registered via `Experiments::register_default_experiment_classes()` hooked to `wpai_default_feature_classes` at priority 9. The current list (v1.1.0, from `Experiments::EXPERIMENT_CLASSES`):
 
 ```
 Abilities_Explorer, Connector_Approval, AI_Request_Logging,
 Content_Classification, Content_Resizing, Excerpt_Generation,
 Alt_Text_Generation, Meta_Description, Editorial_Notes, Editorial_Updates,
-Summarization, Title_Generation, Comment_Moderation
+Summarization, Title_Generation, Type_Ahead, Comment_Moderation,
+Key_Encryption
 ```
 
 Plus the internal `Image_Generation` Feature (registered separately as a stable Feature in `Loader::get_default_features()`).
+
+Two Experiments were added in v1.1.0:
+
+- **`Type_Ahead`** (`type-ahead`, `Experiment_Category::EDITOR`) — ghost-text suggestions at the end of paragraphs in the block editor, with a paired `Type_Ahead` Ability; supports provider/model overrides and Guidelines (#151, #776).
+- **`Key_Encryption`** (`key-encryption`, `Experiment_Category::ADMIN`) — opt-in encryption of `connectors_ai_*_api_key` options at rest via a bundled libsodium-backed secrets API (`Secrets_Bridge`); keys are migrated on opt-in and restored to plaintext on opt-out or plugin deactivation (#560).
+
+v1.1.0 also adds a standalone `core/read-settings` Ability (`includes/Abilities/Settings/Settings.php`, registered by `Main` and overriding any core-provided copy) that returns REST-exposed WordPress settings as a read-only key/value map (#691, #806).
+
+Also since v1.1.0, content-dependent Experiments (Summarization, Content Resizing, Content Classification, etc.) are gated in the editor until the post reaches a minimum content length — character-based, default 250, filterable per feature via `wpai_min_content_length` (helper `WordPress\AI\get_min_content_length()`).
 
 ## The enabled-state model
 

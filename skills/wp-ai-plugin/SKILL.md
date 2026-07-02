@@ -1,7 +1,7 @@
 ---
 name: wp-ai-plugin
 description: "Use when extending the canonical WordPress AI plugin (`wordpress.org/plugins/ai`, repo `WordPress/ai`, v1.0+) — adding a downstream Experiment via the `wpai_default_feature_classes` filter or `wpai_register_features` action, registering a paired Ability that consumes Guidelines automatically, customizing prompts/responses through documented filters, or respecting `wp_supports_ai()` and the `WPAI_*` constants. Use this — not `wp-ai-client` — when the user wants to add a feature *to the AI plugin itself* rather than build an independent AI feature in their own plugin."
-compatibility: "Targets WordPress 7.0+ (PHP 7.4+) and the AI plugin v0.6.0+ (Abstract_Feature); v0.8.0+ adds wp_supports_ai, Guidelines, and dashboard widgets (current canonical release: v1.0.2). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4+) and the AI plugin v0.6.0+ (Abstract_Feature); v0.8.0+ adds wp_supports_ai, Guidelines, and dashboard widgets (current canonical release: v1.1.0). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
 ---
 
 # WP AI Plugin
@@ -165,7 +165,7 @@ Returning an empty array (the default) skips Guidelines entirely. When `guidelin
 
 ### 6) Add a dashboard widget if useful (optional)
 
-v0.8.0+ ships two dashboard widgets (still two as of v1.0.2): `wpai_status` and `wpai_capabilities`, both registered via standard `wp_add_dashboard_widget()` in `Dashboard_Widgets`. **There is no AI-plugin-specific widget framework** as of v1.0.2 — to add your own, use standard WordPress:
+v0.8.0+ ships two dashboard widgets (still two as of v1.1.0): `wpai_status` and `wpai_capabilities`, both registered via standard `wp_add_dashboard_widget()` in `Dashboard_Widgets`. **There is no AI-plugin-specific widget framework** as of v1.1.0 — to add your own, use standard WordPress:
 
 ```php
 add_action( 'wp_dashboard_setup', function () {
@@ -190,6 +190,8 @@ The plugin exposes filters at several layers. The most useful ones, by need:
 - **Disable AI features globally**: `wpai_features_enabled` (default `true`, applied in `Loader::initialize_features()`).
 - **Customize Guidelines max length**: `wpai_max_guideline_length` (default 5000 chars per category).
 - **Disable Guidelines integration**: `wpai_use_guidelines` (default `true`).
+- **Adjust the minimum content threshold** (v1.1.0+): `wpai_min_content_length` (default 250 characters, per feature). Content-dependent Experiments (Summarization, Content Resizing, Content Classification, etc.) are disabled in the editor until the post reaches this character count. The legacy `wpai_summarization_min_content_length` filter was deprecated in 1.1.0 in favor of this one.
+- **Claim Image Generation support** (v1.1.0+): `wpai_has_image_generation_support` — lets a third party declare image-generation support when it can't be auto-detected (e.g., a connector authenticating without an API key, such as OAuth).
 - **Modify a system instruction before sending**: filters fire inside each Ability's `load_system_instruction_from_file()`. Search source for `apply_filters` near the Ability's `system-instruction.php` file.
 
 For the full filter list at the version you're targeting, grep the source — see `references/hooks-and-filters.md`.

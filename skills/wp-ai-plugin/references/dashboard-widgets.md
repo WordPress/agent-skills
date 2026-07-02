@@ -1,6 +1,6 @@
 # Dashboard widgets
 
-The AI plugin ships two dashboard widgets (since v0.8.0; still two as of v1.0.2) and uses standard WordPress for registration. **There is no public, third-party widget-registration API in the v1.0.2 source.** Note: the v0.8.0 changelog (#311) mentions a "framework for registering new dashboard widgets," but `Dashboard_Widgets.php` only hard-codes the plugin's own two `wp_add_dashboard_widget()` calls — there is no reusable hook for your widget. Earlier drafts of this skill implied one existed to hook into; there isn't.
+The AI plugin ships two dashboard widgets (since v0.8.0; still two as of v1.1.0) and uses standard WordPress for registration. **There is no public, third-party widget-registration API in the v1.1.0 source.** Note: the v0.8.0 changelog (#311) mentions a "framework for registering new dashboard widgets," but `Dashboard_Widgets.php` only hard-codes the plugin's own two `wp_add_dashboard_widget()` calls — there is no reusable hook for your widget. Earlier drafts of this skill implied one existed to hook into; there isn't.
 
 ## What ships in v0.8.0
 
@@ -87,7 +87,7 @@ The widget IDs (`wpai_status`, `wpai_capabilities`) are stable across the v0.8.x
 
 ## What might land later
 
-The AI plugin's "AI Request Logging & Observability" surface has since shipped — as the `AI_Request_Logging` experiment (`includes/Experiments/AI_Request_Logging/`, with an admin log page under `includes/Logging/`). It does **not** add a registration framework for third-party dashboard widgets — as of v1.0.2, no such framework exists in source, confirmed by reading `includes/Admin/Dashboard/Dashboard_Widgets.php` end to end.
+The AI plugin's "AI Request Logging & Observability" surface has since shipped — as the `AI_Request_Logging` experiment (`includes/Experiments/AI_Request_Logging/`, with an admin log page under `includes/Logging/`). It does **not** add a registration framework for third-party dashboard widgets — as of v1.1.0, no such framework exists in source, confirmed by reading `includes/Admin/Dashboard/Dashboard_Widgets.php` end to end.
 
 ## Source
 
