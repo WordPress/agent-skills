@@ -112,7 +112,7 @@ For `api_key` connectors, the AI Client looks up the key in this order. Document
 2. **PHP constant** — `define( '{PROVIDER_ID}_API_KEY', '...' );` in `wp-config.php`
 3. **Database** — the `connectors_ai_{provider_id}_api_key` setting, edited via Settings → Connectors
 
-Database storage is unencrypted but masked in the UI. Encryption is being explored upstream ([#64789](https://core.trac.wordpress.org/ticket/64789)).
+Database storage is unencrypted by default but masked in the UI. The canonical AI plugin (`WordPress/ai` v1.1.0+) ships an opt-in **Key Encryption** experiment that transparently encrypts `connectors_ai_*_api_key` options at rest (libsodium via a bundled secrets API) and restores plaintext on opt-out or deactivation. Core-level encryption is still being explored upstream ([#64789](https://core.trac.wordpress.org/ticket/64789)).
 
 ### 5) Verify the connector card appears
 
