@@ -2,6 +2,7 @@
 name: wp-plugin-development
 description: "Use when developing WordPress plugins: architecture and hooks, activation/deactivation/uninstall, admin UI and Settings API, data storage, cron/tasks, security (nonces/capabilities/sanitization/escaping), and release packaging."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+license: GPL-2.0-or-later
 ---
 
 # WP Plugin Development
@@ -27,10 +28,10 @@ Use this skill for plugin work such as:
 
 ### 0) Triage and locate plugin entrypoints
 
-1. Run triage:
-   - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+1. Run project triage if available:
+   - `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
 2. Detect plugin headers (deterministic scan):
-   - `node skills/wp-plugin-development/scripts/detect_plugins.mjs`
+   - `node scripts/detect_plugins.mjs`
 
 If this is a full site repo, pick the specific plugin under `wp-content/plugins/` or `mu-plugins/` before changing code.
 

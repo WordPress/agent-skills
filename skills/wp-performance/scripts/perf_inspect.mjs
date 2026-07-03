@@ -46,7 +46,34 @@ function canRun(report, result, noteIfNotOk) {
   return result.ok;
 }
 
+function usage() {
+  process.stdout.write(
+    [
+      "perf_inspect — probe WP-CLI performance tooling (doctor/profile) for a WordPress install.",
+      "",
+      "Usage:",
+      "  node scripts/perf_inspect.mjs [--path=<path>] [--url=<url>] [--allow-root] [--help]",
+      "",
+      "Behavior:",
+      "  - Invokes `wp` (WP-CLI) read-only to report availability of doctor/profile commands.",
+      "  - Prints a structured JSON report to stdout; diagnostics (if any) go to stderr.",
+      "  - Non-interactive. Exit code 0 on success.",
+      "",
+      "Options:",
+      "  --path=<path>   Path to the WordPress install (passed to WP-CLI as --path).",
+      "  --url=<url>     Site URL for multisite targeting (passed to WP-CLI as --url).",
+      "  --allow-root    Pass --allow-root to WP-CLI.",
+      "  -h, --help      Show this help and exit.",
+      "",
+    ].join("\n")
+  );
+}
+
 function main() {
+  if (process.argv.slice(2).some((a) => a === "--help" || a === "-h")) {
+    usage();
+    return;
+  }
   const opts = parseArgs(process.argv.slice(2));
   const report = {
     tool: { name: "perf_inspect", version: TOOL_VERSION },

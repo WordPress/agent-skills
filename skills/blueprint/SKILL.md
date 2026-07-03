@@ -2,6 +2,7 @@
 name: blueprint
 description: Use when creating, editing, or reviewing WordPress Playground blueprint JSON files. Triggers on mentions of blueprints, playground configuration, or requests to set up a WordPress demo environment.
 compatibility: "WordPress 6.9+, PHP 7.2.24+. Optionally Playground CLI or a browser"
+license: GPL-2.0-or-later
 ---
 
 # WordPress Playground Blueprints
@@ -383,6 +384,14 @@ dashboard-widget-bundle/
 | Git repository directory | Point `blueprint-url` at a repo directory containing `blueprint.json` |
 
 **GOTCHA:** Local directory bundles always need `--blueprint-may-read-adjacent-files` for the CLI to read bundled resources. Without it, any `"resource": "bundled"` reference will fail with a "File not found" error. ZIP bundles don't need this flag — all files are self-contained inside the archive.
+
+## Verification
+
+- The JSON validates against the schema — `$schema` is `https://playground.wordpress.net/blueprint-schema.json` and there are no unknown top-level keys (the schema rejects unknown properties).
+- `preferredVersions.php` is major.minor (or `"latest"`) and `wp` is a supported value; `features` contains only `networking`/`intl`.
+- Every `resource` reference includes its required fields, and `writeFiles.filesTree` is a `literal:directory`/`git:directory` (not a plain object).
+- Smoke-test headlessly: `npx @wp-playground/cli run-blueprint --blueprint=<path>` exits 0 (add `--blueprint-may-read-adjacent-files` for directory bundles).
+- The instance reaches `landingPage` with the expected plugins, themes, and options applied.
 
 ## Testing Blueprints
 

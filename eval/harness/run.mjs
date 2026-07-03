@@ -64,6 +64,18 @@ function validateSkillName(name) {
   return null;
 }
 
+function validatePortableTriageCommand({ repoRoot, skillPath, expectedName, markdown }) {
+  const localTriageCommand = "`node scripts/detect_wp_project.mjs`";
+  if (expectedName !== "wp-project-triage" && markdown.includes(localTriageCommand)) {
+    throw new Error(
+      [
+        `Invalid local triage command in ${path.relative(repoRoot, skillPath)}.`,
+        `Only wp-project-triage ships scripts/detect_wp_project.mjs; other skills must reference the adjacent wp-project-triage skill path.`,
+      ].join(" ")
+    );
+  }
+}
+
 function runJsonCommand(command, args, cwd) {
   const out = spawnSync(command, args, { cwd, encoding: "utf8" });
   if (out.status !== 0) {
@@ -104,6 +116,7 @@ function main() {
       fm.description.length <= 1024,
       `Description too long in ${path.relative(repoRoot, skillPath)} (${fm.description.length} chars)`
     );
+    validatePortableTriageCommand({ repoRoot, skillPath, expectedName, markdown: md });
 
     const compatibility = fm._raw.compatibility;
     assert(compatibility, `Missing frontmatter 'compatibility' in: ${path.relative(repoRoot, skillPath)}`);

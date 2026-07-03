@@ -2,6 +2,7 @@
 name: wp-block-themes
 description: "Use when developing WordPress block themes: theme.json (global settings/styles), templates and template parts, patterns, style variations, and Site Editor troubleshooting (style hierarchy, overrides, caching)."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+license: GPL-2.0-or-later
 ---
 
 # WP Block Themes
@@ -26,10 +27,10 @@ Use this skill for block theme work such as:
 
 ### 0) Triage and locate block theme roots
 
-1. Run triage:
-   - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+1. Run project triage if available:
+   - `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
 2. Detect theme roots + key folders:
-   - `node skills/wp-block-themes/scripts/detect_block_themes.mjs`
+   - `node scripts/detect_block_themes.mjs`
 
 If multiple themes exist, pick one and scope all changes to that theme root.
 

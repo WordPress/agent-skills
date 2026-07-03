@@ -92,7 +92,31 @@ function summarizeTheme(repoRoot, themeJsonPath) {
   };
 }
 
+function usage() {
+  process.stdout.write(
+    [
+      "detect_block_themes — scan the current working directory (repo root) for theme.json files.",
+      "",
+      "Usage:",
+      "  node scripts/detect_block_themes.mjs [--help]",
+      "",
+      "Behavior:",
+      "  - Recursively scans the current working directory for block theme roots (theme.json).",
+      "  - Prints a structured JSON report to stdout; diagnostics (if any) go to stderr.",
+      "  - Read-only and non-interactive. Exit code 0 on success.",
+      "",
+      "Options:",
+      "  -h, --help   Show this help and exit.",
+      "",
+    ].join("\n")
+  );
+}
+
 function main() {
+  if (process.argv.slice(2).some((a) => a === "--help" || a === "-h")) {
+    usage();
+    return;
+  }
   const repoRoot = process.cwd();
 
   const { results: themeJsonFiles, truncated } = findFilesRecursive(repoRoot, (p) => path.basename(p) === "theme.json", {

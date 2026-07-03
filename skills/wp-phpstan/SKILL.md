@@ -2,6 +2,7 @@
 name: wp-phpstan
 description: "Use when configuring, running, or fixing PHPStan static analysis in WordPress projects (plugins/themes/sites): phpstan.neon setup, baselines, WordPress-specific typing, and handling third-party plugin classes."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires Composer-based PHPStan."
+license: GPL-2.0-or-later
 ---
 
 # WP PHPStan
@@ -25,7 +26,7 @@ Use this skill when working on PHPStan in a WordPress codebase, for example:
 
 ### 0) Discover PHPStan entrypoints (deterministic)
 1. Inspect PHPStan setup (config, baseline, scripts):
-   - `node skills/wp-phpstan/scripts/phpstan_inspect.mjs`
+   - `node scripts/phpstan_inspect.mjs`
 
 Prefer the repo’s existing `composer` script (e.g. `composer run phpstan`) when present.
 

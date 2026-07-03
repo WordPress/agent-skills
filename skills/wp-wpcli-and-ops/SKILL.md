@@ -2,6 +2,7 @@
 name: wp-wpcli-and-ops
 description: "Use when working with WP-CLI (wp) for WordPress operations: safe search-replace, db export/import, plugin/theme/user/content management, cron, cache flushing, multisite, and scripting/automation with wp-cli.yml."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires WP-CLI in the execution environment."
+license: GPL-2.0-or-later
 ---
 
 # WP-CLI and Ops
@@ -43,7 +44,7 @@ Read:
 
 Run the inspector:
 
-- `node skills/wp-wpcli-and-ops/scripts/wpcli_inspect.mjs --path=<path> [--url=<url>]`
+- `node scripts/wpcli_inspect.mjs --path=<path> [--url=<url>]`
 
 If WP-CLI isn’t available, fall back to installing it via the project’s documented tooling (Composer, container, or system package), or ask for the expected execution environment.
 

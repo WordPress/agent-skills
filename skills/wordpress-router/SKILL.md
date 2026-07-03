@@ -2,6 +2,7 @@
 name: wordpress-router
 description: "Use when the user asks about WordPress codebases (plugins, themes, block themes, Gutenberg blocks, WP core checkouts) and you need to quickly classify the repo and route to the correct workflow/skill (blocks, theme.json, REST API, WP-CLI, performance, security, testing, release packaging)."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+license: GPL-2.0-or-later
 ---
 
 # WordPress Router
@@ -21,15 +22,15 @@ Use this skill at the start of most WordPress tasks to:
 
 ## Procedure
 
-1. Run the project triage script:
-   - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+1. Run the project triage script if available:
+   - `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
 2. Read the triage output and classify:
    - primary project kind(s),
    - tooling available (PHP/Composer, Node, @wordpress/scripts),
    - tests present (PHPUnit, Playwright, wp-env),
    - any version hints.
 3. Route to domain workflows based on user intent + repo kind:
-   - For the decision tree, read: `skills/wordpress-router/references/decision-tree.md`.
+   - For the decision tree, read: `references/decision-tree.md`.
 4. Apply guardrails before making changes:
    - Confirm any version constraints if unclear.
    - Prefer the repo’s existing tooling and conventions for builds/tests.
