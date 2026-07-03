@@ -2,6 +2,7 @@
 name: wp-block-development
 description: "Use when developing WordPress (Gutenberg) blocks: block.json metadata, register_block_type(_from_metadata), attributes/serialization, supports, dynamic rendering (render.php/render_callback), deprecations/migrations, viewScript vs viewScriptModule, and @wordpress/scripts/@wordpress/create-block build and test workflows."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+license: GPL-2.0-or-later
 ---
 
 # WP Block Development
@@ -27,10 +28,10 @@ Use this skill for block work such as:
 
 ### 0) Triage and locate blocks
 
-1. Run triage:
-   - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+1. Run project triage if available:
+   - `node scripts/detect_wp_project.mjs`, or `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
 2. List blocks (deterministic scan):
-   - `node skills/wp-block-development/scripts/list_blocks.mjs`
+   - `node scripts/list_blocks.mjs`
 3. Identify the block root (directory containing `block.json`) you’re changing.
 
 If this repo is a full site (`wp-content/` present), be explicit about *which* plugin/theme contains the block.

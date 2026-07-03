@@ -1,7 +1,8 @@
 ---
 name: wpds
-description: "Use when building UIs leveraging the WordPress Design System (WPDS) and its components, tokens, patterns, etc."
+description: "Use when building or reviewing WordPress admin/editor UIs with the WordPress Design System (WPDS/DS): choosing and composing components (Button, Card, Modal, Panel, DataViews, ToggleControl, and other `@wordpress/components`/`@wordpress/ui` primitives), applying design tokens (color primitives, spacing scales, typography presets/variables), following DS patterns and accessibility guidance, or aligning Gutenberg, WooCommerce, WordPress.com, Jetpack screens and Storybook stories with WPDS. Requires the WPDS MCP server for canonical component and design-token documentation."
 compatibility: "Requires WPDS MCP server configured and running. Targets WordPress 6.9+ (PHP 7.2.24+)."
+license: GPL-2.0-or-later
 ---
 
 # WordPress Design System (WPDS)
@@ -50,6 +51,14 @@ Before working on any WPDS-related tasks, make sure you read relevant documentat
 ### Validation
 
 - If the local context in which a task is running provide lint scripts, use them to validate the proposed code output when possible.
+
+## Verification
+
+- Every component used exists in the WPDS component list (`wpds://components`); no invented or deprecated components.
+- Design values reference WPDS tokens (`wpds://design-tokens`) rather than hard-coded colors, spacing, or font sizes.
+- The proposed solution was checked against the reference site (`wpds://pages`) documentation for the components involved.
+- Accessibility affordances (labels, roles, keyboard handling) follow each component's documented guidance.
+- If the local project provides lint scripts, they pass on the proposed code.
 
 ## Output
 

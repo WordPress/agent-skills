@@ -2,6 +2,7 @@
 name: wp-ai-client
 description: "Use when building AI features in a WordPress plugin or theme on WordPress 7.0+ using the in-core AI Client (`wp_ai_client_prompt()`, `WP_AI_Client_Prompt_Builder`). Covers prompt construction, model preferences, REST endpoint patterns for exposing AI features to JS, error handling, and feature detection. Use this — not direct provider SDKs — when the user asks to add text/image/speech/video generation to a WordPress site."
 compatibility: "Targets WordPress 7.0+ (PHP 7.4+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+license: GPL-2.0-or-later
 ---
 
 # WP AI Client
@@ -29,8 +30,8 @@ If the task is to write a *provider plugin* (e.g., adding a new AI service), rou
 
 ### 0) Triage and confirm WP 7.0+
 
-1. Run triage: `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
-2. Detect AI Client availability: `node skills/wp-ai-client/scripts/detect_ai_client.mjs`
+1. Run project triage if available (`node scripts/detect_wp_project.mjs`, or `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside); otherwise classify the project manually.
+2. Detect AI Client availability: `node scripts/detect_ai_client.mjs`
 
 If the project's `Requires at least` is `< 7.0`, decide: bump the requirement (recommended), or use the conditional autoloader pattern in `references/prompt-builder.md#migration` to keep older versions working.
 

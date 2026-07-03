@@ -2,6 +2,7 @@
 name: wp-ai-connectors
 description: "Use when building a WordPress AI provider plugin that registers with the in-core AI Client (WP 7.0+) so it shows up in Settings → Connectors and becomes available to every plugin using `wp_ai_client_prompt()`. Covers the PHP AI Client provider registry, the Connectors API auto-discovery flow, the `wp_connectors_init` override hook, API key sources (env / constant / database), and the connector array shape. Use this — not `wp-ai-client` — when the user wants to integrate a new AI service (Anthropic, OpenAI, Google, OpenRouter, Ollama, Mistral, custom) at the *provider* level rather than build a feature on top."
 compatibility: "Targets WordPress 7.0+ (PHP 7.4+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+license: GPL-2.0-or-later
 ---
 
 # WP AI Connectors
@@ -28,7 +29,7 @@ If the task is to *consume* AI features (build a summarization endpoint, add ima
 
 ### 0) Triage and confirm scope
 
-1. Run triage: `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+1. Run project triage if available: `node scripts/detect_wp_project.mjs`, or `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
 2. Confirm this is a *provider* plugin, not a *feature* plugin. The two have different shapes:
    - **Provider plugin**: registers with the `AiClient::defaultRegistry()` so other plugins can use the provider.
    - **Feature plugin**: calls `wp_ai_client_prompt()` to build something. That's `wp-ai-client` territory.

@@ -16,8 +16,8 @@
  *   }
  *
  * Usage:
- *   node skills/wp-ai-client/scripts/detect_ai_client.mjs
- *   node skills/wp-ai-client/scripts/detect_ai_client.mjs --root <path>
+ *   node scripts/detect_ai_client.mjs
+ *   node scripts/detect_ai_client.mjs --root <path>
  */
 
 import { promises as fs } from "node:fs";

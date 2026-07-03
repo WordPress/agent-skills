@@ -2,6 +2,7 @@
 name: wp-rest-api
 description: "Use when building, extending, or debugging WordPress REST API endpoints/routes: register_rest_route, WP_REST_Controller/controller classes, schema/argument validation, permission_callback/authentication, response shaping, register_rest_field/register_meta, or exposing CPTs/taxonomies via show_in_rest."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+license: GPL-2.0-or-later
 ---
 
 # WP REST API
@@ -28,8 +29,8 @@ Use this skill when you need to:
 
 ### 0) Triage and locate REST usage
 
-1. Run triage:
-   - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+1. Run project triage if available:
+   - `node scripts/detect_wp_project.mjs`, or `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
 2. Search for existing REST usage:
    - `register_rest_route`
    - `WP_REST_Controller`

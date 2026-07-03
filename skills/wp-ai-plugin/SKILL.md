@@ -2,6 +2,7 @@
 name: wp-ai-plugin
 description: "Use when extending the canonical WordPress AI plugin (`wordpress.org/plugins/ai`, repo `WordPress/ai`, v1.0+) — adding a downstream Experiment via the `wpai_default_feature_classes` filter or `wpai_register_features` action, registering a paired Ability that consumes Guidelines automatically, customizing prompts/responses through documented filters, or respecting `wp_supports_ai()` and the `WPAI_*` constants. Use this — not `wp-ai-client` — when the user wants to add a feature *to the AI plugin itself* rather than build an independent AI feature in their own plugin."
 compatibility: "Targets WordPress 7.0+ (PHP 7.4+) and the AI plugin v0.6.0+ (Abstract_Feature); v0.8.0+ adds wp_supports_ai, Guidelines, and dashboard widgets (current canonical release: v1.1.0). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+license: GPL-2.0-or-later
 ---
 
 # WP AI Plugin
@@ -29,7 +30,7 @@ If the task is to build an AI feature in your own plugin without involving the c
 
 ### 0) Triage and confirm AI plugin context
 
-1. Run triage: `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+1. Run project triage if available: `node scripts/detect_wp_project.mjs`, or `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
 2. Confirm the AI plugin is active and identify its version:
    - The `WPAI_*` constants (set in `ai.php` `constants()`): `WPAI_VERSION`, `WPAI_PLUGIN_FILE`, `WPAI_PLUGIN_DIR`, `WPAI_PLUGIN_URL`, `WPAI_DEFAULT_ABILITY_CATEGORY`.
    - The plugin slug `ai` in `wp-content/plugins/ai/`.
