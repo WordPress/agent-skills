@@ -29,7 +29,7 @@ Use this skill for block work such as:
 ### 0) Triage and locate blocks
 
 1. Run project triage if available:
-   - `node scripts/detect_wp_project.mjs`, or `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
+   - `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
 2. List blocks (deterministic scan):
    - `node scripts/list_blocks.mjs`
 3. Identify the block root (directory containing `block.json`) you’re changing.

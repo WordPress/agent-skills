@@ -30,7 +30,7 @@ Use this skill when you need to:
 ### 0) Triage and locate REST usage
 
 1. Run project triage if available:
-   - `node scripts/detect_wp_project.mjs`, or `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
+   - `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
 2. Search for existing REST usage:
    - `register_rest_route`
    - `WP_REST_Controller`

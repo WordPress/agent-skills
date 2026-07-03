@@ -30,7 +30,7 @@ If the task is to write a *provider plugin* (e.g., adding a new AI service), rou
 
 ### 0) Triage and confirm WP 7.0+
 
-1. Run project triage if available (`node scripts/detect_wp_project.mjs`, or `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside); otherwise classify the project manually.
+1. Run project triage if available (`node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside); otherwise classify the project manually.
 2. Detect AI Client availability: `node scripts/detect_ai_client.mjs`
 
 If the project's `Requires at least` is `< 7.0`, decide: bump the requirement (recommended), or use the conditional autoloader pattern in `references/prompt-builder.md#migration` to keep older versions working.

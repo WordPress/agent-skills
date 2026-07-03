@@ -28,7 +28,7 @@ Use this skill for block theme work such as:
 ### 0) Triage and locate block theme roots
 
 1. Run project triage if available:
-   - `node scripts/detect_wp_project.mjs`, or `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
+   - `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
 2. Detect theme roots + key folders:
    - `node scripts/detect_block_themes.mjs`
 

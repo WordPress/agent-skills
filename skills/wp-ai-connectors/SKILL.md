@@ -29,7 +29,7 @@ If the task is to *consume* AI features (build a summarization endpoint, add ima
 
 ### 0) Triage and confirm scope
 
-1. Run project triage if available: `node scripts/detect_wp_project.mjs`, or `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
+1. Run project triage if available: `node ../wp-project-triage/scripts/detect_wp_project.mjs` when the `wp-project-triage` skill is installed alongside; otherwise classify the project manually.
 2. Confirm this is a *provider* plugin, not a *feature* plugin. The two have different shapes:
    - **Provider plugin**: registers with the `AiClient::defaultRegistry()` so other plugins can use the provider.
    - **Feature plugin**: calls `wp_ai_client_prompt()` to build something. That's `wp-ai-client` territory.
