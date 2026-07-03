@@ -96,7 +96,31 @@ function summarizeBlockJson(repoRoot, blockJsonPath) {
   };
 }
 
+function usage() {
+  process.stdout.write(
+    [
+      "list_blocks — scan the current working directory (repo root) for block.json files.",
+      "",
+      "Usage:",
+      "  node scripts/list_blocks.mjs [--help]",
+      "",
+      "Behavior:",
+      "  - Recursively scans the current working directory for block.json metadata.",
+      "  - Prints a structured JSON report to stdout; diagnostics (if any) go to stderr.",
+      "  - Read-only and non-interactive. Exit code 0 on success.",
+      "",
+      "Options:",
+      "  -h, --help   Show this help and exit.",
+      "",
+    ].join("\n")
+  );
+}
+
 function main() {
+  if (process.argv.slice(2).some((a) => a === "--help" || a === "-h")) {
+    usage();
+    return;
+  }
   const repoRoot = process.cwd();
 
   const { results: blockJsonFiles, truncated } = findFilesRecursive(repoRoot, (p) => path.basename(p) === "block.json", {

@@ -85,7 +85,32 @@ function extractHeaderField(contents, field) {
   return match ? match[1].trim() : null;
 }
 
+function usage() {
+  process.stdout.write(
+    [
+      "detect_ai_client — detect the WP 7.0+ AI Client surface in a WordPress project.",
+      "",
+      "Usage:",
+      "  node scripts/detect_ai_client.mjs [--root <path>] [--help]",
+      "",
+      "Behavior:",
+      "  - Reads only the filesystem (no WP-CLI, no network) under the target root.",
+      "  - Prints a structured JSON report to stdout; diagnostics (if any) go to stderr.",
+      "  - Read-only and non-interactive. Exit code 0 on success, 1 on error.",
+      "",
+      "Options:",
+      "  --root <path>   Directory to scan (default: current working directory).",
+      "  -h, --help      Show this help and exit.",
+      "",
+    ].join("\n")
+  );
+}
+
 async function main() {
+  if (process.argv.slice(2).some((a) => a === "--help" || a === "-h")) {
+    usage();
+    return;
+  }
   const { root } = parseArgs(process.argv);
   const result = {
     wp_floor: null,

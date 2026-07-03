@@ -291,7 +291,32 @@ function buildRecommendations({ repoRoot, primaryKind, packageManager, packageJs
   return { commands, notes };
 }
 
+function usage() {
+  process.stdout.write(
+    [
+      "detect_wp_project — deterministically classify the current working directory (repo root) as a",
+      "WordPress project (plugin/theme/block theme/WP core/Gutenberg/full site).",
+      "",
+      "Usage:",
+      "  node scripts/detect_wp_project.mjs [--help]",
+      "",
+      "Behavior:",
+      "  - Recursively scans the current working directory for signals and tooling.",
+      "  - Prints a structured JSON report to stdout; diagnostics (if any) go to stderr.",
+      "  - Read-only and non-interactive. Exit code 0 on success.",
+      "",
+      "Options:",
+      "  -h, --help   Show this help and exit.",
+      "",
+    ].join("\n")
+  );
+}
+
 function main() {
+  if (process.argv.slice(2).some((a) => a === "--help" || a === "-h")) {
+    usage();
+    return;
+  }
   const repoRoot = process.cwd();
 
   const wpContent = path.join(repoRoot, "wp-content");

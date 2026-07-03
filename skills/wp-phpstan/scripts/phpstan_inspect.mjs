@@ -255,7 +255,31 @@ function buildReport() {
 /**
  * CLI entrypoint for printing the inspection report.
  */
+function usage() {
+  process.stdout.write(
+    [
+      "phpstan_inspect — inspect the current working directory (repo root) for PHPStan setup.",
+      "",
+      "Usage:",
+      "  node scripts/phpstan_inspect.mjs [--help]",
+      "",
+      "Behavior:",
+      "  - Reads composer.json and phpstan config/baseline files to report PHPStan wiring.",
+      "  - Prints a structured JSON report to stdout; diagnostics (if any) go to stderr.",
+      "  - Read-only and non-interactive. Exit code 0 on success.",
+      "",
+      "Options:",
+      "  -h, --help   Show this help and exit.",
+      "",
+    ].join("\n")
+  );
+}
+
 function main() {
+  if (process.argv.slice(2).some((a) => a === "--help" || a === "-h")) {
+    usage();
+    return;
+  }
   const report = buildReport();
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 }
