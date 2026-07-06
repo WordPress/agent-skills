@@ -1,7 +1,8 @@
 {
   "source": "https://api.wordpress.org/core/version-check/1.7/",
-  "latest": "6.9.4",
+  "latest": "7.0",
   "recent": [
+    "7.0",
     "6.9.4",
     "6.8.5",
     "6.7.5",
@@ -11,7 +12,7 @@
     "6.3.8",
     "6.2.9",
     "6.1.10",
-    "6.0.11",
+    "6.0.12",
     "5.9.13",
     "5.8.13",
     "5.7.15",
@@ -20,17 +21,25 @@
     "5.4.19",
     "5.3.21",
     "5.2.24",
-    "5.1.22",
-    "5.0.25"
+    "5.1.22"
   ],
   "offers": [
     {
-      "version": "6.9.4",
-      "current": "6.9.4",
-      "download": "https://downloads.wordpress.org/release/wordpress-6.9.4.zip",
-      "phpVersion": "7.2.24",
+      "version": "7.0",
+      "current": "7.0",
+      "download": "https://downloads.wordpress.org/release/wordpress-7.0.zip",
+      "phpVersion": "7.4",
       "mysqlVersion": "5.5.5",
       "response": "upgrade",
+      "locale": "en_US"
+    },
+    {
+      "version": "6.9.4",
+      "current": "6.9.4",
+      "download": "https://downloads.w.org/release/wordpress-6.9.4.zip",
+      "phpVersion": "7.2.24",
+      "mysqlVersion": "5.5.5",
+      "response": "autoupdate",
       "locale": "en_US"
     },
     {
@@ -106,9 +115,9 @@
       "locale": "en_US"
     },
     {
-      "version": "6.0.11",
-      "current": "6.0.11",
-      "download": "https://downloads.w.org/release/wordpress-6.0.11.zip",
+      "version": "6.0.12",
+      "current": "6.0.12",
+      "download": "https://downloads.w.org/release/wordpress-6.0.12.zip",
       "phpVersion": "5.6.20",
       "mysqlVersion": "5.0",
       "response": "autoupdate",
@@ -190,15 +199,6 @@
       "version": "5.1.22",
       "current": "5.1.22",
       "download": "https://downloads.w.org/release/wordpress-5.1.22.zip",
-      "phpVersion": "5.2.4",
-      "mysqlVersion": "5.0",
-      "response": "autoupdate",
-      "locale": "en_US"
-    },
-    {
-      "version": "5.0.25",
-      "current": "5.0.25",
-      "download": "https://downloads.w.org/release/wordpress-5.0.25.zip",
       "phpVersion": "5.2.4",
       "mysqlVersion": "5.0",
       "response": "autoupdate",
