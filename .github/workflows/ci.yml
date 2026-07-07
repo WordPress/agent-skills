@@ -18,8 +18,8 @@ jobs:
       - name: Run local eval harness
         run: node eval/harness/run.mjs
 
-      - name: Build skillpacks (Codex + VS Code)
-        run: node shared/scripts/skillpack-build.mjs --clean --out=dist --targets=codex,vscode
+      - name: Build skillpacks (Codex + VS Code + Junie)
+        run: node shared/scripts/skillpack-build.mjs --clean --out=dist --targets=codex,vscode,junie
 
       - name: Install skillpacks (smoke)
         run: |
@@ -28,6 +28,8 @@ jobs:
           node shared/scripts/skillpack-install.mjs --from=dist --dest=/tmp/skillpack-install-test --targets=codex,vscode
           test -f /tmp/skillpack-install-test/.codex/skills/wordpress-router/SKILL.md
           test -f /tmp/skillpack-install-test/.github/skills/wordpress-router/SKILL.md
+          # verify Junie guidelines file existed in build output
+          test -f dist/junie/.junie/wordpress_guidelines.md
 
       - uses: actions/setup-python@v5
         with:

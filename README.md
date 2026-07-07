@@ -130,7 +130,7 @@ cd agent-skills
 node shared/scripts/skillpack-build.mjs --clean
 
 # Install into your WordPress project
-node shared/scripts/skillpack-install.mjs --dest=../your-wp-project --targets=codex,vscode,claude,cursor
+node shared/scripts/skillpack-install.mjs --dest=../your-wp-project --targets=codex,vscode,claude,cursor,junie
 ```
 
 This copies skills into:
@@ -138,6 +138,7 @@ This copies skills into:
 - `.github/skills/` for VS Code / GitHub Copilot
 - `.claude/skills/` for Claude Code (project-level)
 - `.cursor/skills/` for Cursor (project-level)
+- `.junie/skills/` for Junie (project-level) plus an included `wordpress_guidelines.md`
 
 ### Install globally for Cursor
 
