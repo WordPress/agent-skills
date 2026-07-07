@@ -28,7 +28,7 @@ Before deciding what to register, read `references/domain-vs-projection.md` — 
 ### 1) Confirm availability and version constraints
 
 - If this is WP core work, check `signals.isWpCoreCheckout` and `versions.wordpress.core`.
-- If the project targets WP < 7.0, you may need the Abilities API plugin/package rather than relying on core.
+- If the project targets WP < 6.9, you may need the Abilities API plugin/package rather than relying on core.
 
 ### 2) Find existing Abilities usage
 

@@ -50,9 +50,9 @@ After scaffolding:
 1. Re-run the block list script and confirm the new block root.
 2. Continue with the remaining steps (model choice, metadata, registration, serialization).
 
-### 2) Ensure apiVersion 3 (WordPress 7.0+)
+### 2) Ensure apiVersion 3 (WordPress 6.9+)
 
-WordPress 7.0 enforces `apiVersion: 3` in the block.json schema. Blocks with apiVersion 2 or lower trigger console warnings when `SCRIPT_DEBUG` is enabled.
+WordPress 6.9 enforces `apiVersion: 3` in the block.json schema. Blocks with apiVersion 2 or lower trigger console warnings when `SCRIPT_DEBUG` is enabled.
 
 **Why this matters:**
 - WordPress 7.0 will run the post editor in an iframe regardless of block apiVersion.

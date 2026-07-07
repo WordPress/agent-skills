@@ -104,9 +104,9 @@ Use the profile output to pick *one* primary bottleneck category:
 - Confirm the performance delta and that behavior is unchanged.
 - If the fix is risky, ship behind a feature flag or staged rollout when possible.
 
-## WordPress 7.0 performance improvements
+## WordPress 6.9 performance improvements
 
-Be aware of these 7.0 changes when profiling:
+Be aware of these 6.9 changes when profiling:
 
 **On-demand CSS for classic themes:**
 - Classic themes now get on-demand CSS loading (previously only block themes had this).

@@ -1,8 +1,7 @@
 {
   "source": "https://api.wordpress.org/core/version-check/1.7/",
-  "latest": "7.0",
+  "latest": "6.9.4",
   "recent": [
-    "7.0",
     "6.9.4",
     "6.8.5",
     "6.7.5",
@@ -26,21 +25,12 @@
   ],
   "offers": [
     {
-      "version": "7.0",
-      "current": "7.0",
-      "download": "https://downloads.wordpress.org/release/wordpress-7.0.zip",
-      "phpVersion": "7.4.0",
-      "mysqlVersion": "5.5.5",
-      "response": "upgrade",
-      "locale": "en_US"
-    },
-    {
       "version": "6.9.4",
       "current": "6.9.4",
-      "download": "https://downloads.w.org/release/wordpress-6.9.4.zip",
+      "download": "https://downloads.wordpress.org/release/wordpress-6.9.4.zip",
       "phpVersion": "7.2.24",
       "mysqlVersion": "5.5.5",
-      "response": "autoupdate",
+      "response": "upgrade",
       "locale": "en_US"
     },
     {

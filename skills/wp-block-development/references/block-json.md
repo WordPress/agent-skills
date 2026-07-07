@@ -10,7 +10,7 @@ Use this file when you’re editing `block.json` fields or choosing between scri
 
 ## API version + schema
 
-**WordPress 7.0+ requires apiVersion 3.** The block.json schema now only validates blocks with `apiVersion: 3`. Older versions (1 or 2) trigger console warnings when `SCRIPT_DEBUG` is enabled.
+**WordPress 6.9+ requires apiVersion 3.** The block.json schema now only validates blocks with `apiVersion: 3`. Older versions (1 or 2) trigger console warnings when `SCRIPT_DEBUG` is enabled.
 
 **Why apiVersion 3 matters:**
 - The post editor will be iframed if all registered blocks have apiVersion 3+.

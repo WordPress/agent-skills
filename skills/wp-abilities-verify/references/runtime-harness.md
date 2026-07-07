@@ -55,9 +55,9 @@ plugin uses.
 
 Confirm:
 
-- WordPress version >= 7.0 (Abilities API available in core).
+- WordPress version >= 6.9 (Abilities API available in core).
 - The plugin being verified is active.
-- `wp_get_abilities` exists (true if WP >= 7.0, else the Abilities API
+- `wp_get_abilities` exists (true if WP >= 6.9, else the Abilities API
   feature plugin/package must be active).
 
 Any "no" answer halts the harness.
