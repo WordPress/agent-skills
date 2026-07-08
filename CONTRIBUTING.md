@@ -87,7 +87,7 @@ See any existing skill for examples.
 
 ### Keep It Current
 
-- Target WordPress 6.9+ and PHP 7.2.24+
+- Target WordPress 7.0+ and PHP 7.4.0+
 - Avoid legacy patterns (Classic themes, pre-Gutenberg APIs)
 - Update compatibility frontmatter when requirements change
 

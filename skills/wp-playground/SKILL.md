@@ -1,7 +1,7 @@
 ---
 name: wp-playground
 description: "Use as the WordPress Playground routing wrapper for ambiguous Playground work, local CLI runs with @wp-playground/cli, playground.wordpress.net share links, browser previews, snapshots, mounts, version switching, and Xdebug. For Blueprint JSON authoring or review, use the blueprint skill directly."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Playground CLI requires Node.js 20.18+; runs WordPress in WebAssembly with SQLite."
+compatibility: "Targets WordPress 7.0+, PHP 7.4.0+. Playground CLI requires Node.js 20.18+; runs WordPress in WebAssembly with SQLite."
 ---
 
 # WordPress Playground
