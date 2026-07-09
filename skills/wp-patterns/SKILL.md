@@ -1,7 +1,7 @@
 ---
 name: wp-patterns
 description: "Pattern: create or update WordPress block patterns (starter pages, templates, template parts, Query Loop layouts), review pattern registration, block markup, categories, accessibility, or i18n/escaping, or improve pattern design quality. Route custom blocks to wp-block-development; route frontend interactivity to wp-interactivity-api."
-compatibility: "WordPress 6.9 with PHP 7.2.24 or later. Requires 6.0+ for auto-registration, 6.7+ for full preset support."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
 ---
 
 # WordPress Block Patterns
