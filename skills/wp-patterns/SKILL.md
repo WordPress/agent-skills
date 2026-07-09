@@ -1,6 +1,6 @@
 ---
 name: wp-patterns
-description: "Pattern: create or update WordPress block patterns, or improve pattern design quality. Route custom blocks to wp-block-development; route frontend interactivity to wp-interactivity-api."
+description: "Pattern: create or update WordPress block patterns (starter pages, templates, template parts, Query Loop layouts), review pattern registration, block markup, categories, accessibility, or i18n/escaping, or improve pattern design quality. Route custom blocks to wp-block-development; route frontend interactivity to wp-interactivity-api."
 compatibility: "WordPress 6.9 with PHP 7.2.24 or later. Requires 6.0+ for auto-registration, 6.7+ for full preset support."
 ---
 
@@ -54,7 +54,7 @@ Make five deliberate design decisions — purpose, tone, spatial composition, ty
 
 Read `references/design-with-tokens.md` for the decision framework and `preset` mapping.
 
-For pattern-type metadata (starter pages, template patterns, query loops, forms/CTAs), read `references/pattern-categories-and-types.md`.
+For pattern-type metadata (starter pages, template patterns, template parts, query loops, forms/CTAs), read `references/pattern-categories-and-types.md` — including the Query Loop patterns section when using `core/query`.
 
 When the request calls for a visually _distinctive_ composition, read `references/visual-composition.md`.
 
