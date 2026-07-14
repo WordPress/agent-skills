@@ -27,7 +27,9 @@ Upstream references:
 ## WordPress 6.9 additions
 
 **Form element styling:**
-- Style text inputs and selects via `styles.elements` (e.g., `styles.elements.input`, `styles.elements.select`).
+- Style text inputs and selects via `styles.elements.textInput` and `styles.elements.select`.
+- `textInput` targets `<textarea>` and `<input>` elements whose `type` is one of: email, number, password, search, text, tel, url.
+- There is no `input`, `checkbox`, `radio`, or `label` element key.
 - Supports border, color, outline, shadow, and spacing properties.
 - Note: Focus state styling is not yet available in 6.9.
 
