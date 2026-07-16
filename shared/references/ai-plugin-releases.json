@@ -1,0 +1,120 @@
+{
+  "source": "https://api.github.com/repos/WordPress/ai/releases?per_page=30",
+  "note": "bootstrapped-from-git-tags (GitHub Releases API rate-limited in authoring environment); publishedAt unavailable from tags. The Upstream Sync workflow regenerates this file from the Releases API.",
+  "latest": {
+    "tag": "1.2.0",
+    "name": "1.2.0",
+    "publishedAt": null,
+    "url": "https://github.com/WordPress/ai/releases/tag/1.2.0"
+  },
+  "recent": [
+    {
+      "tag": "1.2.0",
+      "name": "1.2.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/1.2.0"
+    },
+    {
+      "tag": "1.1.0",
+      "name": "1.1.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/1.1.0"
+    },
+    {
+      "tag": "1.0.2",
+      "name": "1.0.2",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/1.0.2"
+    },
+    {
+      "tag": "1.0.1",
+      "name": "1.0.1",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/1.0.1"
+    },
+    {
+      "tag": "1.0.0",
+      "name": "1.0.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/1.0.0"
+    },
+    {
+      "tag": "0.9.0",
+      "name": "0.9.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.9.0"
+    },
+    {
+      "tag": "0.8.0",
+      "name": "0.8.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.8.0"
+    },
+    {
+      "tag": "0.7.0",
+      "name": "0.7.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.7.0"
+    },
+    {
+      "tag": "0.6.0",
+      "name": "0.6.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.6.0"
+    },
+    {
+      "tag": "0.5.0",
+      "name": "0.5.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.5.0"
+    },
+    {
+      "tag": "0.4.1",
+      "name": "0.4.1",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.4.1"
+    },
+    {
+      "tag": "0.4.0",
+      "name": "0.4.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.4.0"
+    },
+    {
+      "tag": "0.3.1",
+      "name": "0.3.1",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.3.1"
+    },
+    {
+      "tag": "0.3.0",
+      "name": "0.3.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.3.0"
+    },
+    {
+      "tag": "0.2.1",
+      "name": "0.2.1",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.2.1"
+    },
+    {
+      "tag": "0.2.0",
+      "name": "0.2.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.2.0"
+    },
+    {
+      "tag": "0.1.1",
+      "name": "0.1.1",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.1.1"
+    },
+    {
+      "tag": "0.1.0",
+      "name": "0.1.0",
+      "publishedAt": null,
+      "url": "https://github.com/WordPress/ai/releases/tag/0.1.0"
+    }
+  ]
+}

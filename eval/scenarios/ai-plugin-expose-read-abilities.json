@@ -1,0 +1,25 @@
+{
+  "name": "Expose a custom post type to core/read-content and use AI plugin 1.2.0 features",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-ai-plugin", "wp-abilities-api"],
+  "query": "Our site runs the canonical WordPress AI plugin 1.2.0 and our own plugin registers a 'recipe' custom post type. Three asks: (1) make recipes readable by AI agents through the AI plugin's read abilities, (2) let comment moderators generate reply suggestions, and (3) raise the request timeout for image generation to 60 seconds. What's the right integration?",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router / wp-project-triage to classify the repo as a downstream plugin extending the AI plugin; route to wp-ai-plugin (wp-abilities-api as secondary reference)",
+    "Step 2: For (1), recognize that core/read-content (new in 1.2.0) only surfaces post types flagged with show_in_abilities — the fix is registration-side, not a new REST controller or a custom ability",
+    "Step 3: Add 'show_in_abilities' => true to the register_post_type( 'recipe', ... ) args, and ensure registration runs before the Abilities API initializes (wp_abilities_api_init) so the post type lands in the ability's input schema",
+    "Step 4: Know that WordPress core does not ship the show_in_abilities flag natively yet — the AI plugin polyfills it onto curated core objects in includes/Abilities/Show_In_Abilities.php; custom post types opt in via their own registration args",
+    "Step 5: For (2), do NOT build a custom experiment — Suggest Reply ships in 1.2.0 (Experiment 'suggest-reply', ability 'ai/suggest-reply', Experiment_Category::ADMIN); enable it on Settings → AI (per-feature toggles; configuration lives under the collapsed 'Advanced settings' section since 1.2.0)",
+    "Step 6: For (3), filter wpai_default_request_timeout — signature ( int $default_timeout, string $feature_id ) — returning 60 for the image-generation feature id",
+    "Step 7: Know the 1.2.0 changelog/readme mislabel this filter as wp_ai_client_default_request_timeout; that name appears in no plugin PHP — the applied filter in includes/helpers.php is wpai_default_request_timeout",
+    "Step 8: Gate all downstream code on function_exists( 'wp_supports_ai' ) && wp_supports_ai() and class_exists checks so nothing fatals when the AI plugin is deactivated",
+    "Step 9: Verify: /wp-json/wp-abilities/v1/abilities lists core/read-content, executing it with post_type=recipe returns readable recipes (raw fields only for posts the user can edit), and the Suggest reply row action appears on the Comments screen"
+  ],
+  "success_criteria": [
+    "Solves (1) with 'show_in_abilities' => true on register_post_type — NOT by writing a new ability, REST controller, or setting show_in_rest alone",
+    "States the timing constraint: the post type must be registered with the flag before wp_abilities_api_init / abilities registration snapshots it",
+    "References Show_In_Abilities.php as the polyfill and notes core will own the flag later (like show_in_rest)",
+    "Reuses the built-in Suggest Reply experiment (ai/suggest-reply) instead of building a duplicate",
+    "Uses the real filter name wpai_default_request_timeout with the ( $default_timeout, $feature_id ) signature — and does NOT recommend the changelog's wp_ai_client_default_request_timeout as if it were the plugin's filter",
+    "Includes the wp_supports_ai() / class_exists guards for downstream code",
+    "Verification step exercises /wp-json/wp-abilities/v1/abilities and notes permission-gated field access (raw fields require edit capability)"
+  ]
+}

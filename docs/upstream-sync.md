@@ -26,6 +26,10 @@ This keeps automation deterministic and reviewable before it starts rewriting sk
 
 - `shared/scripts/update-upstream-indices.mjs`
   - Fetches upstream sources and rewrites JSON indexes in `shared/references/`.
+  - Covers WordPress core versions, Gutenberg releases, WordPress/ai (canonical AI plugin) releases, and the WP↔Gutenberg mapping.
+- `shared/scripts/check-upstream-drift.mjs`
+  - Offline check (run by `eval/harness/run.mjs` and therefore CI): compares the committed release indexes against the canonical release each skill declares (e.g. the `current canonical release: vX.Y.Z` marker in `skills/wp-ai-plugin/SKILL.md`).
+  - When the Upstream Sync workflow's refresh PR lands a newer release, CI turns red until the affected skill is re-synced against the tagged source and its marker is bumped. This converts "someone notices the skill is stale" into a forced, reviewable follow-up.
 
 ## CI / PR bot design (recommended)
 

@@ -143,7 +143,19 @@ function main() {
   assert(report?.signals?.paths?.repoRoot, "Triage report missing signals.paths.repoRoot");
   assert(report?.tooling?.php && report?.tooling?.node && report?.tooling?.tests, "Triage report missing tooling blocks");
 
-  process.stdout.write("OK: skills frontmatter and triage report sanity checks passed.\n");
+  // Offline drift check: committed upstream indices vs the canonical release
+  // each skill declares. Turns red when the Upstream Sync workflow lands a
+  // newer release than a skill documents.
+  const driftScript = path.join(repoRoot, "shared", "scripts", "check-upstream-drift.mjs");
+  if (fs.existsSync(driftScript)) {
+    const drift = spawnSync("node", [driftScript], { cwd: repoRoot, encoding: "utf8" });
+    assert(
+      drift.status === 0,
+      `Upstream drift check failed:\n${(drift.stderr || drift.stdout || "").trim()}`
+    );
+  }
+
+  process.stdout.write("OK: skills frontmatter, triage report, and upstream drift checks passed.\n");
 }
 
 main();

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "preferredVersions": {
+    "php": "8.2",
+    "wp": "latest"
+  },
+  "steps": [
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "wordpress.org/plugins",
+        "slug": "ai"
+      }
+    },
+    {
+      "step": "setSiteOptions",
+      "options": {
+        "wpai_features_enabled": "1",
+        "wpai_feature_smoke-experiment_enabled": "1",
+        "wpai_feature_suggest-reply_enabled": "1"
+      }
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php\nrequire '/wordpress/wp-load.php';\nwp_set_current_user( 1 );\n$get = function ( $id ) { return function_exists( 'wp_get_ability' ) ? wp_get_ability( $id ) : null; };\n$smoke = $get( 'smoke/echo' );\n$exec = null;\nif ( $smoke ) { $exec = $smoke->execute( array( 'msg' => 'hi' ) ); if ( is_wp_error( $exec ) ) { $exec = 'WP_Error: ' . $exec->get_error_code(); } }\n$result = array(\n  'wpai_version' => defined( 'WPAI_VERSION' ) ? WPAI_VERSION : null,\n  'abstract_feature' => class_exists( 'WordPress\\AI\\Abstracts\\Abstract_Feature' ),\n  'smoke_ability' => (bool) $smoke,\n  'smoke_exec' => $exec,\n  'read_content' => (bool) $get( 'core/read-content' ),\n  'read_users' => (bool) $get( 'core/read-users' ),\n  'read_settings' => (bool) $get( 'core/read-settings' ),\n  'suggest_reply' => (bool) $get( 'ai/suggest-reply' ),\n);\nfile_put_contents( '/wordpress/wp-content/mu-plugins/result.json', json_encode( $result, JSON_PRETTY_PRINT ) );\necho json_encode( $result );"
+    }
+  ]
+}
