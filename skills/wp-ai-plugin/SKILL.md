@@ -168,7 +168,7 @@ class My_Internal_Linker_Ability extends \WordPress\AI\Abstracts\Abstract_Abilit
 
 Returning an empty array (the default) skips Guidelines entirely. When `guideline_categories()` returns a non-empty array AND the Gutenberg `wp_guideline` CPT is registered, the system instruction is automatically appended with an XML-tagged `<guidelines>` block. See `references/guidelines-integration.md` for the full Guidelines service API and how to use it outside `Abstract_Ability` if needed.
 
-> **Upstream in flux.** As of AI plugin 1.2.0 the store is still Gutenberg's `wp_guideline` CPT with the `site` / `copy` / `images` / `additional` categories, so the above is accurate for the current release. Gutenberg trunk (v23.6.0-rc.1) renames this primitive to **"Knowledge"**, splits the singleton into per-scope rows, and adds a `blocks` scope — targeting WordPress 7.1. Verify the CPT and service names against the installed Gutenberg/WP version before depending on them; details in `references/guidelines-integration.md`.
+> **Upstream in flux.** As of AI plugin 1.2.0 the store is still Gutenberg's `wp_guideline` CPT with the `site` / `copy` / `images` / `additional` categories, so the above is accurate for the current release. Gutenberg 23.6 replaces this primitive with **"Knowledge"**: a `wp_knowledge` CPT with per-scope guideline rows and a filterable scope registry (`site`, `copy`, `images`, `blocks`, `additional`) — still experimental in the Gutenberg plugin (`lib/experimental/knowledge/`), not yet staged as WP 7.1 compat code. Verify which storage the installed versions use before depending on names; details in `references/guidelines-integration.md`.
 
 ### 6) Add a dashboard widget if useful (optional)
 

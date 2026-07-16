@@ -115,7 +115,13 @@ For `api_key` connectors, the AI Client looks up the key in this order. Document
 
 Database storage is unencrypted by default but masked in the UI. The canonical AI plugin (`WordPress/ai` v1.1.0+) ships an opt-in **Key Encryption** experiment that transparently encrypts `connectors_ai_*_api_key` options at rest (libsodium via a bundled secrets API) and restores plaintext on opt-out or deactivation. Core-level encryption is still being explored upstream ([#64789](https://core.trac.wordpress.org/ticket/64789)).
 
-**Application password settings (Gutenberg 23.6 / WP 7.1+).** The Settings → Connectors screen gained an application-password settings UI ([`WordPress/gutenberg#79403`](https://github.com/WordPress/gutenberg/pull/79403)) — relevant for connectors that authenticate with a WordPress application password rather than a provider `api_key`. This landed after the 7.0 Connectors API shipped and is still stabilizing; confirm the exact `authentication.method` value and the settings-field contract against the installed WP 7.1 / Gutenberg version before building against it.
+**Application-password connectors (Gutenberg 23.6+).** `authentication.method` accepts `'api_key' | 'application_password' | 'none'` (verified in Gutenberg's `lib/compat/wordpress-7.0/class-wp-connector-registry.php` at v23.6.0-rc.1), and Settings → Connectors gained a credentials UI for the `application_password` method ([#79403](https://github.com/WordPress/gutenberg/pull/79403)). The contract mirrors `api_key` with one twist — the credential is a *pair*:
+
+- `env_var_name` / `constant_name` hold a single `username:app-password` string (e.g. `remote-user:abcd efgh ijkl mnop 1234`).
+- The database setting stores an array of `username` + `password`, masked in `/wp/v2/settings`. `setting_name` is auto-generated as `connectors_{$type}_{$id}_application_password` when omitted (hyphens in type/ID normalized to underscores), or can be set explicitly.
+- `credentials_url` should point where the user *creates* the application password (e.g. the remote site's `wp-admin/profile.php`).
+
+Typical use is non-AI connector types like `content_source` (remote WordPress) rather than `ai_provider`. A complete registration example ships as Gutenberg's e2e fixture `packages/e2e-tests/plugins/connectors-application-password.php`. This is a post-7.0 evolution carried by the Gutenberg plugin — on stock core without Gutenberg 23.6+, verify the method and UI exist before building on them.
 
 ### 5) Verify the connector card appears
 

@@ -223,23 +223,28 @@ Top-level schema `default` is honored by `normalize_input()` and reaches the cal
 
 If you've declared the top-level `default` in the schema, the PHP-level signature default exists only for direct callers. Don't add a third layer of fallback inside the callback that re-checks `if ( $input === null )` — three compensating defaults stacked on each other diffuses the meaning of "no input."
 
-## 5. Schema `format: uri` is now supported (Gutenberg 23.6 / WP 7.1+) — and version-gated
+## 5. Schema `format` support differs between server and client — mismatched lists
 
-Gutenberg 23.6 (`WordPress/gutenberg#79555`, landing with WordPress 7.1) added support for the **`uri`** string format in ability schemas, so an `input_schema` (or `output_schema`) property can declare and have URL-typed values validated:
+The server and the client validate ability schemas with different engines, and their supported `format` lists don't match. Verified against `packages/abilities/src/validation.ts` at Gutenberg v23.6.0-rc.1.
+
+- **Server (PHP)**: input/output validation goes through WordPress's REST-style schema validation (`rest_validate_value_from_schema()` semantics), whose format support — including `uri` — long predates the Abilities API.
+- **Client (`@wordpress/abilities`)**: validation uses AJV (draft-04) with `ajv-formats`, registering **exactly** these formats: `date-time`, `email`, `hostname`, `ipv4`, `ipv6`, `uri`, `uuid`.
+
+The failure mode is worse than "not enforced": AJV rejects schemas using an *unregistered* format at compile time, and the client validator catches that and returns **"Invalid schema provided for validation."** — every client-side execution against that schema fails. That's why "Abilities: Support URI schema format" (`WordPress/gutenberg#79555`) shipped as a *bug fix* in Gutenberg 23.6: before it, `format: 'uri'` in a schema broke client-side validation outright.
 
 ```php
 'properties' => [
     'source_url' => [
         'type'   => 'string',
-        'format' => 'uri',
+        'format' => 'uri', // OK server-side; client-side requires Gutenberg 23.6+.
     ],
 ],
 ```
 
-Caveats:
+Practical rules:
 
-1. **Version-gated.** On WP 7.0 / Gutenberg < 23.6 the `uri` format is not enforced. If you support older installs, keep an explicit URL check in the execute callback rather than relying on the schema.
-2. **Don't assume every `format` is enforced.** Most JSON-Schema `format` keywords remain advisory in the Abilities API validator; validate business-critical shapes in the callback regardless (same spirit as Gotcha 1).
+1. **Stick to the intersection when clients matter.** If the ability is executed from JS (`executeAbility`, Command Palette, editor surfaces), the safe formats are `date-time`, `email`, `uuid` — plus `uri` on Gutenberg 23.6+ clients. Server-only formats like `hex-color` or `ip` will compile-fail the client validator even though PHP accepts them.
+2. **Don't rely on `format` for business-critical shapes.** Validate in the execute callback regardless (same spirit as Gotcha 1) — it's the only layer that runs on both invocation paths (see Gotcha 4).
 3. **Shape, not scheme or reachability.** `format: uri` validates URI *shape* only — still reject non-`http(s)` schemes and validate the host yourself when the value drives a server-side request (SSRF surface).
 
 ## Putting gotchas 1-3 together
