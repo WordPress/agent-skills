@@ -1,6 +1,6 @@
 # Hooks, filters, constants, and gates
 
-The public extension surface of the AI plugin v1.1.0. Anchored to source — the source is canonical.
+The public extension surface of the AI plugin v1.2.0. Anchored to source — the source is canonical.
 
 ## Constants (v0.6.0+)
 
@@ -8,7 +8,7 @@ Defined in `ai.php` `constants()`. The 0.6.0 release renamed the family from `AI
 
 | Constant | Source | Use |
 | --- | --- | --- |
-| `WPAI_VERSION` | `'1.1.0'` (string literal) | Version detection in downstream code |
+| `WPAI_VERSION` | `'1.2.0'` (string literal) | Version detection in downstream code |
 | `WPAI_PLUGIN_FILE` | `__FILE__` (ai.php) | The main plugin file path |
 | `WPAI_PLUGIN_DIR` | `plugin_dir_path( WPAI_PLUGIN_FILE )` | Filesystem path to the plugin directory |
 | `WPAI_PLUGIN_URL` | `plugin_dir_url( WPAI_PLUGIN_FILE )` | URL to the plugin directory (for asset references) |
@@ -82,6 +82,7 @@ These are namespaced functions in `WordPress\AI`. Import as `use function WordPr
 | --- | --- | --- | --- |
 | `wpai_min_content_length` | `WordPress\AI\get_min_content_length()` | `250` (chars) | Per-feature minimum character count before content-dependent features enable; replaces the deprecated `wpai_summarization_min_content_length` |
 | `wpai_has_image_generation_support` | `WordPress\AI\has_image_generation_support()` | auto-detected bool | Claim Image Generation support when auto-detection misses it (e.g., connectors authenticating without an API key, such as OAuth) |
+| `wpai_default_request_timeout` (v1.2.0) | `includes/helpers.php` | provider/feature default | Per-request timeout, filtered as `( int $default_timeout, string $feature_id )`; used for the image-generation request. ⚠️ The 1.2.0 changelog/`readme.txt` call this `wp_ai_client_default_request_timeout` (that name is in *no* PHP in the plugin — most likely the core AI Client's own filter); the plugin actually applies `wpai_default_request_timeout`. |
 | `wpai_comment_moderation_moderate_guests` | Comment Moderation experiment | setting value (default yes) | Override whether guest comments are auto-moderated |
 
 ### Ability system-instruction filter

@@ -223,6 +223,25 @@ Top-level schema `default` is honored by `normalize_input()` and reaches the cal
 
 If you've declared the top-level `default` in the schema, the PHP-level signature default exists only for direct callers. Don't add a third layer of fallback inside the callback that re-checks `if ( $input === null )` — three compensating defaults stacked on each other diffuses the meaning of "no input."
 
+## 5. Schema `format: uri` is now supported (Gutenberg 23.6 / WP 7.1+) — and version-gated
+
+Gutenberg 23.6 (`WordPress/gutenberg#79555`, landing with WordPress 7.1) added support for the **`uri`** string format in ability schemas, so an `input_schema` (or `output_schema`) property can declare and have URL-typed values validated:
+
+```php
+'properties' => [
+    'source_url' => [
+        'type'   => 'string',
+        'format' => 'uri',
+    ],
+],
+```
+
+Caveats:
+
+1. **Version-gated.** On WP 7.0 / Gutenberg < 23.6 the `uri` format is not enforced. If you support older installs, keep an explicit URL check in the execute callback rather than relying on the schema.
+2. **Don't assume every `format` is enforced.** Most JSON-Schema `format` keywords remain advisory in the Abilities API validator; validate business-critical shapes in the callback regardless (same spirit as Gotcha 1).
+3. **Shape, not scheme or reachability.** `format: uri` validates URI *shape* only — still reject non-`http(s)` schemes and validate the host yourself when the value drives a server-side request (SSRF surface).
+
 ## Putting gotchas 1-3 together
 
 A hardened execute callback for a list-style ability with a required ID, schema defaults, and backing pagination drift:

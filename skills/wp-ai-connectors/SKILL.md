@@ -115,6 +115,8 @@ For `api_key` connectors, the AI Client looks up the key in this order. Document
 
 Database storage is unencrypted by default but masked in the UI. The canonical AI plugin (`WordPress/ai` v1.1.0+) ships an opt-in **Key Encryption** experiment that transparently encrypts `connectors_ai_*_api_key` options at rest (libsodium via a bundled secrets API) and restores plaintext on opt-out or deactivation. Core-level encryption is still being explored upstream ([#64789](https://core.trac.wordpress.org/ticket/64789)).
 
+**Application password settings (Gutenberg 23.6 / WP 7.1+).** The Settings → Connectors screen gained an application-password settings UI ([`WordPress/gutenberg#79403`](https://github.com/WordPress/gutenberg/pull/79403)) — relevant for connectors that authenticate with a WordPress application password rather than a provider `api_key`. This landed after the 7.0 Connectors API shipped and is still stabilizing; confirm the exact `authentication.method` value and the settings-field contract against the installed WP 7.1 / Gutenberg version before building against it.
+
 ### 5) Verify the connector card appears
 
 Check Settings → Connectors. You should see a card with your provider's name, description, logo, a "Get API key" link pointing at `authentication.credentials_url`, and a status indicator showing where the key is being read from (or "not configured").

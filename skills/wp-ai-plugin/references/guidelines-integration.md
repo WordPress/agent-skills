@@ -2,6 +2,8 @@
 
 The AI plugin v0.8.0 introduced Guidelines integration (#359). Site editorial standards live in Gutenberg's `wp_guideline` custom post type, and the AI plugin reads them into prompts when an Ability declares interest.
 
+> **Upstream rename in progress — verify names before relying on them.** This reference documents the AI plugin at **v1.2.0**, where the store is still Gutenberg's `wp_guideline` CPT with the `site` / `copy` / `images` / `additional` categories, so everything below is accurate for that release. In Gutenberg trunk (**v23.6.0-rc.1**, targeting **WordPress 7.1**) this primitive is being renamed to **"Knowledge"**: the storage CPT is renamed, the single Guidelines store is dissolved into **per-scope rows**, and a **`blocks`** registry scope is added alongside the existing ones. The AI plugin's `Guidelines` service will likely follow. If you target WP 7.1 / Gutenberg 23.6+, confirm the CPT name (`wp_guideline` vs. the renamed "Knowledge" post type) and the service API against the installed version rather than trusting the names here.
+
 ## Where Guidelines live
 
 Guidelines are stored as a `wp_guideline` custom post type provided by Gutenberg 23.0+. Each post stores guidelines in four post meta fields:
