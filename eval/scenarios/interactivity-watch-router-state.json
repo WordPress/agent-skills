@@ -1,0 +1,18 @@
+{
+  "name": "Track client navigations with Interactivity API watch",
+  "skills": ["wp-interactivity-api"],
+  "query": "On WordPress 7.0, send analytics when core/router changes URL and stop any pending request before the watcher reruns or is disposed.",
+  "expected_behavior": [
+    "Import store and watch from @wordpress/interactivity",
+    "Read state.url from the core/router store inside watch",
+    "Return a cleanup callback that aborts the pending request",
+    "Keep and call the unwatch callback during teardown",
+    "Do not read state.navigation.hasStarted or state.navigation.hasFinished"
+  ],
+  "success_criteria": [
+    "Uses watch and its reactive state read",
+    "Implements rerun and disposal cleanup",
+    "Uses server-populated state.url",
+    "Avoids deprecated navigation internals"
+  ]
+}

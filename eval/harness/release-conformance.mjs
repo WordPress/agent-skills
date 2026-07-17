@@ -165,4 +165,27 @@ export function runReleaseConformance(repoRoot) {
     "wpai_settings_feature_groups",
     "wpai_settings_feature_metadata",
   ]);
+
+  for (const file of [
+    "skills/wp-block-development/SKILL.md",
+    "skills/wp-block-development/references/block-json.md",
+  ]) {
+    requireIncludes(repoRoot, file, ["every block inserted", "API version 3"]);
+    requireExcludes(repoRoot, file, ["regardless of block apiVersion", "always use the iframe"]);
+  }
+  requireIncludes(repoRoot, "skills/wp-block-themes/references/theme-json.md", [
+    "## WordPress 7.0 additions",
+    "settings.dimensions",
+    "width",
+    "height",
+    "min-height",
+    ":focus-visible",
+  ]);
+  requireIncludes(repoRoot, "skills/wp-interactivity-api/SKILL.md", [
+    "watch()",
+    "unwatch()",
+    "state.url",
+    "state.navigation.hasStarted",
+    "state.navigation.hasFinished",
+  ]);
 }

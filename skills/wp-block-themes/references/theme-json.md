@@ -53,6 +53,35 @@ Upstream references:
 - Style Button block hover and focus states directly in theme.json.
 - No longer requires custom CSS for simple button state styling.
 
+## WordPress 7.0 additions
+
+Keep `theme.json` at version 3. Under `settings.dimensions`, WordPress 7.0 supports reusable dimension presets through `dimensionSizes`. Use the resulting preset values for `width`, `height`, and `min-height` only in controls or block properties that support the corresponding dimension; do not replace unsupported use cases with custom CSS.
+
+Core Button styles can now express interaction states in `theme.json`: `:hover`, `:focus`, `:focus-visible`, and `:active`. Use `:focus-visible` to provide a keyboard-visible focus indicator, and retain the WordPress 6.9 form styling and border-radius presets above as separate guidance.
+
+```json
+{
+  "version": 3,
+  "settings": {
+    "dimensions": {
+      "dimensionSizes": [
+        { "name": "Content", "slug": "content", "size": "40rem" },
+        { "name": "Wide", "slug": "wide", "size": "72rem" }
+      ]
+    }
+  },
+  "styles": {
+    "blocks": {
+      "core/button": {
+        ":hover": { "color": { "background": "#1e1e1e" } },
+        ":focus-visible": { "outline": { "color": "#3858e9", "style": "solid", "width": "2px" } },
+        ":active": { "color": { "background": "#000000" } }
+      }
+    }
+  }
+}
+```
+
 References:
 
 - Border radius presets: https://make.wordpress.org/core/2025/11/12/theme-json-border-radius-presets-support-in-wordpress-6-9/

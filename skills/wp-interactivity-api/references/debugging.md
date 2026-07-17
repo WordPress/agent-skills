@@ -27,3 +27,10 @@
 - WordPress 6.9 adds `attachTo` property for router regions to render overlays anywhere on the page.
 - Ensure nested router regions are properly structured.
 
+## WordPress 7.0 watcher and router checks
+
+- Use `watch()` for router-driven effects and retain its `unwatch()` callback for teardown.
+- A watcher callback cleanup runs before a rerun and when the watcher is disposed; return cleanup that cancels in-flight work such as an `AbortController` request.
+- Read `state.url` from `core/router` inside the watcher. It is populated during server directive processing and remains stable until the first client navigation.
+- Do not read `state.navigation.hasStarted` or `state.navigation.hasFinished`: both are deprecated in 7.0 and emit development warnings. Do not suggest unreleased replacements.
+
