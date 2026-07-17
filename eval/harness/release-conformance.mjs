@@ -76,6 +76,22 @@ export function runReleaseConformance(repoRoot) {
   requireExcludes(repoRoot, "skills/blueprint/SKILL.md", [
     'Object = `{ username?, password? }`',
   ]);
+  requireIncludes(repoRoot, "skills/blueprint/references/v1-compatibility.md", [
+    '"resource": "git:directory"',
+    '"resource": "literal:directory"',
+    '"resource": "bundled"',
+    '"step": "installPlugin"',
+    '"pluginData"',
+    '"step": "writeFiles"',
+    '"filesTree"',
+    '"step": "runPHP"',
+    "require '/wordpress/wp-load.php';",
+    '"step": "runSql"',
+    '"step": "importWordPressFiles"',
+    '"wordPressFilesZip"',
+    '"step": "request"',
+    '"userId"',
+  ]);
 
   for (const file of [
     "skills/wp-playground/SKILL.md",
