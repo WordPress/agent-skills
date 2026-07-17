@@ -181,6 +181,10 @@ export function runReleaseConformance(repoRoot) {
     "min-height",
     ":focus-visible",
   ]);
+  requireExcludes(repoRoot, "skills/wp-block-themes/references/theme-json.md", [
+    "**Button pseudo-classes:**",
+    "Style Button block hover and focus states directly in theme.json.",
+  ]);
   requireIncludes(repoRoot, "skills/wp-interactivity-api/SKILL.md", [
     "watch()",
     "unwatch()",

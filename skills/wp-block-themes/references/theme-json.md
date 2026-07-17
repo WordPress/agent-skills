@@ -49,10 +49,6 @@ Upstream references:
 }
 ```
 
-**Button pseudo-classes:**
-- Style Button block hover and focus states directly in theme.json.
-- No longer requires custom CSS for simple button state styling.
-
 ## WordPress 7.0 additions
 
 Keep `theme.json` at version 3. Under `settings.dimensions`, WordPress 7.0 supports reusable dimension presets through `dimensionSizes`. Use the resulting preset values for `width`, `height`, and `min-height` only in controls or block properties that support the corresponding dimension; do not replace unsupported use cases with custom CSS.
