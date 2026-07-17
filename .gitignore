@@ -7,4 +7,6 @@ yarn-error.log*
 pnpm-debug.log*
 .env
 .env.*
+.superpowers/
+**/.plugin-eval/
 

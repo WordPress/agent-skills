@@ -1,0 +1,15 @@
+{
+  "name": "Create a Blueprint V2 test environment",
+  "skills": ["blueprint"],
+  "query": "Create a new WordPress Playground Blueprint V2 environment for my plugin: use PHP 8.5, enable networking, define the required constants, and include a login step so the test user reaches wp-admin.",
+  "expected_behavior": [
+    "Use the Blueprint skill to create a valid V2 environment definition",
+    "Configure PHP 8.5, networking, constants, and a login step using the current Blueprint contract",
+    "Validate the Blueprint structure before reporting the result"
+  ],
+  "success_criteria": [
+    "The environment uses the V2 Blueprint format",
+    "PHP 8.5, networking, constants, and login are represented with supported fields",
+    "The result includes validation evidence"
+  ]
+}

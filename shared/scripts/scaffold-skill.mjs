@@ -1,22 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-function usage() {
-  process.stderr.write(
-    [
-      "Usage:",
-      '  node shared/scripts/scaffold-skill.mjs <skill-name> "<description>"',
-      "",
-      "Notes:",
-      "- <skill-name> must be lowercase unicode letters/digits with hyphens (no leading/trailing hyphen, no --).",
-      "- Creates skills/<skill-name>/SKILL.md and eval/scenarios/<skill-name>.md",
-      "",
-    ].join("\n")
-  );
-}
-
-function assert(condition, message) {
-  if (!condition) throw new Error(message);
+function usage(stream = process.stdout) {
+  stream.write('Usage: node shared/scripts/scaffold-skill.mjs <skill-name> "<description>" --prompt "<realistic user request>"\n');
 }
 
 function validateSkillName(name) {
@@ -25,38 +11,79 @@ function validateSkillName(name) {
   if (name !== name.toLowerCase()) return "Skill name must be lowercase";
   if (name.startsWith("-") || name.endsWith("-")) return "Skill name cannot start or end with hyphen";
   if (name.includes("--")) return "Skill name cannot contain consecutive hyphens";
-  const ok = /^[\p{Ll}\p{Nd}]+(?:-[\p{Ll}\p{Nd}]+)*$/u.test(name);
-  if (!ok) return "Skill name contains invalid characters";
+  if (!/^[\p{Ll}\p{Nd}]+(?:-[\p{Ll}\p{Nd}]+)*$/u.test(name)) return "Skill name contains invalid characters";
   return null;
 }
 
+function invocationError(message) {
+  process.stderr.write(`Error: ${message}\n`);
+  usage(process.stderr);
+  process.exitCode = 2;
+}
+
+function parseArguments(args) {
+  if (args.length === 1 && (args[0] === "--help" || args[0] === "-h")) return { help: true };
+  if (args.length !== 4 || args[2] !== "--prompt") {
+    return { error: "Expected <skill-name> <description> --prompt <realistic user request>" };
+  }
+  const [skillName, description, , prompt] = args;
+  const nameError = validateSkillName(skillName);
+  if (nameError) return { error: nameError };
+  if (!description || description.length > 1024) return { error: "Description must be 1-1024 characters" };
+  if (!description.startsWith("Use when")) return { error: "Description must begin with 'Use when'" };
+  if (!prompt || !prompt.trim()) return { error: "--prompt requires a realistic user request" };
+  return { skillName, description, prompt };
+}
+
 function main() {
-  const [, , skillName, description] = process.argv;
-  if (!skillName || !description) {
+  const parsed = parseArguments(process.argv.slice(2));
+  if (parsed.help) {
     usage();
-    process.exit(2);
+    return;
+  }
+  if (parsed.error) {
+    invocationError(parsed.error);
+    return;
   }
 
-  const nameError = validateSkillName(skillName);
-  assert(!nameError, nameError);
-  assert(description.length > 0 && description.length <= 1024, "Description must be 1-1024 characters");
-
   const repoRoot = process.cwd();
-  const skillDir = path.join(repoRoot, "skills", skillName);
-  const skillMd = path.join(skillDir, "SKILL.md");
-  const scenarioPath = path.join(repoRoot, "eval", "scenarios", `${skillName}.md`);
+  const skillDir = path.join(repoRoot, "skills", parsed.skillName);
+  const skillPath = path.join(skillDir, "SKILL.md");
+  const scenarioPath = path.join(repoRoot, "eval", "scenarios", `${parsed.skillName}.json`);
+  if (fs.existsSync(skillDir) || fs.existsSync(scenarioPath)) {
+    invocationError(`Output already exists for '${parsed.skillName}'`);
+    return;
+  }
 
-  assert(!fs.existsSync(skillDir), `Skill directory already exists: ${path.relative(repoRoot, skillDir)}`);
-  fs.mkdirSync(skillDir, { recursive: true });
+  const skillBody = `---\nname: ${parsed.skillName}\ndescription: ${parsed.description}\ncompatibility: Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node.\n---\n\n# ${parsed.skillName}\n\n## When to use\n\n## Inputs required\n\n## Procedure\n\n## Verification\n\n## Failure modes / debugging\n\n## Escalation\n`;
+  const scenario = {
+    name: `Apply ${parsed.skillName} to a realistic request`,
+    skills: [parsed.skillName],
+    query: parsed.prompt,
+    expected_behavior: [
+      `Load ${parsed.skillName} because the request matches its activation description`,
+      "Follow the skill procedure and verify the result",
+    ],
+    success_criteria: [
+      `Uses ${parsed.skillName} for the matching request`,
+      "Reports verification evidence",
+    ],
+  };
 
-  const skillBody = `---\nname: ${skillName}\ndescription: ${description}\ncompatibility: Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node.\n---\n\n# ${skillName}\n\n## When to use\n\n## Inputs required\n\n## Procedure\n\n## Verification\n\n## Failure modes / debugging\n\n## Escalation\n`;
-  fs.writeFileSync(skillMd, skillBody, "utf8");
+  try {
+    fs.mkdirSync(skillDir, { recursive: true });
+    fs.writeFileSync(skillPath, skillBody, "utf8");
+    fs.mkdirSync(path.dirname(scenarioPath), { recursive: true });
+    fs.writeFileSync(scenarioPath, `${JSON.stringify(scenario, null, 2)}\n`, "utf8");
+  } catch (error) {
+    fs.rmSync(skillDir, { recursive: true, force: true });
+    fs.rmSync(scenarioPath, { force: true });
+    process.stderr.write(`Error: unable to create scaffold: ${error.message}\n`);
+    process.exitCode = 1;
+    return;
+  }
 
-  fs.mkdirSync(path.dirname(scenarioPath), { recursive: true });
-  const scenario = `# Scenario: ${skillName}\n\n## Prompt\n\n## Expected behavior\n\n- Uses \`${skillName}\` when the prompt matches its description.\n- Follows the skill procedure and verifies results.\n`;
-  fs.writeFileSync(scenarioPath, scenario, "utf8");
-
-  process.stdout.write(`OK: created ${path.relative(repoRoot, skillMd)} and ${path.relative(repoRoot, scenarioPath)}\n`);
+  process.stdout.write(`OK: created ${path.relative(repoRoot, skillPath)} and ${path.relative(repoRoot, scenarioPath)}\n`);
 }
 
 main();

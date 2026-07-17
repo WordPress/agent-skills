@@ -1,0 +1,10 @@
+[
+  { "query": "Map the REST API in plugins/volunteer-roster into an audit document that proposes safe Abilities API candidates for next quarter.", "should_trigger": true },
+  { "query": "Could you inspect our charity-donations controllers, trace permissions, and hand engineering an abilities adoption assessment?", "should_trigger": true },
+  { "query": "Make an abilities planning report for the REST routes in C:/projects/portal-forms before we touch production code.", "should_trigger": true },
+  { "query": "Find real operator questions represented by this WordPress plugin's routes and document proposed abilities plus risks.", "should_trigger": true },
+  { "query": "Implement the ability registrations recommended in the audit and add their JSON schemas.", "should_trigger": false },
+  { "query": "Use wp-cli to search-replace old REST namespace URLs across a multisite database.", "should_trigger": false },
+  { "query": "Verify every ability from our audit is registered and callable in wp-env as an administrator.", "should_trigger": false },
+  { "query": "Create a block variation for a REST-powered event selector in the site editor.", "should_trigger": false }
+]

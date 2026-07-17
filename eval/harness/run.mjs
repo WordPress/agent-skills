@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { runSkillQuality } from "./skill-quality.mjs";
 
 function readUtf8(filePath) {
   return fs.readFileSync(filePath, "utf8");
@@ -104,6 +105,15 @@ function main() {
       fm.description.length <= 1024,
       `Description too long in ${path.relative(repoRoot, skillPath)} (${fm.description.length} chars)`
     );
+    assert(
+      fm.description.startsWith("Use when"),
+      `Description must begin with 'Use when' in ${path.relative(repoRoot, skillPath)}`
+    );
+    const lineCount = md.split(/\r?\n/).length;
+    assert(
+      lineCount <= 500,
+      `SKILL.md exceeds the 500-line progressive-disclosure budget in ${path.relative(repoRoot, skillPath)} (${lineCount} lines)`
+    );
 
     const compatibility = fm._raw.compatibility;
     assert(compatibility, `Missing frontmatter 'compatibility' in: ${path.relative(repoRoot, skillPath)}`);
@@ -130,7 +140,9 @@ function main() {
   assert(report?.signals?.paths?.repoRoot, "Triage report missing signals.paths.repoRoot");
   assert(report?.tooling?.php && report?.tooling?.node && report?.tooling?.tests, "Triage report missing tooling blocks");
 
-  process.stdout.write("OK: skills frontmatter and triage report sanity checks passed.\n");
+  runSkillQuality(repoRoot);
+
+  process.stdout.write("OK: skills frontmatter, triage report, and quality checks passed.\n");
 }
 
 main();

@@ -1,0 +1,16 @@
+{
+  "name": "Use current WPDS guidance without MCP",
+  "skills": ["wpds"],
+  "query": "Our MCP connection is unavailable. I need the current WordPress Design System components and tokens for an editor sidebar, with source-backed guidance and no invented APIs.",
+  "expected_behavior": [
+    "Use wpds for the editor UI request",
+    "Fall back to official WordPress sources when MCP is unavailable",
+    "Distinguish verified components and tokens from unsupported or unknown APIs",
+    "Provide evidence for the recommended implementation"
+  ],
+  "success_criteria": [
+    "The response uses official-source fallback",
+    "No API is invented when MCP is unavailable",
+    "The component and token guidance is current and source-backed"
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 name: wp-playground
-description: "Use for WordPress Playground workflows: fast disposable WP instances in the browser or locally via @wp-playground/cli (server, run-blueprint, build-snapshot), auto-mounting plugins/themes, switching WP/PHP versions, blueprints, and debugging (Xdebug)."
+description: Use when creating or debugging disposable WordPress environments with WordPress Playground, @wp-playground/cli, Blueprints, snapshots, mounts, version switching, or Xdebug.
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Playground CLI requires Node.js 20.18+; runs WP in WebAssembly with SQLite."
 ---
 
