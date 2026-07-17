@@ -1,16 +1,19 @@
 {
-  "name": "Debug a plugin locally with Playground CLI 3.1",
+  "name": "Run and debug a local plugin with Playground CLI 3.1",
   "skills": ["wp-playground"],
-  "query": "I need to debug C:/work/acme-events locally with @wp-playground/cli 3.1.45. Give me the exact start command with Xdebug, workers, and the WordPress install mode, and do not recommend flags that were removed in 3.1.",
+  "query": "Run the plugin in my current directory on Playground CLI 3.1.45 with PHP 8.3 and Xdebug. Also show the advanced command for an existing WordPress tree with automatic workers.",
   "expected_behavior": [
-    "Use wp-playground for the local CLI debugging workflow",
-    "Use the CLI 3.1.45 start command with --xdebug, --workers, and --wordpress-install-mode",
-    "Reject removed flags instead of presenting legacy alternatives",
-    "Verify the local debugging environment is reachable"
+    "Use npx @wp-playground/cli@3.1.45 start --path=. --php=8.3 --xdebug for the normal workflow",
+    "Explain that start auto-detects the project and opens the browser",
+    "Use server --auto-mount=. --workers=auto for advanced worker control",
+    "Use --wordpress-install-mode=install-from-existing-files-if-needed for an existing WordPress tree",
+    "Do not emit removed or ignored legacy flags"
   ],
   "success_criteria": [
-    "The command uses start, --xdebug, --workers, and --wordpress-install-mode",
-    "No removed CLI flags are recommended",
-    "The answer gives local debugging verification steps"
+    "Selects start for normal local work",
+    "Uses only --xdebug",
+    "Uses --workers=auto",
+    "Uses the current WordPress install-mode option",
+    "Pins the audited CLI version"
   ]
 }

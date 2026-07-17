@@ -1,16 +1,18 @@
-## Debugging WordPress Playground
+# Debugging Playground CLI 3.1.45
 
-- Start CLI with Xdebug: `server --auto-mount --xdebug` (or `--enable-xdebug` depending on release). The CLI prints host/port and IDE key to configure your debugger.
-- If breakpoints are not hit, confirm:
-  - IDE listens on the port shown by CLI.
-  - Path mappings include the mounted VFS path used by Playground.
-- For slow or stuck runs:
-  - Add `--verbosity=debug` to see step-level logs.
-  - Disable `--experimental-multi-worker` if it was enabled.
-- For mount issues:
-  - Prefer absolute paths in `--mount`.
-  - Use `--mount-before-install` when installer steps need files present early.
-- To inspect runtime state:
-  - Open the Playground browser console; the Service Worker logs network/FS events.
-  - Use the “Terminal” tab (if available) to run WP-CLI inside the instance.
+For a normal local debugging session, use `start`:
 
+```powershell
+npx @wp-playground/cli@3.1.45 start --path=. --php=8.3 --xdebug
+```
+
+It auto-detects the project, opens the browser, and retains local state. Configure VS Code or PhpStorm using the host, port, and path mapping printed by the CLI, then confirm a breakpoint resolves from mounted code.
+
+Use `server` only for advanced controls:
+
+```powershell
+npx @wp-playground/cli@3.1.45 server --auto-mount=. --workers=auto --xdebug
+npx @wp-playground/cli@3.1.45 server --auto-mount=. --wordpress-install-mode=install-from-existing-files-if-needed --xdebug
+```
+
+If a breakpoint fails, verify the IDE listens on the printed port and maps the local project to the reported VFS path. Add `--verbosity=debug` where supported, use an absolute `--mount=/host/path:/vfs/path` if auto-detection is wrong, and choose another `--port=<free-port>` when 9400 is occupied. Playground runs WP in WebAssembly with SQLite; native extensions or production infrastructure need a full WordPress stack.

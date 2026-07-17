@@ -1,15 +1,20 @@
 {
-  "name": "Create a Blueprint V2 test environment",
-  "skills": ["blueprint"],
-  "query": "Create a new WordPress Playground Blueprint V2 environment for my plugin: use PHP 8.5, enable networking, define the required constants, and include a login step so the test user reaches wp-admin.",
+  "name": "Create a Blueprint V2 plugin test environment",
+  "skills": ["blueprint", "wp-playground"],
+  "query": "Create a new Playground Blueprint for a plugin test site on stable WordPress, PHP 8.3, Query Monitor, automatic admin login, and no outbound network access.",
   "expected_behavior": [
-    "Use the Blueprint skill to create a valid V2 environment definition",
-    "Configure PHP 8.5, networking, constants, and a login step using the current Blueprint contract",
-    "Validate the Blueprint structure before reporting the result"
+    "Use Blueprint V2 for new work and set version to 2",
+    "Use blueprintMeta and applicationOptions.wordpress-playground",
+    "Set applicationOptions.wordpress-playground.login to true",
+    "Leave networkAccess false or omit it because V2 defaults it to false",
+    "Declare wordpressVersion, phpVersion, plugins, and siteOptions declaratively",
+    "Use additionalStepsAfterExecution only for work without a V2 declarative field",
+    "Route to references/v1-compatibility.md only when maintaining a V1 file without version"
   ],
   "success_criteria": [
-    "The environment uses the V2 Blueprint format",
-    "PHP 8.5, networking, constants, and login are represented with supported fields",
-    "The result includes validation evidence"
+    "Outputs schema-valid V2 structure",
+    "Does not use V1 preferredVersions, features, or top-level login",
+    "Does not claim object login credentials are optional",
+    "Keeps network access disabled"
   ]
 }

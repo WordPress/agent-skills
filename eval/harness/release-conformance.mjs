@@ -65,4 +65,35 @@ export function runReleaseConformance(repoRoot) {
     map.rows.some((row) => row.wordpress === "7.0.X" && row.gutenberg === "22.6"),
     "WP/Gutenberg map must include WordPress 7.0.X → Gutenberg 22.6"
   );
+
+  requireIncludes(repoRoot, "skills/blueprint/SKILL.md", [
+    '"version": 2',
+    '"blueprintMeta"',
+    '"applicationOptions"',
+    '"additionalStepsAfterExecution"',
+    "references/v1-compatibility.md",
+  ]);
+  requireExcludes(repoRoot, "skills/blueprint/SKILL.md", [
+    'Object = `{ username?, password? }`',
+  ]);
+
+  for (const file of [
+    "skills/wp-playground/SKILL.md",
+    "skills/wp-playground/references/cli-commands.md",
+    "skills/wp-playground/references/debugging.md",
+  ]) {
+    requireExcludes(repoRoot, file, [
+      "--enable-xdebug",
+      "--experimental-multi-worker",
+      "--skip-wordpress-setup",
+    ]);
+  }
+  requireIncludes(repoRoot, "skills/wp-playground/references/cli-commands.md", [
+    "3.1.45",
+    "@wp-playground/cli@3.1.45 start",
+    "--xdebug",
+    "--workers=auto",
+    "--wordpress-install-mode=install-from-existing-files-if-needed",
+    '"8.5"',
+  ]);
 }
