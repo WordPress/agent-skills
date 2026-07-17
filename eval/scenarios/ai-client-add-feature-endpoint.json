@@ -12,7 +12,8 @@
     "Step 7: Use generate_text_result() and return via rest_ensure_response()",
     "Step 8: Show conditional UI gating with is_supported_for_text_generation() before enqueueing scripts",
     "Step 9: Document that credentials are handled by the Connectors API; do not handle API keys",
-    "Step 10: Mention using_abilities() as the function-calling tie-in if the feature would benefit from the model invoking registered abilities (links to wp-abilities-api)"
+    "Step 10: Mention using_abilities() as the function-calling tie-in if the feature would benefit from the model invoking registered abilities (links to wp-abilities-api)",
+    "Step 11: Branch on is_wp_error($result); use get_error_code/get_error_message/get_error_data on errors and provider/model metadata methods only on successful results"
   ],
   "success_criteria": [
     "Routes to wp-ai-client skill",
@@ -22,6 +23,7 @@
     "Includes is_supported_for_text_generation() gate before showing UI",
     "Returns the result via rest_ensure_response (handles WP_Error path)",
     "Does not handle API keys; defers to Connectors API",
-    "Method names match the verified wp-ai-client/php-ai-client source: using_temperature/with_text/using_system_instruction/generate_text_result/is_supported_for_text_generation, and the wp_ai_client_prevent_prompt filter receives a clone of the builder (read-only)"
+    "Method names match the verified wp-ai-client/php-ai-client source: using_temperature/with_text/using_system_instruction/generate_text_result/is_supported_for_text_generation, and the wp_ai_client_prevent_prompt filter receives a clone of the builder (read-only)",
+    "Never calls getProviderMetadata or getModelMetadata on WP_Error"
   ]
 }

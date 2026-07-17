@@ -1,7 +1,7 @@
 {
   "name": "Add an internal-link suggestion Experiment to the canonical AI plugin",
   "skills": ["wordpress-router", "wp-project-triage", "wp-ai-plugin", "wp-abilities-api"],
-  "query": "I want to add an Experiment to the canonical WordPress AI plugin (the one at github.com/WordPress/ai, version 0.8.0) that suggests internal links for a post based on its content. It should appear in Settings → AI like the other Experiments, register an Ability so it's also reachable via REST and MCP, and respect the site's Guidelines if they're configured. Walk me through the structure.",
+  "query": "I want to add an Experiment to the canonical WordPress AI plugin (the one at github.com/WordPress/ai, version 1.2.0) that suggests internal links for a post based on its content. It should appear in Settings → AI like the other Experiments, register an Ability so it's also reachable via REST and MCP, and respect the site's Guidelines if they're configured. Walk me through the structure.",
   "expected_behavior": [
     "Step 1: Run wordpress-router to classify repo kind",
     "Step 2: Run wp-project-triage to detect that this is the AI plugin source (or a downstream plugin extending it)",
@@ -15,7 +15,8 @@
     "Step 10: Inside the Experiment's register() method, hook wp_abilities_api_init to call wp_register_ability('ai/internal-links', [label, description, ability_class => Internal_Links_Ability::class])",
     "Step 11: Create a paired Internal_Links_Ability extending WordPress\\AI\\Abstracts\\Abstract_Ability with input_schema, output_schema, execute_callback, permission_callback, meta",
     "Step 12: Override guideline_categories() on the Ability to return ['site', 'copy'] — Abstract_Ability handles the Guidelines integration automatically via load_system_instruction_from_file()",
-    "Step 13: Test: Settings → AI shows the Experiment; toggle persists; with AI plugin disabled, downstream code no-ops cleanly"
+    "Step 13: Test: Settings → AI shows the Experiment; toggle persists; with AI plugin disabled, downstream code no-ops cleanly",
+    "Step 14: Check current 1.2.0 capabilities before adding duplicates: sixteen built-in Experiments, core/read-content, core/read-users, advanced feature settings, and wpai_default_request_timeout"
   ],
   "success_criteria": [
     "Routes to wp-ai-plugin (and wp-abilities-api for the Ability step)",
@@ -28,6 +29,9 @@
     "Pairs with an Abstract_Ability subclass — does not put prompt logic in the Experiment class itself",
     "Sets guideline_categories() on the Ability (NOT a fabricated procedural call like wp_ai_guidelines_get_for_context())",
     "Knows the WPAI_* constant names: WPAI_VERSION, WPAI_PLUGIN_FILE, WPAI_PLUGIN_DIR, WPAI_PLUGIN_URL (NOT WPAI_FILE/WPAI_PATH/WPAI_URL — those are wrong)",
-    "Acknowledges that there is no AI-plugin-specific dashboard widgets framework — uses standard wp_add_dashboard_widget() if needed"
+    "Acknowledges that there is no AI-plugin-specific dashboard widgets framework — uses standard wp_add_dashboard_widget() if needed",
+    "Recognizes Type_Ahead, Key_Encryption, and Suggest_Reply as current built-in Experiments",
+    "Recognizes core/read-content and core/read-users and does not re-register them blindly",
+    "Uses wpai_default_request_timeout and documented settings filters rather than inventing extension hooks"
   ]
 }

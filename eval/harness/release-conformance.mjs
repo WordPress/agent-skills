@@ -133,4 +133,36 @@ export function runReleaseConformance(repoRoot) {
     "wp_enqueue_script_module( '@wordpress/core-abilities' )",
     "data-can-manage-options",
   ]);
+
+  requireIncludes(repoRoot, "skills/wp-ai-client/SKILL.md", [
+    "is_wp_error( $result )",
+    "get_error_message()",
+    "PHP AI Client 1.3.1",
+    "PHP AI Client 1.4.0",
+  ]);
+  requireExcludes(repoRoot, "skills/wp-ai-client/SKILL.md", [
+    "Pull `getProviderMetadata()` off the result",
+  ]);
+
+  for (const file of [
+    "skills/wp-ai-plugin/SKILL.md",
+    "skills/wp-ai-plugin/references/dashboard-widgets.md",
+    "skills/wp-ai-plugin/references/experiments-framework.md",
+    "skills/wp-ai-plugin/references/hooks-and-filters.md",
+  ]) {
+    requireExcludes(repoRoot, file, ["v1.0.2", "'1.0.2'"]);
+  }
+  requireIncludes(repoRoot, "skills/wp-ai-plugin/references/experiments-framework.md", [
+    "v1.2.0",
+    "Type_Ahead",
+    "Key_Encryption",
+    "Suggest_Reply",
+    "core/read-content",
+    "core/read-users",
+  ]);
+  requireIncludes(repoRoot, "skills/wp-ai-plugin/references/hooks-and-filters.md", [
+    "wpai_default_request_timeout",
+    "wpai_settings_feature_groups",
+    "wpai_settings_feature_metadata",
+  ]);
 }

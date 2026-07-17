@@ -1,7 +1,7 @@
 ---
 name: wp-ai-plugin
 description: "Use when extending the canonical WordPress AI plugin (`wordpress.org/plugins/ai`, repo `WordPress/ai`, v1.0+) — adding a downstream Experiment via the `wpai_default_feature_classes` filter or `wpai_register_features` action, registering a paired Ability that consumes Guidelines automatically, customizing prompts/responses through documented filters, or respecting `wp_supports_ai()` and the `WPAI_*` constants. Use this — not `wp-ai-client` — when the user wants to add a feature *to the AI plugin itself* rather than build an independent AI feature in their own plugin."
-compatibility: "Targets WordPress 7.0+ (PHP 7.4+) and the AI plugin v0.6.0+ (Abstract_Feature); v0.8.0+ adds wp_supports_ai, Guidelines, and dashboard widgets (current canonical release: v1.0.2). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4+) and the AI plugin v0.6.0+ (Abstract_Feature); v0.8.0+ adds wp_supports_ai, Guidelines, and dashboard widgets (current canonical release: v1.2.0). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
 ---
 
 # WP AI Plugin
@@ -35,6 +35,7 @@ If the task is to build an AI feature in your own plugin without involving the c
    - The plugin slug `ai` in `wp-content/plugins/ai/`.
    - `Main` singleton at `WordPress\AI\Main::get_instance()`.
 3. The canonical "copy this" reference is `includes/Experiments/Example_Experiment/Example_Experiment.php` in the AI plugin's source. Open it before writing your own.
+4. At 1.2.0, check the built-in inventory before adding anything: sixteen Experiments and the read-only `core/read-content` / `core/read-users` Abilities. Do not duplicate a shipped capability.
 
 If the project is the AI plugin itself, you're working *upstream*. Otherwise you're working *downstream* and your code should treat the AI plugin as an optional dependency — degrade gracefully if it's not active.
 
@@ -165,7 +166,7 @@ Returning an empty array (the default) skips Guidelines entirely. When `guidelin
 
 ### 6) Add a dashboard widget if useful (optional)
 
-v0.8.0+ ships two dashboard widgets (still two as of v1.0.2): `wpai_status` and `wpai_capabilities`, both registered via standard `wp_add_dashboard_widget()` in `Dashboard_Widgets`. **There is no AI-plugin-specific widget framework** as of v1.0.2 — to add your own, use standard WordPress:
+v0.8.0+ ships two dashboard widgets (still two as of v1.2.0): `wpai_status` and `wpai_capabilities`, both registered via standard `wp_add_dashboard_widget()` in `Dashboard_Widgets`. **There is no AI-plugin-specific widget framework** as of v1.2.0 — to add your own, use standard WordPress:
 
 ```php
 add_action( 'wp_dashboard_setup', function () {
@@ -190,7 +191,11 @@ The plugin exposes filters at several layers. The most useful ones, by need:
 - **Disable AI features globally**: `wpai_features_enabled` (default `true`, applied in `Loader::initialize_features()`).
 - **Customize Guidelines max length**: `wpai_max_guideline_length` (default 5000 chars per category).
 - **Disable Guidelines integration**: `wpai_use_guidelines` (default `true`).
+- **Set the default request timeout**: `wpai_default_request_timeout`.
+- **Extend Settings → AI feature groups or metadata**: `wpai_settings_feature_groups` and `wpai_settings_feature_metadata`; use `wpai_feature_{$id}_settings` for a single feature's settings.
 - **Modify a system instruction before sending**: filters fire inside each Ability's `load_system_instruction_from_file()`. Search source for `apply_filters` near the Ability's `system-instruction.php` file.
+
+Advanced settings are feature-provided metadata on the existing Settings → AI surface, not a separate public settings registry. Check the current feature metadata and documented filters before creating custom UI or extension hooks.
 
 For the full filter list at the version you're targeting, grep the source — see `references/hooks-and-filters.md`.
 

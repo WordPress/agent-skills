@@ -89,11 +89,27 @@ function my_plugin_rest_summarize( WP_REST_Request $request ) {
 Generator methods return `WP_Error` on SDK failures — the wrapper converts caught `Exception`s to `WP_Error` (but **not** an argument `TypeError`; match the signatures in `references/prompt-builder.md`). Always check:
 
 ```php
-$result = wp_ai_client_prompt( $prompt )->generate_text_result();
+$result = wp_ai_client_prompt( 'Summarize this text.' )
+    ->with_text( $text )
+    ->generate_text_result();
+
 if ( is_wp_error( $result ) ) {
-    return $result; // Pass through to REST or log.
+    error_log(
+        sprintf(
+            'AI request failed [%s]: %s',
+            $result->get_error_code(),
+            $result->get_error_message()
+        )
+    );
+    $upstream_data = $result->get_error_data();
+    return $result;
 }
+
+$provider_metadata = $result->getProviderMetadata();
+$model_metadata    = $result->getModelMetadata();
 ```
+
+`WP_Error` has only its WordPress error accessors in this flow: use `get_error_code()`, `get_error_message()`, and `get_error_data()` on the error path. Call result metadata methods only after the `is_wp_error( $result )` branch proves that `$result` is a successful `GenerativeAiResult`.
 
 The `wp_ai_client_prevent_prompt` filter lets you block specific prompts before they execute (useful for capability gating, content policies, dev-mode kill switches). See `references/error-handling.md`.
 
@@ -125,8 +141,12 @@ Abilities you pass must already be registered server-side via `wp_register_abili
 - **"AI feature shows but always errors"**: usually no provider configured. Confirm at least one provider plugin is active (`AI Provider for Anthropic|Google|OpenAI` or a community provider) and a key is set in Settings → Connectors.
 - **`call to undefined function wp_ai_client_prompt()`**: site is on WP < 7.0. Either bump the floor or use the conditional autoloader pattern.
 - **"Works for admin, fails for editors"**: the JS code is calling the high-privilege client-side prompt API instead of your scoped REST endpoint. Switch to a per-feature endpoint.
-- **`WP_Error` with HTTP 4xx but no useful detail**: the underlying provider returned a vague error. Pull `getProviderMetadata()` off the result for the actual upstream message.
+- **`WP_Error` with HTTP 4xx but no useful detail**: log its `get_error_code()`, `get_error_message()`, and `get_error_data()`. Do not call `getProviderMetadata()` or `getModelMetadata()` on a `WP_Error`.
 - **Different model than expected ran**: `using_model_preference()` is a preference. Inspect `getProviderMetadata()` / `getModelMetadata()` on the result to see what actually answered.
+
+## Bundled versus standalone PHP AI Client
+
+WordPress 7.0.2 bundles PHP AI Client 1.3.1. Composer's standalone latest is PHP AI Client 1.4.0. Treat the Core-bundled version as the compatibility boundary: an API added only in the standalone package cannot be assumed available through Core until WordPress updates its bundled dependency.
 
 ## Escalation
 

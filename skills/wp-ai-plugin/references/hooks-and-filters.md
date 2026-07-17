@@ -1,6 +1,6 @@
 # Hooks, filters, constants, and gates
 
-The public extension surface of the AI plugin v1.0.2. Anchored to source — the source is canonical.
+The public extension surface of the AI plugin v1.2.0. Anchored to source — the source is canonical.
 
 ## Constants (v0.6.0+)
 
@@ -8,7 +8,7 @@ Defined in `ai.php` `constants()`. The 0.6.0 release renamed the family from `AI
 
 | Constant | Source | Use |
 | --- | --- | --- |
-| `WPAI_VERSION` | `'1.0.2'` (string literal) | Version detection in downstream code |
+| `WPAI_VERSION` | `'1.2.0'` (string literal) | Version detection in downstream code |
 | `WPAI_PLUGIN_FILE` | `__FILE__` (ai.php) | The main plugin file path |
 | `WPAI_PLUGIN_DIR` | `plugin_dir_path( WPAI_PLUGIN_FILE )` | Filesystem path to the plugin directory |
 | `WPAI_PLUGIN_URL` | `plugin_dir_url( WPAI_PLUGIN_FILE )` | URL to the plugin directory (for asset references) |
@@ -17,8 +17,8 @@ Defined in `ai.php` `constants()`. The 0.6.0 release renamed the family from `AI
 Use these in downstream plugins to detect the AI plugin's presence and version, and to reference its assets when integrating with its UI.
 
 ```php
-if ( defined( 'WPAI_VERSION' ) && version_compare( WPAI_VERSION, '0.8.0', '>=' ) ) {
-    // Guidelines integration is available.
+if ( defined( 'WPAI_VERSION' ) && version_compare( WPAI_VERSION, '1.2.0', '>=' ) ) {
+    // Use the current canonical AI plugin extension surface.
 }
 ```
 
@@ -66,6 +66,17 @@ These are namespaced functions in `WordPress\AI`. Import as `use function WordPr
 | --- | --- | --- | --- |
 | `wpai_use_guidelines` | `Guidelines::should_use_guidelines()` | `true` | Disable Guidelines integration entirely |
 | `wpai_max_guideline_length` | `Guidelines::format_for_prompt()` | `5000` (chars) | Per-category truncation length |
+
+### Requests and feature settings
+
+| Filter | Where | Use |
+| --- | --- | --- |
+| `wpai_default_request_timeout` | AI request configuration | Set the documented default request timeout |
+| `wpai_settings_feature_groups` | Settings → AI feature metadata | Extend or adjust feature groups |
+| `wpai_settings_feature_metadata` | Settings → AI feature metadata | Extend metadata supplied by Features |
+| `wpai_feature_{$id}_settings` | A feature's settings metadata | Adjust settings for one Feature |
+
+Advanced settings are Feature-provided metadata on the existing Settings → AI surface. These filters extend that data; they do not establish a separate public settings registry.
 
 ### Content normalization
 
