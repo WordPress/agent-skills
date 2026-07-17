@@ -118,6 +118,7 @@ The repository will encode the current Agent Skills creator guidance from the of
 - Each changed description gets a fixed trigger-eval corpus of twelve training queries and eight validation queries, each split evenly between realistic should-trigger cases and near-miss should-not-trigger cases. Six fresh holdout queries are added only after selecting the description. Validation and holdout results must not be used to tune wording.
 - Output-quality checks compare the changed skill with its pre-change snapshot or a no-skill baseline in a clean context. Assertions must be observable, passes require evidence, mechanical checks use scripts, and human review covers qualities that cannot be reduced safely to assertions.
 - New or modified command-line scripts are non-interactive, provide concise successful `--help`, reject ambiguous input, emit actionable errors and meaningful exit codes, keep stdout predictable, and avoid partial or destructive writes. Stateful or destructive behavior requires a dry-run/check mode when applicable.
+- Generic static budget bands are review signals, not substitutes for the official progressive-disclosure contract or observed usage. A static deferred total may aggregate references and executable source that are never loaded together; it blocks release only when it identifies a concrete loading defect or an observed benchmark confirms harmful cost.
 
 Add `eval/harness/skill-quality.mjs` for the deterministic portion of this contract. Repair `shared/scripts/scaffold-skill.mjs` so it creates repository-standard JSON scenarios from a required realistic prompt instead of obsolete Markdown, and make the scaffold's help/error behavior testable without touching the repository checkout.
 
@@ -164,4 +165,5 @@ The final verification set will include:
 - All descriptions meet the activation contract; all `SKILL.md` files stay within the progressive-disclosure line budget; every skill has a valid JSON scenario.
 - The three corrected descriptions have balanced fixed train/validation corpora plus untouched fresh holdouts, and their final wording passes the selected activation checks without overfitting.
 - The scaffold produces a valid JSON scenario from a realistic prompt, supports `--help`, and fails ambiguous invocation without leaving partial output.
+- Static analysis has no unresolved correctness, broken-link, unsafe-script, or measured-regression finding; comparative budget signals and the intentional repository `compatibility` key are documented rather than hidden.
 - The full deterministic verification suite passes with no unintended workspace changes.

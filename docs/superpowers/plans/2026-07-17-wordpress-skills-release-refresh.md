@@ -1435,7 +1435,9 @@ Expected: both exit 0 with no warnings from the harness.
 
 - [ ] **Step 4: Run static skill-quality analysis**
 
-Resolve the installed `plugin-eval` CLI (the plugin's `scripts/plugin-eval.js` may be invoked with `node` when its binary is not on `PATH`) and analyze every directory under `skills/` to JSON files in a task-specific temporary directory. Fail the step if any analysis exits non-zero. Review `Fix First`, progressive-disclosure budget, broken links, description quality, and helper-script findings for all twenty skills; any Critical or Important in-scope finding returns to the owning task's red-green loop.
+Resolve the installed `plugin-eval` CLI (the plugin's `scripts/plugin-eval.js` may be invoked with `node` when its binary is not on `PATH`) and analyze every directory under `skills/` to JSON files in a task-specific temporary directory. Fail the step if any analysis command exits non-zero. Review `Fix First`, progressive-disclosure budget, broken links, description quality, and helper-script findings for all twenty skills. Correctness, broken-link, unsafe-script, or measured-regression findings return to the owning task's red-green loop.
+
+Static budget bands are comparative review signals, not standalone release failures. Apply the official Agent Skills contract: each `SKILL.md` stays below 500 lines and roughly 5,000 tokens, while detailed references/scripts remain deferred with explicit load or execution conditions. Record static trigger/invoke/deferred overages; do not delete valid domain reference material solely to force it below a generic baseline, especially when the deferred estimate aggregates files that are never loaded together. Require observed usage before promoting a static-only budget signal to a blocking defect. The repository's required `compatibility` key is an accepted generic-analyzer warning.
 
 Also run:
 
@@ -1448,7 +1450,7 @@ node --check eval/harness/skill-quality.mjs
 node --check eval/harness/release-conformance.mjs
 ```
 
-Expected: all commands exit 0; static reports have no unresolved Critical or Important in-scope finding.
+Expected: all commands exit 0; reports have no unresolved correctness, broken-link, unsafe-script, or measured-regression finding. Static-only budget signals and the intentional `compatibility` warning are recorded with their disposition.
 
 - [ ] **Step 5: Build all packaged skill targets outside the repository**
 
@@ -1473,10 +1475,10 @@ Expected: build exits 0 and exactly twenty Codex skill directories exist. The de
 Run:
 
 ```powershell
-rg -n --hidden -g '!docs/superpowers/**' -e '3\.0\.20|--enable-xdebug|--skip-wordpress-setup|currentUserCan|Transport\\Http\\HttpTransport|ErrorHandling\\Implementations|Observability\\Implementations|regardless of block apiVersion|current canonical release: v1\.0\.2|Missing `License:` or `License URI:`|Requires WPDS MCP server configured and running|table-not-found' skills eval shared docs
+rg -n --hidden -e '3\.0\.20|--enable-xdebug|--skip-wordpress-setup|currentUserCan|Transport\\Http\\HttpTransport|ErrorHandling\\Implementations|Observability\\Implementations|regardless of block apiVersion|current canonical release: v1\.0\.2|Missing `License:` or `License URI:`|Requires WPDS MCP server configured and running|table-not-found' skills
 ```
 
-Expected: no matches. The intentionally documented deprecated `--experimental-multi-worker` spelling is also excluded from skill prose; only tagged upstream CLI help may contain it outside this repository.
+Expected: no matches in shipped skill prose. Regression assertions, scenarios, and synchronization documentation may quote forbidden strings to prove or explain their exclusion. The intentionally documented deprecated `--experimental-multi-worker` spelling is also excluded from skill prose; only tagged upstream CLI help may contain it outside this repository.
 
 - [ ] **Step 7: Review the complete diff against the acceptance criteria**
 

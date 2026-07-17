@@ -33,6 +33,19 @@ This repo is built for **AI-assisted authoring** with **deterministic guardrails
    - Run `node eval/harness/run.mjs`.
    - Optionally validate frontmatter using `skills-ref validate` (see `docs/upstream-sync.md` for CI guidance).
 
+## Interpreting static budget reports
+
+The official authoring contract is the release gate: keep `SKILL.md` below 500 lines and roughly 5,000 tokens, then move legitimately detailed material into conditionally loaded references or executable scripts.
+
+`plugin-eval` budget bands are comparative static heuristics. Review them, but do not treat an `excessive` aggregate as a release failure by itself:
+
+- Trigger and invoke estimates are prompts to check description focus and `SKILL.md` duplication against real execution evidence.
+- Deferred estimates add every reference and script in the skill directory even when the procedure loads only one conditionally or executes a script without placing its source in context.
+- A deferred overage is acceptable when the main skill states when each reference is needed, scripts are invoked rather than pasted, links resolve, and no observed-usage benchmark demonstrates harmful cost.
+- Correctness, broken-link, unsafe-script, or measured-regression findings remain blocking. Record static budget signals and collect observed usage before deleting domain reference material merely to improve a comparative score.
+
+The repository-specific `compatibility` frontmatter key is intentional and required by `docs/compatibility-policy.md`, even if a generic analyzer reports it as an extra-key warning.
+
 ## Scaffolding a new skill
 
 Use the non-interactive scaffold script to create a minimal, spec-compliant starting point. It validates all arguments before writing, returns actionable invocation errors with exit code 2, and creates the skill and JSON scenario transactionally:
