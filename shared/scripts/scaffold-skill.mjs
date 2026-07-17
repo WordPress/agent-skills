@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 function usage(stream = process.stdout) {
-  stream.write('Usage: node shared/scripts/scaffold-skill.mjs <skill-name> "<description>" --prompt "<realistic user request>"\n');
+  stream.write('Usage: node shared/scripts/scaffold-skill.mjs <skill-name> "<description>" --prompt "<realistic user request>"\nDescription: one line beginning with "Use when", 1-1023 characters.\n');
 }
 
 function validateSkillName(name) {
@@ -29,7 +29,8 @@ function parseArguments(args) {
   const [skillName, description, , prompt] = args;
   const nameError = validateSkillName(skillName);
   if (nameError) return { error: nameError };
-  if (!description || description.length > 1024) return { error: "Description must be 1-1024 characters" };
+  if (!description || description.length >= 1024) return { error: "Description must be 1-1023 characters" };
+  if (/\r|\n/.test(description)) return { error: "Description must be one line" };
   if (!description.startsWith("Use when")) return { error: "Description must begin with 'Use when'" };
   if (!prompt || !prompt.trim()) return { error: "--prompt requires a realistic user request" };
   return { skillName, description, prompt };
@@ -55,7 +56,7 @@ function main() {
     return;
   }
 
-  const skillBody = `---\nname: ${parsed.skillName}\ndescription: ${parsed.description}\ncompatibility: Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node.\n---\n\n# ${parsed.skillName}\n\n## When to use\n\n## Inputs required\n\n## Procedure\n\n## Verification\n\n## Failure modes / debugging\n\n## Escalation\n`;
+  const skillBody = `---\nname: ${parsed.skillName}\ndescription: ${JSON.stringify(parsed.description)}\ncompatibility: Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node.\n---\n\n# ${parsed.skillName}\n\n## When to use\n\n## Inputs required\n\n## Procedure\n\n## Verification\n\n## Failure modes / debugging\n\n## Escalation\n`;
   const scenario = {
     name: `Apply ${parsed.skillName} to a realistic request`,
     skills: [parsed.skillName],

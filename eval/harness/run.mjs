@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { runSkillQuality } from "./skill-quality.mjs";
+import { runSkillQuality, validateSkillBounds } from "./skill-quality.mjs";
 
 function readUtf8(filePath) {
   return fs.readFileSync(filePath, "utf8");
@@ -102,18 +102,10 @@ function main() {
     const nameError = validateSkillName(fm.name);
     assert(!nameError, `Invalid skill name in ${path.relative(repoRoot, skillPath)}: ${nameError}`);
     assert(
-      fm.description.length <= 1024,
-      `Description too long in ${path.relative(repoRoot, skillPath)} (${fm.description.length} chars)`
-    );
-    assert(
       fm.description.startsWith("Use when"),
       `Description must begin with 'Use when' in ${path.relative(repoRoot, skillPath)}`
     );
-    const lineCount = md.split(/\r?\n/).length;
-    assert(
-      lineCount <= 500,
-      `SKILL.md exceeds the 500-line progressive-disclosure budget in ${path.relative(repoRoot, skillPath)} (${lineCount} lines)`
-    );
+    validateSkillBounds(fm.description, md, skillPath, repoRoot);
 
     const compatibility = fm._raw.compatibility;
     assert(compatibility, `Missing frontmatter 'compatibility' in: ${path.relative(repoRoot, skillPath)}`);

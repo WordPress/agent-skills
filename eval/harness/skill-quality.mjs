@@ -7,6 +7,42 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+function assertThrows(callback, expectedMessage, message) {
+  try {
+    callback();
+  } catch (error) {
+    assert(expectedMessage.test(error.message), `Unexpected regression failure: ${error.message}`);
+    return;
+  }
+  throw new Error(message);
+}
+
+export function validateSkillBounds(description, markdown, skillPath, repoRoot) {
+  assert(
+    description.length < 1024,
+    `Description must be below 1,024 characters in ${path.relative(repoRoot, skillPath)} (${description.length} chars)`
+  );
+  const lineCount = markdown.split(/\r?\n/).length;
+  assert(
+    lineCount < 500,
+    `SKILL.md must be below 500 lines in ${path.relative(repoRoot, skillPath)} (${lineCount} lines)`
+  );
+}
+
+function runSkillBoundaryContract() {
+  const fixturePath = path.join("skills", "boundary-fixture", "SKILL.md");
+  assertThrows(
+    () => validateSkillBounds("x".repeat(1024), "---\n---", fixturePath, process.cwd()),
+    /Description must be below 1,024 characters/,
+    "Description bound must reject exactly 1,024 characters"
+  );
+  assertThrows(
+    () => validateSkillBounds("Use when testing exact bounds.", Array(500).fill("line").join("\n"), fixturePath, process.cwd()),
+    /SKILL\.md must be below 500 lines/,
+    "SKILL.md bound must reject exactly 500 lines"
+  );
+}
+
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
@@ -56,6 +92,7 @@ export function validateScenario(scenario, scenarioPath, skillNames) {
 }
 
 export function runSkillQuality(repoRoot) {
+  runSkillBoundaryContract();
   const scenariosRoot = path.join(repoRoot, "eval", "scenarios");
   const skillsRoot = path.join(repoRoot, "skills");
   const skillNames = new Set(
@@ -110,6 +147,8 @@ function runScaffoldContract(repoRoot) {
   const scriptPath = path.join(repoRoot, "shared", "scripts", "scaffold-skill.mjs");
   const skillName = "scaffold-contract-skill";
   const description = "Use when checking the non-interactive scaffold contract in an isolated temporary directory.";
+  const colonDescription = "Use when preparing a release: inspect the Acme Events plugin before shipping.";
+  const multilineDescription = "Use when preparing a release.\nInspect the Acme Events plugin before shipping.";
   const prompt = "Create a safe, repeatable skill scaffold for our Acme Events release checklist.";
   const repoSkillPath = path.join(repoRoot, "skills", skillName);
   const repoScenarioPath = path.join(repoRoot, "eval", "scenarios", `${skillName}.json`);
@@ -125,6 +164,15 @@ function runScaffoldContract(repoRoot) {
     assert(!fs.existsSync(path.join(tempRoot, "skills", skillName)), "Scaffold without --prompt must not create a skill");
     assert(!fs.existsSync(path.join(tempRoot, "eval", "scenarios", `${skillName}.json`)), "Scaffold without --prompt must not create a scenario");
 
+    const exactLimitSkillName = "scaffold-exact-description-limit";
+    const exactLimitDescription = `Use when ${"x".repeat(1015)}`;
+    assert(exactLimitDescription.length === 1024, "Scaffold exact-limit fixture must be 1,024 characters");
+    const exactLimit = spawnSync(process.execPath, [scriptPath, exactLimitSkillName, exactLimitDescription, "--prompt", prompt], { cwd: tempRoot, encoding: "utf8" });
+    assert(exactLimit.status === 2, `Scaffold must reject a 1,024-character description: ${exactLimit.stderr || exactLimit.stdout}`);
+    assert(/1-1023/.test(exactLimit.stderr), "Scaffold must explain the strict 1-1023 description bound");
+    assert(!fs.existsSync(path.join(tempRoot, "skills", exactLimitSkillName)), "Scaffold must not create a skill at the exact description limit");
+    assert(!fs.existsSync(path.join(tempRoot, "eval", "scenarios", `${exactLimitSkillName}.json`)), "Scaffold must not create a scenario at the exact description limit");
+
     const valid = spawnSync(process.execPath, [scriptPath, skillName, description, "--prompt", prompt], { cwd: tempRoot, encoding: "utf8" });
     assert(valid.status === 0, `Valid scaffold invocation failed: ${valid.stderr || valid.stdout}`);
     assert(valid.stdout.trim().split(/\r?\n/).length === 1, "Valid scaffold invocation must emit one concise success line");
@@ -133,10 +181,29 @@ function runScaffoldContract(repoRoot) {
     const scenarioPath = path.join(tempRoot, "eval", "scenarios", `${skillName}.json`);
     assert(fs.existsSync(skillPath), "Valid scaffold invocation must create SKILL.md");
     assert(fs.existsSync(scenarioPath), "Valid scaffold invocation must create a JSON scenario");
-    assert(/description:\s*Use when/.test(fs.readFileSync(skillPath, "utf8")), "Generated description must begin with Use when");
+    const generatedSkill = fs.readFileSync(skillPath, "utf8");
+    const generatedDescriptionLine = generatedSkill.split(/\r?\n/).find((line) => line.startsWith("description: "));
+    assert(generatedDescriptionLine, "Generated skill must contain a description line");
+    assert(JSON.parse(generatedDescriptionLine.slice("description: ".length)) === description, "Generated description must be a safely quoted YAML scalar");
     const scenario = JSON.parse(fs.readFileSync(scenarioPath, "utf8"));
     validateScenario(scenario, scenarioPath, new Set([skillName]));
     assert(scenario.query === prompt, "Generated scenario must contain the supplied realistic prompt");
+
+    const colonSkillName = "scaffold-colon-description";
+    const colon = spawnSync(process.execPath, [scriptPath, colonSkillName, colonDescription, "--prompt", prompt], { cwd: tempRoot, encoding: "utf8" });
+    assert(colon.status === 0, `Scaffold must accept a colon-bearing description: ${colon.stderr || colon.stdout}`);
+    const colonSkill = fs.readFileSync(path.join(tempRoot, "skills", colonSkillName, "SKILL.md"), "utf8");
+    const colonDescriptionLine = colonSkill.split(/\r?\n/).find((line) => line.startsWith("description: "));
+    assert(colonDescriptionLine, "Colon-bearing scaffold output must contain a description line");
+    assert(colonDescriptionLine === `description: ${JSON.stringify(colonDescription)}`, "Scaffold must quote a colon-bearing YAML description safely");
+    assert(JSON.parse(colonDescriptionLine.slice("description: ".length)) === colonDescription, "Scaffold must preserve the colon-bearing description");
+
+    const multilineSkillName = "scaffold-multiline-description";
+    const multiline = spawnSync(process.execPath, [scriptPath, multilineSkillName, multilineDescription, "--prompt", prompt], { cwd: tempRoot, encoding: "utf8" });
+    assert(multiline.status === 2, `Scaffold must reject multiline descriptions with exit 2: ${multiline.stderr || multiline.stdout}`);
+    assert(/one line/i.test(multiline.stderr), "Scaffold must explain that descriptions must be one line");
+    assert(!fs.existsSync(path.join(tempRoot, "skills", multilineSkillName)), "Scaffold must not create a skill for a multiline description");
+    assert(!fs.existsSync(path.join(tempRoot, "eval", "scenarios", `${multilineSkillName}.json`)), "Scaffold must not create a scenario for a multiline description");
     assert(!fs.existsSync(repoSkillPath) && !fs.existsSync(repoScenarioPath), "Scaffold contract must not touch repository files");
   } finally {
     fs.rmSync(tempRoot, { recursive: true, force: true });
