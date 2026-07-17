@@ -1,16 +1,19 @@
 {
-  "name": "Use current WPDS guidance without MCP",
+  "name": "Use WPDS guidance when its MCP server is unavailable",
   "skills": ["wpds"],
-  "query": "Our MCP connection is unavailable. I need the current WordPress Design System components and tokens for an editor sidebar, with source-backed guidance and no invented APIs.",
+  "query": "Build a WordPress admin settings form with current WordPress components and tokens, but the WPDS MCP server is not installed in this session.",
   "expected_behavior": [
-    "Use wpds for the editor UI request",
-    "Fall back to official WordPress sources when MCP is unavailable",
-    "Distinguish verified components and tokens from unsupported or unknown APIs",
-    "Provide evidence for the recommended implementation"
+    "Check for WPDS MCP resources before depending on them",
+    "State that MCP-only pages, component records, and token lists could not be queried",
+    "Continue with official Component Reference, Gutenberg Storybook, @wordpress/components, and @wordpress/ui sources",
+    "Verify each used prop or token against an official page or installed package source",
+    "Do not invent a component API or token name",
+    "Keep the answer focused on the UI layer"
   ],
   "success_criteria": [
-    "The response uses official-source fallback",
-    "No API is invented when MCP is unavailable",
-    "The component and token guidance is current and source-backed"
+    "Does not block solely because MCP is absent",
+    "Uses only official fallback sources",
+    "Discloses the narrower evidence available without MCP",
+    "Produces verifiable UI guidance"
   ]
 }

@@ -192,4 +192,26 @@ export function runReleaseConformance(repoRoot) {
     "state.navigation.hasStarted",
     "state.navigation.hasFinished",
   ]);
+
+  for (const file of [
+    "skills/wp-plugin-directory-guidelines/SKILL.md",
+    "skills/wp-plugin-directory-guidelines/references/gpl-compliance.md",
+    "skills/wp-plugin-directory-guidelines/references/guideline-review-checklist.md",
+  ]) {
+    requireIncludes(repoRoot, file, ["License URI", "optional"]);
+    requireExcludes(repoRoot, file, [
+      "Missing `License:` or `License URI:`",
+      "has a `License URI:` header",
+    ]);
+  }
+  requireIncludes(repoRoot, "skills/wpds/SKILL.md", [
+    "If the WPDS MCP server is unavailable",
+    "developer.wordpress.org/block-editor/reference-guides/components",
+    "@wordpress/components",
+    "@wordpress/ui",
+  ]);
+  requireExcludes(repoRoot, "skills/wpds/SKILL.md", [
+    "Requires WPDS MCP server configured and running",
+    "DO NOT search the web",
+  ]);
 }

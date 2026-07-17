@@ -7,16 +7,18 @@
     "Step 2: Flag the main-file License header as FAIL — 'Proprietary' is not GPL-compatible",
     "Step 3: Accept the bundled lodash (MIT) as GPL-compatible per references/gpl-compliance.md",
     "Step 4: Flag the CC-BY-NC 4.0 font as FAIL — NonCommercial clause is incompatible with GPL",
-    "Step 5: Recommend replacing the License header with 'GPL-2.0-or-later' and adding a matching License URI",
-    "Step 6: Recommend replacing the font with one under OFL, GPL-compatible, or an equivalent permissive license",
-    "Step 7: Remind the author that obfuscated PHP and split licensing would also violate Guideline 1"
+    "Step 5: Recommend replacing the License header with GPL-2.0-or-later; explain that a matching License URI may be added for clarity but is optional",
+    "Step 6: Explicitly state that omission of License URI alone is not a submission failure",
+    "Step 7: Recommend replacing the font with one under OFL, GPL-compatible, or an equivalent permissive license",
+    "Step 8: Remind the author that obfuscated PHP and split licensing would also violate Guideline 1"
   ],
   "success_criteria": [
     "Cites Guideline 1 explicitly",
     "Identifies 'Proprietary' as not GPL-compatible and gives the fix",
     "Correctly accepts MIT-licensed bundled library",
     "Correctly rejects CC-BY-NC (NonCommercial) assets",
-    "Names a concrete valid License header string (e.g. GPL-2.0-or-later) and License URI",
+    "Names a concrete valid License header string such as GPL-2.0-or-later",
+    "Treats License URI as optional and does not fail an otherwise compliant plugin for omitting it",
     "Points the user at references/gpl-compliance.md for the full compatibility table"
   ]
 }
