@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Correct every release-audit finding in the WordPress agent skills and add deterministic regression coverage for the corrected behavior.
+**Goal:** Correct every release-audit finding in the WordPress agent skills, apply the current Agent Skills quality guidance, and add deterministic plus behavioral regression coverage for the corrected behavior.
 
-**Architecture:** Keep the existing source-first skill layout, add an offline release-conformance module to the existing harness, and extract the brittle upstream mapping parser into a testable library. Update affected skills in domain-sized red-green cycles so each group has failing assertions before its prose or examples change.
+**Architecture:** Keep the existing source-first skill layout, add offline skill-quality and release-conformance modules to the existing harness, and extract the brittle upstream mapping parser into a testable library. Update affected skills in domain-sized red-green cycles so each group has failing assertions or baseline evaluations before its prose or examples change.
 
-**Tech Stack:** Markdown Agent Skills, Node.js ES modules, built-in `fs`/`path` assertions, canonical WordPress APIs and release sources, JSON evaluation scenarios.
+**Tech Stack:** Markdown Agent Skills, Node.js ES modules, built-in `fs`/`path`/`os`/`child_process` assertions, canonical WordPress APIs and release sources, JSON output scenarios, fixed description trigger-eval corpora.
 
 ## Global Constraints
 
@@ -15,6 +15,9 @@
 - Stable release snapshot: WordPress 7.0.2, maintained WordPress 6.9.5, Gutenberg 23.5.3, Playground CLI 3.1.45, MCP Adapter 0.5.0, AI plugin 1.2.0, PHP AI Client 1.4.0 standalone/1.3.1 bundled, WP AI Client 0.4.0, Plugin Check 2.0.0.
 - Treat canonical WordPress documentation, tagged source, schemas, and package registries as authoritative.
 - Keep `SKILL.md` procedural; place version-specific depth in one-hop `references/` files.
+- Keep each `SKILL.md` below 500 lines. Descriptions must begin with `Use when`, stay below 1,024 characters, and describe activation intent rather than the skill's internal workflow.
+- Follow the official Agent Skills quality loop: realistic pre-change evals, clean-context current/no-skill or old-skill baselines, observable assertions with evidence, fixed 60/40 train/validation splits for changed descriptions, and fresh holdouts after selection.
+- Modified command-line scripts must be non-interactive, support successful concise `--help`, reject ambiguous input with actionable errors and meaningful exits, keep output predictable, and avoid partial writes. Add `--check`/dry-run behavior when stateful work makes it applicable.
 - Do not edit external installed/cache copies of the plugin.
 - Add a failing deterministic check before each skill-content correction.
 - Preserve unrelated workspace state and stage only files belonging to the current task.
@@ -26,6 +29,7 @@
 **New files**
 
 - `eval/harness/release-conformance.mjs` — offline assertions for release-sensitive skill contracts and parser fixtures.
+- `eval/harness/skill-quality.mjs` — offline assertions for skill size, JSON scenario schema/coverage, trigger-eval corpus structure, and scaffold CLI behavior.
 - `shared/scripts/upstream-index-lib.mjs` — exported WordPress/Gutenberg mapping parser.
 - `skills/blueprint/references/v1-compatibility.md` — accurate legacy Blueprint V1 field and step reference.
 - `eval/scenarios/blueprint-v2-environment.json` — V2-first Blueprint application scenario.
@@ -33,10 +37,16 @@
 - `eval/scenarios/interactivity-watch-router-state.json` — WordPress 7.0 watcher/router scenario.
 - `eval/scenarios/theme-json-7-dimensions.json` — WordPress 7.0 dimensions/pseudo-state scenario.
 - `eval/scenarios/wpds-without-mcp.json` — canonical-source fallback scenario.
+- `eval/descriptions/wp-abilities-audit/{train,validation,holdout}_queries.json` — fixed activation corpus for the corrected audit description.
+- `eval/descriptions/wp-abilities-verify/{train,validation,holdout}_queries.json` — fixed activation corpus for the corrected verification description.
+- `eval/descriptions/wp-playground/{train,validation,holdout}_queries.json` — fixed activation corpus for the corrected Playground description.
 
 **Modified infrastructure**
 
 - `eval/harness/run.mjs`
+- `docs/authoring-guide.md`
+- `eval/scenarios/README.md`
+- `shared/scripts/scaffold-skill.mjs`
 - `shared/scripts/update-upstream-indices.mjs`
 - `shared/references/wordpress-core-versions.json`
 - `shared/references/gutenberg-releases.json`
@@ -47,6 +57,8 @@
 **Modified skills and references**
 
 - `skills/blueprint/SKILL.md`
+- `skills/wp-abilities-audit/SKILL.md` (description only)
+- `skills/wp-abilities-verify/SKILL.md` (description only)
 - `skills/wp-playground/SKILL.md`
 - `skills/wp-playground/references/blueprints.md`
 - `skills/wp-playground/references/cli-commands.md`
@@ -78,6 +90,207 @@
 - `eval/scenarios/ai-client-add-feature-endpoint.json`
 - `eval/scenarios/ai-plugin-register-experiment.json`
 - `eval/scenarios/plugin-directory-license-review.json`
+
+---
+
+### Task 0: Agent Skills Quality Baseline, Description Evals, and Scaffold
+
+**Files:**
+
+- Create: `eval/harness/skill-quality.mjs`
+- Create: `eval/descriptions/README.md`
+- Create: `eval/descriptions/wp-abilities-audit/train_queries.json`
+- Create: `eval/descriptions/wp-abilities-audit/validation_queries.json`
+- Create: `eval/descriptions/wp-abilities-audit/holdout_queries.json`
+- Create: `eval/descriptions/wp-abilities-verify/train_queries.json`
+- Create: `eval/descriptions/wp-abilities-verify/validation_queries.json`
+- Create: `eval/descriptions/wp-abilities-verify/holdout_queries.json`
+- Create: `eval/descriptions/wp-playground/train_queries.json`
+- Create: `eval/descriptions/wp-playground/validation_queries.json`
+- Create: `eval/descriptions/wp-playground/holdout_queries.json`
+- Create: `eval/scenarios/blueprint-v2-environment.json`
+- Create: `eval/scenarios/playground-cli-3-1-local-debug.json`
+- Create: `eval/scenarios/wpds-without-mcp.json`
+- Modify: `.gitignore`
+- Modify: `docs/authoring-guide.md`
+- Modify: `eval/harness/run.mjs`
+- Modify: `eval/scenarios/README.md`
+- Modify: `shared/scripts/scaffold-skill.mjs`
+- Modify: `skills/wp-abilities-audit/SKILL.md` (frontmatter description only)
+- Modify: `skills/wp-abilities-verify/SKILL.md` (frontmatter description only)
+- Modify: `skills/wp-playground/SKILL.md` (frontmatter description only)
+
+**Interfaces:**
+
+- Produces: `runSkillQuality(repoRoot): void`, called by `eval/harness/run.mjs`.
+- Produces: scenario validation for `{ name, skills, query, expected_behavior, success_criteria }` and complete skill coverage.
+- Produces: fixed description corpora with `{ query, should_trigger }` entries: twelve train (six positive/six negative), eight validation (four/four), and six holdout (three/three) per changed description.
+- Changes scaffold CLI to `node shared/scripts/scaffold-skill.mjs <skill-name> "<description>" --prompt "<realistic user request>"` and creates `eval/scenarios/<skill-name>.json` transactionally.
+
+- [ ] **Step 1: Add failing description and size checks**
+
+In `eval/harness/run.mjs`, after the existing description-length assertion, add:
+
+```js
+assert(
+  fm.description.startsWith("Use when"),
+  `Description must begin with 'Use when' in ${path.relative(repoRoot, skillPath)}`
+);
+const lineCount = md.split(/\r?\n/).length;
+assert(
+  lineCount <= 500,
+  `SKILL.md exceeds the 500-line progressive-disclosure budget in ${path.relative(repoRoot, skillPath)} (${lineCount} lines)`
+);
+```
+
+- [ ] **Step 2: Verify RED, then correct only the three failing descriptions**
+
+Run: `node eval/harness/run.mjs`
+
+Expected: exit 1 on `skills/wp-abilities-audit/SKILL.md` because the description starts with `Audit`, not `Use when`.
+
+Use these activation-only descriptions:
+
+```yaml
+# wp-abilities-audit
+description: Use when auditing a WordPress plugin's REST API surface for Abilities API candidates, planning registrations, or producing an abilities migration audit before implementation.
+
+# wp-abilities-verify
+description: Use when verifying a WordPress plugin's Abilities API registrations, callback behavior, permissions, schemas, annotations, or an audit produced by wp-abilities-audit.
+
+# wp-playground
+description: Use when creating or debugging disposable WordPress environments with WordPress Playground, @wp-playground/cli, Blueprints, snapshots, mounts, version switching, or Xdebug.
+```
+
+Run: `node eval/harness/run.mjs`
+
+Expected: the existing harness passes. Do not rewrite the other seventeen descriptions without a measured trigger failure.
+
+- [ ] **Step 3: Add scenario schema and complete-coverage checks**
+
+Create `eval/harness/skill-quality.mjs` and export `runSkillQuality(repoRoot)`. It must:
+
+1. Reject any `eval/scenarios/*.md` file except `README.md`.
+2. Parse every `eval/scenarios/*.json` file and require a non-empty string `name`, non-empty string `query`, non-empty string arrays `skills`, `expected_behavior`, and `success_criteria`.
+3. Reject unknown skill names and duplicate scenario names.
+4. Require every directory under `skills/` to appear in at least one scenario.
+
+Import and call it from `eval/harness/run.mjs`.
+
+Run: `node eval/harness/run.mjs`
+
+Expected: exit 1 because `blueprint`, `wp-playground`, and `wpds` have no scenario coverage.
+
+- [ ] **Step 4: Add pre-change output scenarios for the uncovered skills**
+
+Create the three scenario files before editing their skill bodies. The Blueprint scenario must request a new V2 environment with PHP 8.5, networking, constants, and a login step. The Playground scenario must request CLI 3.1.45 local debugging and require `start`, `--xdebug`, `--workers`, and `--wordpress-install-mode` while rejecting removed flags. The WPDS scenario must request current components/tokens while MCP is unavailable and require official-source fallback without invented APIs. These are RED behavioral evals: their target expectations intentionally fail against the current skill instructions even though their JSON schema now passes. Tasks 2 and 6 replace them with their exact final contracts.
+
+Run: `node eval/harness/run.mjs`
+
+Expected: schema and complete-coverage checks pass.
+
+- [ ] **Step 5: Add fixed description-corpus validation, then verify RED**
+
+Extend `runSkillQuality()` to require `train_queries.json`, `validation_queries.json`, and `holdout_queries.json` for each of `wp-abilities-audit`, `wp-abilities-verify`, and `wp-playground`. Each file is a top-level JSON array of objects with exactly a non-empty `query` string and boolean `should_trigger`. Enforce:
+
+- train: twelve unique queries, six `true` and six `false`;
+- validation: eight unique queries, four `true` and four `false`;
+- holdout: six unique queries, three `true` and three `false`;
+- no query duplicated across any split or skill;
+- no `TODO`, placeholder, or generic one-line non-example such as `Use this skill`.
+
+Run: `node eval/harness/run.mjs`
+
+Expected: exit 1 because the first train corpus is missing.
+
+- [ ] **Step 6: Author realistic train, validation, and untouched holdout corpora**
+
+Create all nine files with the required counts. Positive queries must vary phrasing, explicitness, detail, and complexity. Negative queries must be hard near-misses that share WordPress/domain vocabulary but belong to adjacent skills. Include paths, plugin names, casual language, and concrete context where natural.
+
+Use only train failures to justify wording changes. The descriptions in Step 2 are the selected candidate; do not inspect validation or holdout results to add query-specific keywords. Record client-specific trigger runs under ignored `.superpowers/evals/` when observable skill-load telemetry exists. If it does not, record that limitation explicitly and do not claim a measured trigger rate from static corpus validation.
+
+- [ ] **Step 7: Add failing scaffold CLI contract checks**
+
+Extend `runSkillQuality()` to use a task-specific `fs.mkdtempSync(path.join(os.tmpdir(), "wordpress-skill-scaffold-"))` directory and `spawnSync(process.execPath, ...)` to prove:
+
+1. `--help` exits 0 and prints concise usage to stdout.
+2. Missing `--prompt` exits 2, explains the required prompt on stderr, and creates no skill/scenario output.
+3. A valid invocation creates `skills/<name>/SKILL.md` and `eval/scenarios/<name>.json`.
+4. The generated description begins with `Use when`; the JSON scenario passes the same schema validator and contains the supplied realistic prompt.
+5. The temporary directory is removed in `finally`; no repository file is touched.
+
+Run: `node eval/harness/run.mjs`
+
+Expected: failure because the current scaffold treats `--help` as an error and creates a Markdown scenario.
+
+- [ ] **Step 8: Repair the scaffold transactionally**
+
+Update `shared/scripts/scaffold-skill.mjs` to:
+
+- support `-h`/`--help` with exit 0;
+- require a description beginning with `Use when` and a `--prompt` value;
+- validate every argument before creating directories;
+- create the skill and JSON scenario only after validation;
+- emit a single concise success line on stdout;
+- emit actionable invocation errors on stderr with exit 2 and no stack trace;
+- remove any partially created output if an unexpected write fails.
+
+Use this generated scenario shape:
+
+```json
+{
+  "name": "Apply <skill-name> to a realistic request",
+  "skills": ["<skill-name>"],
+  "query": "<the supplied --prompt value>",
+  "expected_behavior": [
+    "Load <skill-name> because the request matches its activation description",
+    "Follow the skill procedure and verify the result"
+  ],
+  "success_criteria": [
+    "Uses <skill-name> for the matching request",
+    "Reports verification evidence"
+  ]
+}
+```
+
+Run: `node eval/harness/run.mjs`
+
+Expected: all scaffold and corpus checks pass.
+
+- [ ] **Step 9: Update the authoring contract**
+
+Update `docs/authoring-guide.md`, `eval/scenarios/README.md`, and create `eval/descriptions/README.md` with direct links to:
+
+```text
+https://agentskills.io/skill-creation/best-practices
+https://agentskills.io/skill-creation/optimizing-descriptions
+https://agentskills.io/skill-creation/evaluating-skills
+https://agentskills.io/skill-creation/using-scripts
+```
+
+Document the 500-line/5,000-token recommendation, progressive disclosure with explicit reference load conditions, activation-only descriptions, fixed train/validation/holdout discipline, with-vs-baseline output evals, evidence-bearing assertions, human review, and the non-interactive script contract. Correct the scaffold command and JSON extension everywhere.
+
+Add `.superpowers/` and `**/.plugin-eval/` to `.gitignore` for volatile execution/evaluation artifacts.
+
+- [ ] **Step 10: Verify and commit Task 0**
+
+Run:
+
+```powershell
+node eval/harness/run.mjs
+node shared/scripts/scaffold-skill.mjs --help
+rg -n 'eval/scenarios/<skill-name>\.md|StartsUseWhen=False' docs eval shared skills
+git diff --check
+```
+
+Expected: harness and help exit 0; stale Markdown-scenario search is empty; diff check passes.
+
+Commit:
+
+```powershell
+git add -- .gitignore docs/authoring-guide.md eval/harness/run.mjs eval/harness/skill-quality.mjs eval/scenarios eval/descriptions shared/scripts/scaffold-skill.mjs skills/wp-abilities-audit/SKILL.md skills/wp-abilities-verify/SKILL.md skills/wp-playground/SKILL.md
+git commit -m "test: enforce Agent Skills quality contracts"
+```
 
 ---
 
@@ -355,8 +568,8 @@ git commit -m "test: enforce current WordPress release references"
 - Modify: `skills/wp-playground/references/blueprints.md`
 - Modify: `skills/wp-playground/references/cli-commands.md`
 - Modify: `skills/wp-playground/references/debugging.md`
-- Create: `eval/scenarios/blueprint-v2-environment.json`
-- Create: `eval/scenarios/playground-cli-3-1-local-debug.json`
+- Modify: `eval/scenarios/blueprint-v2-environment.json`
+- Modify: `eval/scenarios/playground-cli-3-1-local-debug.json`
 
 **Interfaces:**
 
@@ -465,7 +678,7 @@ Document `start` as the default auto-detecting/browser/persistence flow, `server
 
 - [ ] **Step 5: Add the application scenarios**
 
-Create `eval/scenarios/blueprint-v2-environment.json` with:
+Replace `eval/scenarios/blueprint-v2-environment.json` with the exact final contract:
 
 ```json
 {
@@ -490,7 +703,7 @@ Create `eval/scenarios/blueprint-v2-environment.json` with:
 }
 ```
 
-Create `eval/scenarios/playground-cli-3-1-local-debug.json` with:
+Replace `eval/scenarios/playground-cli-3-1-local-debug.json` with the exact final contract:
 
 ```json
 {
@@ -1037,7 +1250,7 @@ git commit -m "docs: cover WordPress 7 editor API changes"
 - Modify: `skills/wp-plugin-directory-guidelines/references/guideline-review-checklist.md`
 - Modify: `eval/scenarios/plugin-directory-license-review.json`
 - Modify: `skills/wpds/SKILL.md`
-- Create: `eval/scenarios/wpds-without-mcp.json`
+- Modify: `eval/scenarios/wpds-without-mcp.json`
 
 **Interfaces:**
 
@@ -1126,9 +1339,9 @@ https://wordpress.github.io/gutenberg/
 https://github.com/WordPress/gutenberg/tree/trunk/packages/ui
 ```
 
-- [ ] **Step 5: Add the no-MCP scenario**
+- [ ] **Step 5: Finalize the no-MCP scenario**
 
-Create `eval/scenarios/wpds-without-mcp.json` with:
+Replace `eval/scenarios/wpds-without-mcp.json` with the exact final contract:
 
 ```json
 {
@@ -1177,7 +1390,7 @@ git commit -m "docs: correct directory licensing and WPDS fallback"
 
 **Files:**
 
-- Review: every file changed by Tasks 1-6.
+- Review: every file changed by Tasks 0-6.
 - Modify only if verification reveals an in-scope defect.
 
 **Interfaces:**
@@ -1220,7 +1433,24 @@ git diff --check
 
 Expected: both exit 0 with no warnings from the harness.
 
-- [ ] **Step 4: Build all packaged skill targets outside the repository**
+- [ ] **Step 4: Run static skill-quality analysis**
+
+Resolve the installed `plugin-eval` CLI (the plugin's `scripts/plugin-eval.js` may be invoked with `node` when its binary is not on `PATH`) and analyze every directory under `skills/` to JSON files in a task-specific temporary directory. Fail the step if any analysis exits non-zero. Review `Fix First`, progressive-disclosure budget, broken links, description quality, and helper-script findings for all twenty skills; any Critical or Important in-scope finding returns to the owning task's red-green loop.
+
+Also run:
+
+```powershell
+node shared/scripts/scaffold-skill.mjs --help
+node --check shared/scripts/scaffold-skill.mjs
+node --check shared/scripts/update-upstream-indices.mjs
+node --check shared/scripts/upstream-index-lib.mjs
+node --check eval/harness/skill-quality.mjs
+node --check eval/harness/release-conformance.mjs
+```
+
+Expected: all commands exit 0; static reports have no unresolved Critical or Important in-scope finding.
+
+- [ ] **Step 5: Build all packaged skill targets outside the repository**
 
 Run:
 
@@ -1238,7 +1468,7 @@ if ($builtSkills.Count -ne 20) {
 
 Expected: build exits 0 and exactly twenty Codex skill directories exist. The deletion target is the explicit task-specific temp directory, never a workspace or home root.
 
-- [ ] **Step 5: Audit all original failure strings**
+- [ ] **Step 6: Audit all original failure strings**
 
 Run:
 
@@ -1248,7 +1478,7 @@ rg -n --hidden -g '!docs/superpowers/**' -e '3\.0\.20|--enable-xdebug|--skip-wor
 
 Expected: no matches. The intentionally documented deprecated `--experimental-multi-worker` spelling is also excluded from skill prose; only tagged upstream CLI help may contain it outside this repository.
 
-- [ ] **Step 6: Review the complete diff against the acceptance criteria**
+- [ ] **Step 7: Review the complete diff against the acceptance criteria**
 
 Run:
 
@@ -1259,13 +1489,13 @@ git diff --stat trunk...HEAD
 git diff trunk...HEAD -- skills eval shared docs
 ```
 
-Verify line by line that all nine audit-update skills, WPDS, shared indexes, scenarios, and regression checks are present; no unrelated files changed.
+Verify line by line that all nine audit-update skills, WPDS, the three description corrections, authoring/scaffold quality infrastructure, shared indexes, scenarios, and regression checks are present; no unrelated files changed.
 
-- [ ] **Step 7: Commit any verification-only corrections**
+- [ ] **Step 8: Commit any verification-only corrections**
 
-If Step 6 finds an in-scope defect, return to the task that owns that file, add a failing assertion, reproduce the failure, apply the correction, rerun that task's explicit verification and staging commands, and use that task's commit message. If no correction is needed, do not create an empty commit.
+If Step 7 finds an in-scope defect, return to the task that owns that file, add a failing assertion, reproduce the failure, apply the correction, rerun that task's explicit verification and staging commands, and use that task's commit message. If no correction is needed, do not create an empty commit.
 
-- [ ] **Step 8: Prepare handoff**
+- [ ] **Step 9: Prepare handoff**
 
 Report:
 

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Bring the WordPress agent-skills package into conformance with the stable WordPress ecosystem releases available on July 17, 2026, correct every issue identified in the release audit, and add deterministic checks that prevent the same unsafe examples and stale release claims from returning.
+Bring the WordPress agent-skills package into conformance with the stable WordPress ecosystem releases available on July 17, 2026, correct every issue identified in the release audit, and add deterministic checks that prevent the same unsafe examples and stale release claims from returning. Apply the current Agent Skills authoring, description, evaluation, and scripting guidance while making those corrections.
 
 ## Compatibility contract
 
@@ -33,6 +33,7 @@ The release snapshot for this change is:
 - Refresh and harden shared WordPress/Gutenberg release indexes.
 - Add regression coverage for each concrete audit failure.
 - Update existing evaluation scenarios or add focused scenarios where a future agent must apply new version-conditional guidance.
+- Bring the repository's authoring guide, scaffold, description checks, scenario validation, and evaluation artifacts into line with the current Agent Skills guidance.
 - Preserve unaffected procedures and the repository's existing writing style.
 
 ### Out of scope
@@ -107,6 +108,19 @@ Refresh `wordpress-core-versions.json` and `gutenberg-releases.json` from their 
 
 Move the HTML mapping parser into `shared/scripts/upstream-index-lib.mjs` and export it for offline testing. The index updater will fail with an actionable error when required data cannot be parsed instead of writing `table-not-found` with zero rows. `eval/harness/release-conformance.mjs` will exercise successful and missing-data parser fixtures without network access. Documentation will explain the failure contract and the commands used for live refresh.
 
+### 9. Agent Skill quality contract
+
+The repository will encode the current Agent Skills creator guidance from the official best-practices, description-optimization, evaluation, and script-authoring documents.
+
+- Every description uses the repository's imperative `Use when ...` convention, describes user intent and activation boundaries rather than summarizing the workflow, and remains below the 1,024-character specification limit. The three descriptions that currently fail this contract (`wp-abilities-audit`, `wp-abilities-verify`, and `wp-playground`) receive focused trigger evaluation rather than broad, unmeasured rewrites of all twenty descriptions.
+- Each `SKILL.md` remains below 500 lines. Deep reference material stays in one-hop `references/` files with explicit load conditions so progressive disclosure is useful rather than merely structural.
+- Every skill is covered by at least one valid JSON output scenario. The harness validates scenario fields, skill names, non-empty behavioral expectations, and the absence of obsolete Markdown scenario files.
+- Each changed description gets a fixed trigger-eval corpus of twelve training queries and eight validation queries, each split evenly between realistic should-trigger cases and near-miss should-not-trigger cases. Six fresh holdout queries are added only after selecting the description. Validation and holdout results must not be used to tune wording.
+- Output-quality checks compare the changed skill with its pre-change snapshot or a no-skill baseline in a clean context. Assertions must be observable, passes require evidence, mechanical checks use scripts, and human review covers qualities that cannot be reduced safely to assertions.
+- New or modified command-line scripts are non-interactive, provide concise successful `--help`, reject ambiguous input, emit actionable errors and meaningful exit codes, keep stdout predictable, and avoid partial or destructive writes. Stateful or destructive behavior requires a dry-run/check mode when applicable.
+
+Add `eval/harness/skill-quality.mjs` for the deterministic portion of this contract. Repair `shared/scripts/scaffold-skill.mjs` so it creates repository-standard JSON scenarios from a required realistic prompt instead of obsolete Markdown, and make the scaffold's help/error behavior testable without touching the repository checkout.
+
 ## Testing strategy
 
 Each affected area follows red-green verification:
@@ -117,11 +131,21 @@ Each affected area follows red-green verification:
 4. Re-run the focused check before moving to the next affected skill.
 5. Run the full harness after all focused checks are green.
 
+Skill behavior also follows a baseline/current comparison:
+
+1. Define realistic prompts and success criteria before changing skill instructions or descriptions.
+2. Capture the current-skill or no-skill baseline in a clean context.
+3. Apply only changes justified by the release defect or observed evaluation failure.
+4. Re-run with the changed skill, grade assertions with concrete evidence, and review the actual output.
+5. Keep fixed validation prompts out of the wording-tuning loop and use fresh holdouts for the final description sanity check.
+
 The final verification set will include:
 
 - Release-conformance tests covering all audited findings.
 - Upstream-index parser unit tests, including changed/missing-table failure behavior.
+- Agent Skill quality checks covering description form, `SKILL.md` size, JSON scenario schema and complete skill coverage, fixed trigger-eval splits, and scaffold CLI behavior.
 - Existing prompt scenarios for affected skills plus new scenarios where version-conditional application matters.
+- Clean-context baseline/current evaluations for changed skill behavior, with evidence-bearing assertion grades and targeted human review.
 - `node eval/harness/run.mjs`.
 - Frontmatter/reference integrity checks.
 - `git diff --check` and a clean review of the complete intended diff.
@@ -137,4 +161,7 @@ The final verification set will include:
 - Current AI plugin, Interactivity API, block-editor iframe, theme.json, and Plugin Directory behavior is represented.
 - WPDS remains canonical-source-driven and can proceed safely without the MCP server.
 - Shared release indexes contain current non-empty data, and parser failure cannot silently overwrite good data with an empty mapping.
+- All descriptions meet the activation contract; all `SKILL.md` files stay within the progressive-disclosure line budget; every skill has a valid JSON scenario.
+- The three corrected descriptions have balanced fixed train/validation corpora plus untouched fresh holdouts, and their final wording passes the selected activation checks without overfitting.
+- The scaffold produces a valid JSON scenario from a realistic prompt, supports `--help`, and fails ambiguous invocation without leaving partial output.
 - The full deterministic verification suite passes with no unintended workspace changes.
