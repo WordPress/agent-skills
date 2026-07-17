@@ -24,13 +24,26 @@ For local exploration / smoke testing, the standalone plugin zip from the [adapt
 
 Once the adapter is loaded:
 
-1. It reads everything registered via `wp_register_ability()`.
-2. By default, abilities become MCP **tools** (callable functions). Read-only abilities can be configured as MCP **resources** (data the agent ingests as context). Abilities with structured prompt-like outputs can be configured as MCP **prompts**.
-3. The adapter respects the ability's `permission_callback` — agents can only invoke what the authenticated user is authorized to do.
+1. The default server's `discover-abilities`, `get-ability-info`, and `execute-ability` abilities only surface registered abilities whose `meta.mcp.public` value is strictly `true`.
+2. A custom server may explicitly list selected ability IDs as tools, resources, or prompts; that selection does not bypass each ability's `permission_callback`.
+3. The adapter respects the ability's `permission_callback` at execution — agents can only invoke what the authenticated user is authorized to do.
 4. The ability's `input_schema` and `output_schema` translate directly into the MCP tool's input and output schemas.
 5. The ability's annotations map to MCP annotations: `readonly` → `readOnlyHint`, `destructive` → `destructiveHint`, `idempotent` → `idempotentHint`.
 
-So a well-shaped ability — namespaced ID, label, description, schemas, permission callback, accurate annotations — becomes a well-shaped MCP tool with no extra work.
+Mark an ability public for the default-server flow only after reviewing it for external use:
+
+```php
+'meta' => array(
+    'mcp' => array(
+        'public' => true,
+    ),
+    'annotations' => array(
+        'readonly' => true,
+    ),
+),
+```
+
+`meta.mcp.public` controls default-server discovery, not authorization. A well-shaped ability still needs a namespaced ID, label, description, schemas, permission callback, and accurate annotations.
 
 ## Default server vs custom server
 
@@ -42,15 +55,15 @@ On activation, the adapter registers a default MCP server (`mcp-adapter-default-
 
 (Ability names follow the `namespace/ability` convention — slash, not hyphen, between the two parts. They register inside the `mcp-adapter` ability namespace.)
 
-This is enough for most use cases — point an MCP client at the default server and it can discover and call every server-registered ability on the site.
+This is enough for most use cases when the abilities intended for agent access are explicitly marked public. The default server's discovery, get, and execute flow excludes every other registered ability.
 
 For finer control (exposing only a subset, separating tool/resource/prompt categorization, server-level metadata), register a custom server. **`create_server()` has 13 parameters in current source (v0.5.0+); the 7th is required and takes an array of transport class names, not a config array.** The signature and convention follow what `DefaultServerFactory::create()` does internally:
 
 ```php
 use WP\MCP\Core\McpAdapter;
-use WP\MCP\Transport\Http\HttpTransport;
-use WP\MCP\Infrastructure\ErrorHandling\Implementations\ErrorLogMcpErrorHandler;
-use WP\MCP\Infrastructure\Observability\Implementations\NullMcpObservabilityHandler;
+use WP\MCP\Transport\HttpTransport;
+use WP\MCP\Infrastructure\ErrorHandling\ErrorLogMcpErrorHandler;
+use WP\MCP\Infrastructure\Observability\NullMcpObservabilityHandler;
 
 add_action( 'mcp_adapter_init', function ( McpAdapter $adapter ) {
     $adapter->create_server(
@@ -76,6 +89,8 @@ add_action( 'mcp_adapter_init', function ( McpAdapter $adapter ) {
 ```
 
 `create_server()` enforces that it can only be called inside the `mcp_adapter_init` action — calling it elsewhere triggers `_doing_it_wrong()`. The function returns either an `McpAdapter` instance or a `WP_Error`.
+
+The tools/resources/prompts lists decide which abilities this server projects; they do not grant access. Each selected ability retains its own `permission_callback`, which runs when the ability executes.
 
 Read the `create_server()` docblock in `includes/Core/McpAdapter.php` for the complete parameter documentation, and `includes/Servers/DefaultServerFactory.php` for the canonical "how to call it" example.
 

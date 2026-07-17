@@ -112,4 +112,25 @@ export function runReleaseConformance(repoRoot) {
     "--wordpress-install-mode=install-from-existing-files-if-needed",
     '"8.5"',
   ]);
+
+  requireIncludes(repoRoot, "skills/wp-abilities-api/references/mcp-exposure.md", [
+    "meta.mcp.public",
+    "WP\\MCP\\Transport\\HttpTransport",
+    "WP\\MCP\\Infrastructure\\ErrorHandling\\ErrorLogMcpErrorHandler",
+    "WP\\MCP\\Infrastructure\\Observability\\NullMcpObservabilityHandler",
+  ]);
+  requireExcludes(repoRoot, "skills/wp-abilities-api/references/mcp-exposure.md", [
+    "discover and call every server-registered ability",
+    "WP\\MCP\\Transport\\Http\\HttpTransport",
+    "ErrorHandling\\Implementations",
+    "Observability\\Implementations",
+  ]);
+  requireExcludes(repoRoot, "skills/wp-abilities-api/references/client-side.md", [
+    "currentUserCan(",
+    "core enqueues `@wordpress/core-abilities` on all admin pages",
+  ]);
+  requireIncludes(repoRoot, "skills/wp-abilities-api/references/client-side.md", [
+    "wp_enqueue_script_module( '@wordpress/core-abilities' )",
+    "data-can-manage-options",
+  ]);
 }

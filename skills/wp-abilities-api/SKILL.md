@@ -76,13 +76,12 @@ Use the documented init hooks for Abilities API registration so they load at the
 ### 6) Consume from JS (if needed)
 
 - For the WP 7.0+ client-side surface (registering abilities in JS, the `core/abilities` store, `executeAbility`, and how annotations affect the HTTP method used to dispatch server abilities), see `references/client-side.md`.
-- Two packages: `@wordpress/abilities` (pure store, registration, execution) and `@wordpress/core-abilities` (auto-loads server-registered abilities into the client store). Enqueue via `wp_enqueue_script_module()`.
-- WordPress core enqueues `@wordpress/core-abilities` on all admin pages, so server abilities are available there by default.
+- Two packages: `@wordpress/abilities` (pure store, registration, execution) and `@wordpress/core-abilities` (auto-loads server-registered abilities into the client store). Register your script module during `init`, then explicitly enqueue both your page-scoped module and `@wordpress/core-abilities` with `wp_enqueue_script_module()` on the screen that needs them.
 - For older clients or non-WP 7.0 contexts, prefer `@wordpress/abilities` APIs for client-side access and checks; ensure the build pipeline bundles the dependency.
 
 ### 7) Expose via MCP for external AI agents (optional)
 
-If external agents (Claude Desktop, Cursor, ChatGPT) should be able to discover and invoke your abilities, install the MCP Adapter (`composer require wordpress/mcp-adapter`). The adapter reads everything registered with `wp_register_ability()`, respects `permission_callback`, and maps `meta.annotations` (`readonly`, `destructive`, `idempotent`) to the corresponding MCP tool annotations. The default server (`mcp-adapter-default-server`) exposes everything; register a custom server via the `mcp_adapter_init` action when you need an allow-list. See `references/mcp-exposure.md`.
+If external agents (Claude Desktop, Cursor, ChatGPT) should be able to discover and invoke your abilities, install the MCP Adapter (`composer require wordpress/mcp-adapter`). The default server (`mcp-adapter-default-server`) exposes its discover/get/execute surface only for registered abilities whose `meta.mcp.public` is strictly `true`; every execution still runs the ability's `permission_callback`. A custom server can explicitly allow-list selected ability IDs, but it also does not bypass their permission callbacks. The adapter maps `meta.annotations` (`readonly`, `destructive`, `idempotent`) to the corresponding MCP tool annotations. See `references/mcp-exposure.md`.
 
 ## Verification
 
