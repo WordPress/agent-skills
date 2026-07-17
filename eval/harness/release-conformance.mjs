@@ -55,6 +55,10 @@ export function runReleaseConformance(repoRoot) {
   const gutenberg = readJson(repoRoot, "shared/references/gutenberg-releases.json");
   const map = readJson(repoRoot, "shared/references/wp-gutenberg-version-map.json");
   assert(core.latest === "7.0.2", "WordPress latest must be 7.0.2");
+  assert(
+    core.recent.includes("6.9.5"),
+    "WordPress recent must include maintained release 6.9.5"
+  );
   assert(gutenberg.latest?.tag === "v23.5.3", "Gutenberg latest must be v23.5.3");
   assert(map.note === null && map.rows.length > 0, "WP/Gutenberg map must be non-empty");
   assert(
