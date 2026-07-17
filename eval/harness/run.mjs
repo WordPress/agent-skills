@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { runSkillQuality, validateSkillBounds } from "./skill-quality.mjs";
+import { runReleaseConformance } from "./release-conformance.mjs";
 
 function readUtf8(filePath) {
   return fs.readFileSync(filePath, "utf8");
@@ -80,6 +81,17 @@ function runJsonCommand(command, args, cwd) {
 
 function main() {
   const repoRoot = process.cwd();
+  const upstreamIndexLib = path.join(
+    repoRoot,
+    "shared",
+    "scripts",
+    "upstream-index-lib.mjs"
+  );
+  assert(
+    fs.existsSync(upstreamIndexLib),
+    "Missing shared/scripts/upstream-index-lib.mjs"
+  );
+  runReleaseConformance(repoRoot);
 
   const skillDirs = listSkillDirs(repoRoot);
   assert(skillDirs.length > 0, "No skills found under ./skills");

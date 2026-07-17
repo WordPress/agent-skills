@@ -9,13 +9,17 @@
     "Step 4: Confirm output written to shared/references/gutenberg-releases.json",
     "Step 5: Confirm output written to shared/references/wp-gutenberg-version-map.json",
     "Step 6: Verify deterministic output (stable formatting)",
-    "Step 7: Verify limited list sizes for performance"
+    "Step 7: Verify limited list sizes for performance",
+    "Step 8: Parse the mapping by the WordPress Version and Gutenberg Version header labels even when Gutenberg is the first column",
+    "Step 9: If no valid mapping rows can be parsed, exit non-zero before writing any of the three checked-in JSON files"
   ],
   "success_criteria": [
     "Update script runs successfully",
     "All three JSON files updated in shared/references/",
     "Output is deterministic and stable",
     "List sizes are limited for performance",
-    "Data reflects latest upstream releases"
+    "Data reflects latest upstream releases",
+    "Mapping output contains at least one row and includes WordPress 7.0.X mapped to Gutenberg 22.6",
+    "A missing or changed mapping table fails without replacing good indexes with table-not-found or an empty rows array"
   ]
 }
