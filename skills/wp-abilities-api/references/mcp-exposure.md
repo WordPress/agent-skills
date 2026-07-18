@@ -2,7 +2,7 @@
 
 The MCP Adapter (`WordPress/mcp-adapter`) bridges the Abilities API to the Model Context Protocol, letting external AI agents (Claude Desktop, Claude Code, Cursor, ChatGPT) discover and execute WordPress abilities as MCP tools, resources, and prompts.
 
-The adapter is a separate Composer package and plugin. WordPress 7.0 ships the Abilities API in core but does **not** ship the adapter. Install it explicitly when MCP exposure is required.
+The adapter is a separate Composer package and plugin. WordPress 7.0 ships the Abilities API in core but does **not** ship the adapter. The base Abilities skill supports PHP 7.2.24+, but MCP Adapter 0.5.0 requires PHP `^7.4 || ^8.0`. On PHP 7.2 or 7.3, stop before installation: upgrade the site runtime to PHP 7.4+ or do not enable MCP exposure.
 
 ## Installation
 
@@ -10,12 +10,13 @@ The adapter is designed to be a Composer dependency, not a standalone plugin ins
 
 ```bash
 composer require wordpress/mcp-adapter
+composer require automattic/jetpack-autoloader
 ```
 
-Then load it from your plugin's bootstrap. If multiple plugins on the same site depend on the adapter (likely as the ecosystem grows), use the Jetpack Autoloader to avoid version conflicts:
+Then load the Jetpack Autoloader from your plugin's bootstrap. It resolves compatible package versions when multiple plugins on the site depend on the adapter:
 
 ```php
-require_once plugin_dir_path( __FILE__ ) . 'vendor/autoloader.php'; // Jetpack Autoloader
+require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload_packages.php';
 ```
 
 For local exploration / smoke testing, the standalone plugin zip from the [adapter's Releases page](https://github.com/WordPress/mcp-adapter/releases) is fine. Don't ship that to production with multiple consumers — version conflicts will bite.

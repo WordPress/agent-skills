@@ -171,9 +171,11 @@ Expected: the existing harness passes. Do not rewrite the other seventeen descri
 Create `eval/harness/skill-quality.mjs` and export `runSkillQuality(repoRoot)`. It must:
 
 1. Reject any `eval/scenarios/*.md` file except `README.md`.
-2. Parse every `eval/scenarios/*.json` file and require a non-empty string `name`, non-empty string `query`, non-empty string arrays `skills`, `expected_behavior`, and `success_criteria`.
+2. Parse every `eval/scenarios/*.json` file and require a non-empty string `name`, non-empty string `query`, and non-empty string arrays `expected_behavior` and `success_criteria`. Normal skill scenarios require a non-empty known-skill list. The explicit `repository-infrastructure` kind requires an empty skill list.
 3. Reject unknown skill names and duplicate scenario names.
 4. Require every directory under `skills/` to appear in at least one scenario.
+
+Add direct contract fixtures proving that a normal scenario with no skill fails, a `repository-infrastructure` scenario with no skill passes, and an unknown kind fails. Convert `skillpack-build-and-install.json` and `upstream-sync-indices.json` to the infrastructure kind instead of falsely assigning `wordpress-router`.
 
 Import and call it from `eval/harness/run.mjs`.
 
@@ -770,15 +772,24 @@ Insert the following assertions before the closing brace of `runReleaseConforman
 ```js
 requireIncludes(repoRoot, "skills/wp-abilities-api/references/mcp-exposure.md", [
   "meta.mcp.public",
+  "composer require automattic/jetpack-autoloader",
+  "vendor/autoload_packages.php",
+  "^7.4 || ^8.0",
   "WP\\MCP\\Transport\\HttpTransport",
   "WP\\MCP\\Infrastructure\\ErrorHandling\\ErrorLogMcpErrorHandler",
   "WP\\MCP\\Infrastructure\\Observability\\NullMcpObservabilityHandler",
 ]);
 requireExcludes(repoRoot, "skills/wp-abilities-api/references/mcp-exposure.md", [
   "discover and call every server-registered ability",
+  "vendor/autoloader.php",
   "WP\\MCP\\Transport\\Http\\HttpTransport",
   "ErrorHandling\\Implementations",
   "Observability\\Implementations",
+]);
+requireIncludes(repoRoot, "skills/wp-abilities-api/SKILL.md", [
+  "MCP Adapter 0.5.0 requires PHP 7.4+",
+  "upgrade the site runtime or stop before installing the adapter",
+  "Read `references/mcp-exposure.md` before giving installation, bootstrap, or server code.",
 ]);
 requireExcludes(repoRoot, "skills/wp-abilities-api/references/client-side.md", [
   "currentUserCan(",
@@ -823,6 +834,8 @@ use WP\MCP\Infrastructure\Observability\NullMcpObservabilityHandler;
 ```
 
 Update the summary paragraph in `skills/wp-abilities-api/SKILL.md` to match.
+
+Keep the base skill at PHP 7.2.24+, but stop the optional MCP workflow on PHP 7.2/7.3 because Adapter 0.5.0 requires `^7.4 || ^8.0`. For multi-plugin dependency use, require `automattic/jetpack-autoloader`, load `vendor/autoload_packages.php`, and make the main skill's reference-load instruction imperative before installation/bootstrap/server guidance.
 
 - [ ] **Step 4: Make client enqueue and permission guidance runnable**
 
@@ -1096,10 +1109,24 @@ requireIncludes(repoRoot, "skills/wp-block-themes/references/theme-json.md", [
 requireIncludes(repoRoot, "skills/wp-interactivity-api/SKILL.md", [
   "watch()",
   "unwatch()",
+  "export function disposeNavigationAnalytics()",
+  "Do not call it immediately after registering the watcher.",
   "state.url",
   "state.navigation.hasStarted",
   "state.navigation.hasFinished",
 ]);
+requireNoMatch(
+  repoRoot,
+  "skills/wp-interactivity-api/SKILL.md",
+  /\}\s*\);\s*(?:\/\/[^\r\n]*\r?\n)?\s*unwatch\(\);/,
+  "must not call unwatch immediately after watch registration"
+);
+requireNoMatch(
+  repoRoot,
+  "skills/wp-interactivity-api/SKILL.md",
+  /state\.navigation\.(?:hasStarted|hasFinished)(?!`)/,
+  "must mention deprecated navigation state only as code-formatted prose, never as a recommended direct read"
+);
 ```
 
 - [ ] **Step 2: Verify RED**
@@ -1165,11 +1192,12 @@ const unwatch = watch( () => {
     return () => controller.abort();
 } );
 
-// Dispose when the owning integration is torn down.
-unwatch();
+export function disposeNavigationAnalytics() {
+    unwatch();
+}
 ```
 
-State that `watch()` runs immediately, tracks reactive reads, returns `unwatch`, and invokes callback cleanup before reruns and on disposal. Warn that direct reads of `state.navigation.hasStarted` and `hasFinished` are deprecated in 7.0 and emit development warnings; do not suggest unreleased 7.1 replacements. Explain that `core/router`'s `state.url` is populated during server directive processing and remains stable until the first client navigation.
+State that `watch()` runs immediately, tracks reactive reads, returns `unwatch`, and invokes callback cleanup before reruns and on disposal. Retain `unwatch` behind the named `disposeNavigationAnalytics()` function and say to invoke it from the owning integration's actual teardown, not immediately after watcher registration. Warn that direct reads of `state.navigation.hasStarted` and `hasFinished` are deprecated in 7.0 and emit development warnings; do not suggest unreleased 7.1 replacements. Explain that `core/router`'s `state.url` is populated during server directive processing and remains stable until the first client navigation.
 
 - [ ] **Step 6: Add scenarios**
 
@@ -1452,7 +1480,17 @@ node --check eval/harness/release-conformance.mjs
 
 Expected: all commands exit 0; reports have no unresolved correctness, broken-link, unsafe-script, or measured-regression finding. Static-only budget signals and the intentional `compatibility` warning are recorded with their disposition.
 
-- [ ] **Step 5: Build all packaged skill targets outside the repository**
+- [ ] **Step 5: Run and retain risk-based behavioral comparisons**
+
+Use the installed plugin-eval benchmark runner for exactly three high-risk pairs: `blueprint` V2/networking, `wp-abilities-api` MCP runtime/bootstrap/exposure, and `wp-interactivity-api` watcher teardown. Run each prompt once against the candidate checkout and once against detached baseline commit `1b47140e16bbb54cadfb3de54c7fadcfafb99c76` with the same model and reasoning effort within its pair.
+
+Each run must use a disposable copied workspace and instruct the model to read the exact workspace-relative `skills/<name>/SKILL.md` (and named MCP reference) before answering. Do not rely on globally installed skill copies. Require `completedScenarios: 1`, `failedScenarios: 0`, exit 0, a final message, nonzero timing/token telemetry, and raw-log evidence that the intended workspace file read succeeded before grading.
+
+Retain only a stable summarized artifact at `eval/results/2026-07-17-release-refresh-behavioral.json`; do not commit volatile `.plugin-eval` logs or temporary paths. Record prompt, candidate/baseline source, model/effort, telemetry, evidence-bearing assertion grades, a human disposition, the risk-based sample rationale, and the explicit limitation that description trigger rates were not measured. Extend `skill-quality.mjs` so missing/malformed evidence, failed current assertions, absent workspace-read evidence, or missing approval fails the harness.
+
+Expected: three clean pairs are retained; current Blueprint and MCP close their baseline failures, Interactivity records baseline/current parity, and no artifact claims exhaustive output coverage or trigger telemetry.
+
+- [ ] **Step 6: Build all packaged skill targets outside the repository**
 
 Run:
 
@@ -1470,7 +1508,7 @@ if ($builtSkills.Count -ne 20) {
 
 Expected: build exits 0 and exactly twenty Codex skill directories exist. The deletion target is the explicit task-specific temp directory, never a workspace or home root.
 
-- [ ] **Step 6: Audit all original failure strings**
+- [ ] **Step 7: Audit all original failure strings**
 
 Run:
 
@@ -1480,7 +1518,7 @@ rg -n --hidden -e '3\.0\.20|--enable-xdebug|--skip-wordpress-setup|currentUserCa
 
 Expected: no matches in shipped skill prose. Regression assertions, scenarios, and synchronization documentation may quote forbidden strings to prove or explain their exclusion. The intentionally documented deprecated `--experimental-multi-worker` spelling is also excluded from skill prose; only tagged upstream CLI help may contain it outside this repository.
 
-- [ ] **Step 7: Review the complete diff against the acceptance criteria**
+- [ ] **Step 8: Review the complete diff against the acceptance criteria**
 
 Run:
 
@@ -1493,11 +1531,11 @@ git diff trunk...HEAD -- skills eval shared docs
 
 Verify line by line that all nine audit-update skills, WPDS, the three description corrections, authoring/scaffold quality infrastructure, shared indexes, scenarios, and regression checks are present; no unrelated files changed.
 
-- [ ] **Step 8: Commit any verification-only corrections**
+- [ ] **Step 9: Commit any verification-only corrections**
 
-If Step 7 finds an in-scope defect, return to the task that owns that file, add a failing assertion, reproduce the failure, apply the correction, rerun that task's explicit verification and staging commands, and use that task's commit message. If no correction is needed, do not create an empty commit.
+If Step 8 finds an in-scope defect, return to the task that owns that file, add a failing assertion, reproduce the failure, apply the correction, rerun that task's explicit verification and staging commands, and use that task's commit message. If no correction is needed, do not create an empty commit.
 
-- [ ] **Step 9: Prepare handoff**
+- [ ] **Step 10: Prepare handoff**
 
 Report:
 

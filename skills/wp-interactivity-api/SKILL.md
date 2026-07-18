@@ -136,7 +136,7 @@ Verify the repo supports the required module build path:
 
 ### 6) Watch router state safely (WordPress 7.0)
 
-Use `watch()` for reactive side effects. It runs immediately, tracks reactive reads made by its callback, returns `unwatch`, and invokes callback cleanup before reruns and on disposal. Keep and call `unwatch()` when the owning integration is torn down.
+Use `watch()` for reactive side effects. It runs immediately, tracks reactive reads made by its callback, returns `unwatch`, and invokes callback cleanup before reruns and on disposal. Keep `unwatch` behind a lifecycle-owned teardown function.
 
 `core/router`'s `state.url` is populated during server directive processing and remains stable until the first client navigation. Read it inside the watcher so navigation updates retrigger the effect.
 
@@ -156,9 +156,12 @@ const unwatch = watch( () => {
     return () => controller.abort();
 } );
 
-// Dispose when the owning integration is torn down.
-unwatch();
+export function disposeNavigationAnalytics() {
+    unwatch();
+}
 ```
+
+Invoke `disposeNavigationAnalytics()` from the owning integration's actual teardown. Do not call it immediately after registering the watcher.
 
 In WordPress 7.0, direct reads of `state.navigation.hasStarted` and `state.navigation.hasFinished` are deprecated and emit development warnings. Do not use those navigation internals; use the reactive router state your integration actually needs. Do not infer or suggest unreleased replacements.
 

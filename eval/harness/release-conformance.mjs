@@ -14,6 +14,8 @@ function readJson(repoRoot, relativePath) {
   return JSON.parse(read(repoRoot, relativePath));
 }
 
+const IMMEDIATE_UNWATCH_PATTERN = /\}\s*\);\s*(?:\/\/[^\r\n]*\r?\n)?\s*unwatch\(\);/;
+
 export function requireIncludes(repoRoot, relativePath, expected) {
   const content = read(repoRoot, relativePath);
   for (const value of expected) {
@@ -28,7 +30,16 @@ export function requireExcludes(repoRoot, relativePath, forbidden) {
   }
 }
 
+export function requireNoMatch(repoRoot, relativePath, pattern, message) {
+  const content = read(repoRoot, relativePath);
+  assert(!pattern.test(content), `${relativePath} ${message}`);
+}
+
 export function runReleaseConformance(repoRoot) {
+  assert(
+    IMMEDIATE_UNWATCH_PATTERN.test("const unwatch = watch( () => { return cleanup; } );\n// Dispose later.\nunwatch();"),
+    "Immediate-unwatch regression fixture must exercise the structural check"
+  );
   const reversedHeaderFixture = `
     <table>
       <tr><th>Gutenberg Version</th><th>WordPress Version</th></tr>
@@ -115,15 +126,31 @@ export function runReleaseConformance(repoRoot) {
 
   requireIncludes(repoRoot, "skills/wp-abilities-api/references/mcp-exposure.md", [
     "meta.mcp.public",
+    "composer require automattic/jetpack-autoloader",
+    "vendor/autoload_packages.php",
+    "^7.4 || ^8.0",
     "WP\\MCP\\Transport\\HttpTransport",
     "WP\\MCP\\Infrastructure\\ErrorHandling\\ErrorLogMcpErrorHandler",
     "WP\\MCP\\Infrastructure\\Observability\\NullMcpObservabilityHandler",
   ]);
   requireExcludes(repoRoot, "skills/wp-abilities-api/references/mcp-exposure.md", [
     "discover and call every server-registered ability",
+    "vendor/autoloader.php",
     "WP\\MCP\\Transport\\Http\\HttpTransport",
     "ErrorHandling\\Implementations",
     "Observability\\Implementations",
+  ]);
+  requireIncludes(repoRoot, "skills/wp-abilities-api/SKILL.md", [
+    "MCP Adapter 0.5.0 requires PHP 7.4+",
+    "upgrade the site runtime or stop before installing the adapter",
+    "Read `references/mcp-exposure.md` before giving installation, bootstrap, or server code.",
+    "composer require automattic/jetpack-autoloader",
+    "vendor/autoload_packages.php",
+  ]);
+  requireIncludes(repoRoot, "eval/scenarios/abilities-mcp-expose.json", [
+    "PHP 7.4+",
+    "composer require automattic/jetpack-autoloader",
+    "vendor/autoload_packages.php",
   ]);
   requireExcludes(repoRoot, "skills/wp-abilities-api/references/client-side.md", [
     "currentUserCan(",
@@ -188,10 +215,24 @@ export function runReleaseConformance(repoRoot) {
   requireIncludes(repoRoot, "skills/wp-interactivity-api/SKILL.md", [
     "watch()",
     "unwatch()",
+    "export function disposeNavigationAnalytics()",
+    "Do not call it immediately after registering the watcher.",
     "state.url",
     "state.navigation.hasStarted",
     "state.navigation.hasFinished",
   ]);
+  requireNoMatch(
+    repoRoot,
+    "skills/wp-interactivity-api/SKILL.md",
+    IMMEDIATE_UNWATCH_PATTERN,
+    "must not call unwatch immediately after watch registration"
+  );
+  requireNoMatch(
+    repoRoot,
+    "skills/wp-interactivity-api/SKILL.md",
+    /state\.navigation\.(?:hasStarted|hasFinished)(?!`)/,
+    "must mention deprecated navigation state only as code-formatted prose, never as a recommended direct read"
+  );
 
   for (const file of [
     "skills/wp-plugin-directory-guidelines/SKILL.md",

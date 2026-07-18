@@ -1,6 +1,7 @@
 {
   "name": "Build and install skillpacks",
-  "skills": ["wordpress-router"],
+  "kind": "repository-infrastructure",
+  "skills": [],
   "query": "Package this repo's skills for Codex, VS Code, Claude, and Cursor and install them into another repository.",
   "expected_behavior": [
     "Step 1: Run build command: node shared/scripts/skillpack-build.mjs --clean --targets=codex,vscode,claude,cursor",

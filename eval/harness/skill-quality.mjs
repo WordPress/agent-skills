@@ -43,6 +43,31 @@ function runSkillBoundaryContract() {
   );
 }
 
+function runScenarioKindContract() {
+  const skillNames = new Set(["example-skill"]);
+  const baseScenario = {
+    name: "Repository infrastructure fixture",
+    query: "Run the repository maintenance workflow.",
+    expected_behavior: ["Run the repository-owned maintenance command"],
+    success_criteria: ["The maintenance command succeeds"],
+  };
+  validateScenario(
+    { ...baseScenario, kind: "repository-infrastructure", skills: [] },
+    "repository-infrastructure-fixture.json",
+    skillNames
+  );
+  assertThrows(
+    () => validateScenario({ ...baseScenario, skills: [] }, "skill-fixture.json", skillNames),
+    /non-empty string array skills/,
+    "Skill scenarios must not allow an empty skills list"
+  );
+  assertThrows(
+    () => validateScenario({ ...baseScenario, kind: "unknown", skills: [] }, "unknown-kind-fixture.json", skillNames),
+    /unsupported kind/,
+    "Unknown scenario kinds must be rejected"
+  );
+}
+
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
@@ -79,11 +104,56 @@ function validateDescriptionCorpus(corpus, corpusPath, split, allQueries) {
   assert(positives === split.shouldTrigger, `Description corpus requires ${split.shouldTrigger} positive queries: ${corpusPath}`);
 }
 
+function runBehavioralEvidenceContract(repoRoot) {
+  const evidencePath = path.join(repoRoot, "eval", "results", "2026-07-17-release-refresh-behavioral.json");
+  assert(fs.existsSync(evidencePath), `Missing retained behavioral evaluation evidence: ${path.relative(repoRoot, evidencePath)}`);
+  const evidence = JSON.parse(fs.readFileSync(evidencePath, "utf8"));
+  assert(evidence.schemaVersion === 1, "Behavioral evidence must use schemaVersion 1");
+  assert(isNonEmptyString(evidence.representativeSetRationale), "Behavioral evidence requires a representative-set rationale");
+  assert(evidence.limitations?.descriptionTriggerTelemetry === "not measured", "Behavioral evidence must not imply unmeasured description trigger telemetry");
+  assert(isNonEmptyString(evidence.limitations?.reason), "Behavioral evidence must explain the trigger-telemetry limitation");
+  assert(Array.isArray(evidence.comparisons) && evidence.comparisons.length === 3, "Behavioral evidence requires exactly three risk-based comparisons");
+
+  const expectedSkills = new Set(["blueprint", "wp-abilities-api", "wp-interactivity-api"]);
+  for (const comparison of evidence.comparisons) {
+    assert(expectedSkills.delete(comparison.skill), `Unexpected or duplicate behavioral comparison: ${comparison.skill}`);
+    assert(isNonEmptyString(comparison.prompt), `Behavioral comparison requires a prompt: ${comparison.skill}`);
+    assert(comparison.baseline?.source === "1b47140e16bbb54cadfb3de54c7fadcfafb99c76", `Behavioral baseline must identify the pre-refresh commit: ${comparison.skill}`);
+    assert(comparison.current?.source === "working-tree based on 04bb308b35f7a12871251f6b5787c6514910d920", `Behavioral current source must identify its candidate base: ${comparison.skill}`);
+    assert(comparison.baseline.effort === comparison.current.effort, `Behavioral comparison effort must match within the pair: ${comparison.skill}`);
+    for (const [variant, run] of [["baseline", comparison.baseline], ["current", comparison.current]]) {
+      assert(run.completedScenarios === 1 && run.failedScenarios === 0 && run.exitCode === 0, `${variant} behavioral run did not complete cleanly: ${comparison.skill}`);
+      assert(Number.isFinite(run.durationMs) && run.durationMs > 0, `${variant} behavioral run requires duration telemetry: ${comparison.skill}`);
+      assert(Number.isFinite(run.totalTokens) && run.totalTokens > 0, `${variant} behavioral run requires nonzero token telemetry: ${comparison.skill}`);
+      assert(isNonEmptyString(run.workspaceReadEvidence), `${variant} behavioral run requires evidence that the intended workspace skill was read: ${comparison.skill}`);
+    }
+    assert(Array.isArray(comparison.assertions) && comparison.assertions.length > 0, `Behavioral comparison requires assertions: ${comparison.skill}`);
+    for (const assertion of comparison.assertions) {
+      assert(isNonEmptyString(assertion.criterion), `Behavioral assertion requires a criterion: ${comparison.skill}`);
+      for (const variant of ["baseline", "current"]) {
+        assert(["pass", "partial", "fail"].includes(assertion[variant]?.grade), `Behavioral assertion has an invalid ${variant} grade: ${comparison.skill}`);
+        assert(isNonEmptyString(assertion[variant]?.evidence), `Behavioral assertion requires ${variant} evidence: ${comparison.skill}`);
+      }
+      assert(assertion.current.grade !== "fail", `Current behavioral assertion failed: ${comparison.skill} — ${assertion.criterion}`);
+    }
+    assert(comparison.humanDisposition?.status === "approved", `Behavioral comparison lacks human approval: ${comparison.skill}`);
+    assert(isNonEmptyString(comparison.humanDisposition?.rationale), `Behavioral comparison requires human rationale: ${comparison.skill}`);
+  }
+  assert(expectedSkills.size === 0, `Missing behavioral comparisons: ${[...expectedSkills].join(", ")}`);
+}
+
 export function validateScenario(scenario, scenarioPath, skillNames) {
   assert(scenario && typeof scenario === "object" && !Array.isArray(scenario), `Scenario must be a JSON object: ${scenarioPath}`);
   assert(isNonEmptyString(scenario.name), `Scenario requires a non-empty string name: ${scenarioPath}`);
   assert(isNonEmptyString(scenario.query), `Scenario requires a non-empty string query: ${scenarioPath}`);
-  for (const field of ["skills", "expected_behavior", "success_criteria"]) {
+  const kind = scenario.kind ?? "skill";
+  assert(["skill", "repository-infrastructure"].includes(kind), `Scenario has unsupported kind '${kind}': ${scenarioPath}`);
+  if (kind === "repository-infrastructure") {
+    assert(Array.isArray(scenario.skills) && scenario.skills.length === 0, `Repository infrastructure scenario requires an empty skills array: ${scenarioPath}`);
+  } else {
+    assert(isNonEmptyStringArray(scenario.skills), `Scenario requires a non-empty string array skills: ${scenarioPath}`);
+  }
+  for (const field of ["expected_behavior", "success_criteria"]) {
     assert(isNonEmptyStringArray(scenario[field]), `Scenario requires a non-empty string array ${field}: ${scenarioPath}`);
   }
   for (const skillName of scenario.skills) {
@@ -93,6 +163,8 @@ export function validateScenario(scenario, scenarioPath, skillNames) {
 
 export function runSkillQuality(repoRoot) {
   runSkillBoundaryContract();
+  runScenarioKindContract();
+  runBehavioralEvidenceContract(repoRoot);
   const scenariosRoot = path.join(repoRoot, "eval", "scenarios");
   const skillsRoot = path.join(repoRoot, "skills");
   const skillNames = new Set(

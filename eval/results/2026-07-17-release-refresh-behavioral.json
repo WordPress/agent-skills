@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-07-17T19:24:30-05:00",
+  "runner": {
+    "name": "plugin-eval benchmark",
+    "version": "0.1.2",
+    "codexVersion": "0.144.5",
+    "model": "gpt-5.4-mini",
+    "workspaceSetup": "Each run copied either the candidate checkout or detached baseline into a disposable workspace. Prompts required reading the named workspace-relative SKILL.md and prohibited global installed copies and file edits. Approval was never; the disposable copy used danger-full-access so Windows PowerShell reads could execute."
+  },
+  "representativeSetRationale": "Three paired cases cover the highest-risk release-refresh behaviors: a versioned schema migration with preserved legacy compatibility, an optional integration whose runtime and bootstrap differ from the base skill, and a reactive lifecycle example where one misplaced cleanup call disables the feature. This is a risk-based sample, not a claim that every changed skill output was benchmarked.",
+  "limitations": {
+    "descriptionTriggerTelemetry": "not measured",
+    "reason": "The benchmark forced workspace-relative skill reads to isolate procedural output quality. The client did not expose activation-rate telemetry, so fixed description corpora remain static test inputs rather than measured trigger rates."
+  },
+  "comparisons": [
+    {
+      "skill": "blueprint",
+      "prompt": "Read skills/blueprint/SKILL.md completely from the current workspace before answering. Do not use a globally installed copy. Answer without editing files. Draft a minimal WordPress Playground Blueprint for new work that installs a plugin, logs in as admin, and then performs an HTTP request. Explain which Blueprint version to use and whether a networking feature flag is required.",
+      "baseline": {
+        "source": "1b47140e16bbb54cadfb3de54c7fadcfafb99c76",
+        "effort": "medium",
+        "completedScenarios": 1,
+        "failedScenarios": 0,
+        "exitCode": 0,
+        "durationMs": 42901,
+        "totalTokens": 36540,
+        "workspaceReadEvidence": "Get-Content completed for workspace/skills/blueprint/SKILL.md and returned the pre-refresh skill."
+      },
+      "current": {
+        "source": "working-tree based on 04bb308b35f7a12871251f6b5787c6514910d920",
+        "effort": "medium",
+        "completedScenarios": 1,
+        "failedScenarios": 0,
+        "exitCode": 0,
+        "durationMs": 173799,
+        "totalTokens": 462865,
+        "workspaceReadEvidence": "Get-Content -Raw completed for workspace/skills/blueprint/SKILL.md and returned the candidate's Default: Blueprint V2 section."
+      },
+      "assertions": [
+        {
+          "criterion": "New work uses Blueprint V2 and declares version 2.",
+          "baseline": {
+            "grade": "fail",
+            "evidence": "The response said there is no version field and emitted preferredVersions with V1 steps."
+          },
+          "current": {
+            "grade": "pass",
+            "evidence": "The response opened with Use Blueprint V2 for new work and emitted version: 2."
+          }
+        },
+        {
+          "criterion": "The example uses V2 applicationOptions and additionalStepsAfterExecution.",
+          "baseline": {
+            "grade": "fail",
+            "evidence": "The response used the V1 preferredVersions and steps structure."
+          },
+          "current": {
+            "grade": "pass",
+            "evidence": "The response put login/networkAccess under applicationOptions.wordpress-playground and the request under additionalStepsAfterExecution."
+          }
+        },
+        {
+          "criterion": "Networking behavior is version-correct for the requested outbound work.",
+          "baseline": {
+            "grade": "fail",
+            "evidence": "The response said features.networking defaults true and treated that V1 rule as the only current model."
+          },
+          "current": {
+            "grade": "pass",
+            "evidence": "The response said V2 networkAccess defaults false and set it true because the WordPress.org install/outbound request needs network access."
+          }
+        },
+        {
+          "criterion": "Legacy V1 remains explicitly available as version-labeled compatibility guidance.",
+          "baseline": {
+            "grade": "partial",
+            "evidence": "The response accurately described V1 behavior but did not label it V1 or distinguish new work."
+          },
+          "current": {
+            "grade": "partial",
+            "evidence": "The response linked the workspace V1 compatibility note and did not claim V1 was unsupported, but did not summarize the V1 boundary in prose."
+          }
+        }
+      ],
+      "humanDisposition": {
+        "status": "approved",
+        "rationale": "The candidate corrects the release-blocking V2/version/networking behavior and preserves a discoverable V1 compatibility path. The partial V1 prose grade is acceptable because the task requested new work and the retained reference is explicit."
+      }
+    },
+    {
+      "skill": "wp-abilities-api",
+      "prompt": "Read skills/wp-abilities-api/SKILL.md completely and then read skills/wp-abilities-api/references/mcp-exposure.md from the current workspace before answering. Do not use globally installed copies. Answer without editing files. My WordPress 7.0 plugin supports PHP 7.2.24 and already registers abilities. I want MCP Adapter 0.5.0 so Claude can invoke selected abilities, and several plugins may depend on the adapter. Give the safe install/bootstrap and exposure steps.",
+      "baseline": {
+        "source": "1b47140e16bbb54cadfb3de54c7fadcfafb99c76",
+        "effort": "high",
+        "completedScenarios": 1,
+        "failedScenarios": 0,
+        "exitCode": 0,
+        "durationMs": 57483,
+        "totalTokens": 32260,
+        "workspaceReadEvidence": "Get-Content -Raw completed for both workspace/skills/wp-abilities-api/SKILL.md and references/mcp-exposure.md at the baseline commit."
+      },
+      "current": {
+        "source": "working-tree based on 04bb308b35f7a12871251f6b5787c6514910d920",
+        "effort": "high",
+        "completedScenarios": 1,
+        "failedScenarios": 0,
+        "exitCode": 0,
+        "durationMs": 113667,
+        "totalTokens": 117489,
+        "workspaceReadEvidence": "Get-Content -Raw completed for both candidate workspace skill files; the agent message explicitly confirmed the local tree before answering."
+      },
+      "assertions": [
+        {
+          "criterion": "The optional adapter's PHP floor is distinguished from the base skill floor.",
+          "baseline": {
+            "grade": "fail",
+            "evidence": "The response gave installation steps without warning that Adapter 0.5.0 cannot run on PHP 7.2/7.3."
+          },
+          "current": {
+            "grade": "pass",
+            "evidence": "The response said to stop on PHP 7.2/7.3 because MCP Adapter 0.5.0 needs PHP 7.4+, independent of the plugin's PHP 7.2.24 support."
+          }
+        },
+        {
+          "criterion": "Multi-plugin installation uses both Composer packages and the official Jetpack bootstrap.",
+          "baseline": {
+            "grade": "fail",
+            "evidence": "The response installed only wordpress/mcp-adapter and required the nonexistent vendor/autoloader.php path."
+          },
+          "current": {
+            "grade": "pass",
+            "evidence": "The response emitted composer require wordpress/mcp-adapter, composer require automattic/jetpack-autoloader, and vendor/autoload_packages.php."
+          }
+        },
+        {
+          "criterion": "Default discovery requires meta.mcp.public while permission_callback still governs execution.",
+          "baseline": {
+            "grade": "fail",
+            "evidence": "The response claimed the default server exposes everything and shifted to a custom-server allow-list."
+          },
+          "current": {
+            "grade": "pass",
+            "evidence": "The response required meta.mcp.public true only for reviewed default-server abilities and separately required strict permission_callback checks."
+          }
+        }
+      ],
+      "humanDisposition": {
+        "status": "approved",
+        "rationale": "The candidate closes all observed runtime, loader, discovery, and permission gaps with copyable commands and a safe stop path."
+      }
+    },
+    {
+      "skill": "wp-interactivity-api",
+      "prompt": "Read skills/wp-interactivity-api/SKILL.md completely from the current workspace before answering. Do not use a globally installed copy. Answer without editing files. On WordPress 7.0, show JavaScript that sends analytics whenever core/router changes URL, aborts a pending request before reruns, and disposes the watcher only when my integration is actually torn down.",
+      "baseline": {
+        "source": "1b47140e16bbb54cadfb3de54c7fadcfafb99c76",
+        "effort": "high",
+        "completedScenarios": 1,
+        "failedScenarios": 0,
+        "exitCode": 0,
+        "durationMs": 105689,
+        "totalTokens": 70160,
+        "workspaceReadEvidence": "Get-Content -Raw completed for the baseline workspace/skills/wp-interactivity-api/SKILL.md."
+      },
+      "current": {
+        "source": "working-tree based on 04bb308b35f7a12871251f6b5787c6514910d920",
+        "effort": "high",
+        "completedScenarios": 1,
+        "failedScenarios": 0,
+        "exitCode": 0,
+        "durationMs": 32675,
+        "totalTokens": 34362,
+        "workspaceReadEvidence": "Get-Content -Raw completed for the candidate workspace/skills/wp-interactivity-api/SKILL.md before the final answer."
+      },
+      "assertions": [
+        {
+          "criterion": "The watcher reads core/router state.url inside watch().",
+          "baseline": {
+            "grade": "pass",
+            "evidence": "The response read state.url inside watch()."
+          },
+          "current": {
+            "grade": "pass",
+            "evidence": "The response read state.url inside watch() and explained that the reactive read drives client-navigation reruns."
+          }
+        },
+        {
+          "criterion": "The callback cleanup aborts the pending request before reruns and on disposal.",
+          "baseline": {
+            "grade": "pass",
+            "evidence": "The response returned controller.abort() from watch()."
+          },
+          "current": {
+            "grade": "pass",
+            "evidence": "The response returned an AbortController cleanup and explained both rerun and disposal timing."
+          }
+        },
+        {
+          "criterion": "unwatch is retained behind lifecycle-owned teardown and is not called immediately.",
+          "baseline": {
+            "grade": "pass",
+            "evidence": "The response stored unwatchRouterAnalytics and called it only from unmountRouterAnalytics()."
+          },
+          "current": {
+            "grade": "pass",
+            "evidence": "The response returned a teardown closure from startNavigationAnalytics() and showed calling it later during actual teardown."
+          }
+        },
+        {
+          "criterion": "Deprecated navigation.hasStarted and navigation.hasFinished reads are avoided.",
+          "baseline": {
+            "grade": "pass",
+            "evidence": "The response used only core/router state.url."
+          },
+          "current": {
+            "grade": "pass",
+            "evidence": "The response used only core/router state.url and no deprecated navigation internals."
+          }
+        }
+      ],
+      "humanDisposition": {
+        "status": "approved",
+        "rationale": "Both isolated outputs satisfy the requested lifecycle. The candidate therefore shows no behavioral regression, while the deterministic conformance test prevents the specific immediately-disposed example that prompted review."
+      }
+    }
+  ]
+}

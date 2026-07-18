@@ -1,6 +1,7 @@
 {
   "name": "Upstream indices update",
-  "skills": ["wordpress-router"],
+  "kind": "repository-infrastructure",
+  "skills": [],
   "query": "Update the repository's upstream indices so they reflect the latest WordPress and Gutenberg releases.",
   "expected_behavior": [
     "Step 1: Run update script: node shared/scripts/update-upstream-indices.mjs",

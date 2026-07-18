@@ -77,6 +77,8 @@ The default MCP server section will distinguish public discovery from custom-ser
 - Default discovery/get/execute tools operate only on abilities marked `meta.mcp.public === true`.
 - Custom servers may explicitly include selected abilities and are not described as a shortcut around permission callbacks.
 - The custom-server example will use the exact MCP Adapter 0.5.0 namespaces and retain the verified thirteen-parameter `create_server()` shape.
+- The parent Abilities skill keeps its PHP 7.2.24 floor, but the optional MCP decision point must state that Adapter 0.5.0 requires PHP `^7.4 || ^8.0` and stop on PHP 7.2/7.3 until the runtime is upgraded.
+- Multi-plugin installation must use `automattic/jetpack-autoloader` and bootstrap `vendor/autoload_packages.php`; the main skill must explicitly load the MCP reference before emitting install, bootstrap, or server code.
 
 Client-side guidance will use a runnable permission callback. It will distinguish registering scripts from enqueueing them and instruct plugins to explicitly enqueue `@wordpress/core-abilities` on the admin surfaces where it is needed. The skill will retain the package-store import pattern that avoids hard-coded store-name differences.
 
@@ -114,9 +116,9 @@ The repository will encode the current Agent Skills creator guidance from the of
 
 - Every description uses the repository's imperative `Use when ...` convention, describes user intent and activation boundaries rather than summarizing the workflow, and remains below the 1,024-character specification limit. The three descriptions that currently fail this contract (`wp-abilities-audit`, `wp-abilities-verify`, and `wp-playground`) receive focused trigger evaluation rather than broad, unmeasured rewrites of all twenty descriptions.
 - Each `SKILL.md` remains below 500 lines. Deep reference material stays in one-hop `references/` files with explicit load conditions so progressive disclosure is useful rather than merely structural.
-- Every skill is covered by at least one valid JSON output scenario. The harness validates scenario fields, skill names, non-empty behavioral expectations, and the absence of obsolete Markdown scenario files.
+- Every skill is covered by at least one valid JSON output scenario. Skill scenarios require a non-empty known-skill list; repository-maintenance scenarios use the explicit `repository-infrastructure` kind and an empty skill list. The harness validates both forms, non-empty behavioral expectations, and the absence of obsolete Markdown scenario files.
 - Each changed description gets a fixed trigger-eval corpus of twelve training queries and eight validation queries, each split evenly between realistic should-trigger cases and near-miss should-not-trigger cases. Six fresh holdout queries are added only after selecting the description. Validation and holdout results must not be used to tune wording.
-- Output-quality checks compare the changed skill with its pre-change snapshot or a no-skill baseline in a clean context. Assertions must be observable, passes require evidence, mechanical checks use scripts, and human review covers qualities that cannot be reduced safely to assertions.
+- Output-quality checks use three risk-based representative pairs—Blueprint V2, Abilities/MCP, and Interactivity watcher lifecycle—comparing the candidate with the pre-change snapshot in clean copied workspaces. Assertions must be observable, passes require evidence, runner timing/token telemetry is retained when emitted, and human review covers qualities that cannot be reduced safely to assertions. This sample is not presented as exhaustive output benchmarking of every edited skill.
 - New or modified command-line scripts are non-interactive, provide concise successful `--help`, reject ambiguous input, emit actionable errors and meaningful exit codes, keep stdout predictable, and avoid partial or destructive writes. Stateful or destructive behavior requires a dry-run/check mode when applicable.
 - Generic static budget bands are review signals, not substitutes for the official progressive-disclosure contract or observed usage. A static deferred total may aggregate references and executable source that are never loaded together; it blocks release only when it identifies a concrete loading defect or an observed benchmark confirms harmful cost.
 
@@ -146,7 +148,7 @@ The final verification set will include:
 - Upstream-index parser unit tests, including changed/missing-table failure behavior.
 - Agent Skill quality checks covering description form, `SKILL.md` size, JSON scenario schema and complete skill coverage, fixed trigger-eval splits, and scaffold CLI behavior.
 - Existing prompt scenarios for affected skills plus new scenarios where version-conditional application matters.
-- Clean-context baseline/current evaluations for changed skill behavior, with evidence-bearing assertion grades and targeted human review.
+- Three clean-context baseline/current evaluations for representative high-risk changed behavior, with evidence-bearing assertion grades, runner telemetry, and targeted human review.
 - `node eval/harness/run.mjs`.
 - Frontmatter/reference integrity checks.
 - `git diff --check` and a clean review of the complete intended diff.
@@ -164,6 +166,7 @@ The final verification set will include:
 - Shared release indexes contain current non-empty data, and parser failure cannot silently overwrite good data with an empty mapping.
 - All descriptions meet the activation contract; all `SKILL.md` files stay within the progressive-disclosure line budget; every skill has a valid JSON scenario.
 - The three corrected descriptions have balanced fixed train/validation corpora plus untouched fresh holdouts, and their final wording passes the selected activation checks without overfitting.
+- The retained behavioral-evidence artifact records three clean candidate/baseline comparisons, successful workspace-local skill reads, observable assertion grades, telemetry, human dispositions, and the explicit limitation that trigger rates were not measured.
 - The scaffold produces a valid JSON scenario from a realistic prompt, supports `--help`, and fails ambiguous invocation without leaving partial output.
 - Static analysis has no unresolved correctness, broken-link, unsafe-script, or measured-regression finding; comparative budget signals and the intentional repository `compatibility` key are documented rather than hidden.
 - The full deterministic verification suite passes with no unintended workspace changes.
