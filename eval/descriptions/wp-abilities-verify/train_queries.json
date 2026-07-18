@@ -1,0 +1,14 @@
+[
+  { "query": "Verify the wp_register_ability registrations in C:/work/acme-invoices, especially whether any readonly callbacks actually write to the database.", "should_trigger": true },
+  { "query": "Run a static Abilities API verification on our membership plugin: permissions, input schemas, annotations, and callback behavior all need a report.", "should_trigger": true },
+  { "query": "We already have an abilities audit. Check the implemented registrations against it and flag missing capabilities or unsafe annotation claims.", "should_trigger": true },
+  { "query": "Before merging PR 482, validate that the plugin's agent abilities are callable only by the intended roles and that destructive labels are truthful.", "should_trigger": true },
+  { "query": "Can you verify our WooCommerce extension's ability callbacks in wp-env, including the readonly and idempotent assertions?", "should_trigger": true },
+  { "query": "Inspect plugins/acme-crm for registered WordPress abilities and produce evidence for schema, permission, and runtime behavior checks.", "should_trigger": true },
+  { "query": "Audit the REST controllers in this plugin to decide which ones deserve new abilities.", "should_trigger": false },
+  { "query": "Add a new acme/create-invoice ability with an execute_callback and input schema.", "should_trigger": false },
+  { "query": "Debug why a WordPress Playground Blueprint cannot install the Event Tickets plugin.", "should_trigger": false },
+  { "query": "Create a custom REST route that exposes the current user profile to our React app.", "should_trigger": false },
+  { "query": "Fix PHPStan errors in the classes that happen to contain ability registrations.", "should_trigger": false },
+  { "query": "Design a WordPress admin panel that lets editors configure API access tokens.", "should_trigger": false }
+]

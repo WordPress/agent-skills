@@ -1,36 +1,21 @@
-## Blueprint quick reference
+# Blueprints with Playground CLI 3.1.45
 
-Blueprints are JSON recipes that describe how Playground should set up WordPress.
-
-### Minimal example
+Use Blueprint V2 for new files.
 
 ```json
 {
   "$schema": "https://playground.wordpress.net/blueprint-schema.json",
-  "steps": [
-    { "step": "installTheme", "themeZipUrl": "https://downloads.wordpress.org/theme/twentytwentythree.zip" },
-    { "step": "installPlugin", "pluginZipUrl": "https://downloads.wordpress.org/plugin/classic-editor.zip" }
-  ]
+  "version": 2,
+  "blueprintMeta": { "name": "Local plugin test site", "description": "A reproducible Playground site" },
+  "applicationOptions": { "wordpress-playground": { "login": true, "networkAccess": false } },
+  "wordpressVersion": "latest",
+  "phpVersion": "8.3",
+  "plugins": ["query-monitor"],
+  "siteOptions": { "blogname": "Local plugin test site" },
+  "additionalStepsAfterExecution": []
 }
 ```
 
-### Common steps (non-exhaustive)
+V2 network access defaults to `false`; omit it or set it to `false` for an isolated site. Set it to `true` only when outbound requests are required. `login: true` selects the default Playground admin, and object-form login needs both credentials.
 
-- `setSiteUrl`, `setHomeUrl`
-- `installTheme`, `installPlugin` (ZIP URLs or local paths when allowed)
-- `activateTheme`, `activatePlugin`
-- `runPHP` (inline PHP)
-- `applyPatches` (filesystem patch)
-- `writeFile` (create/update files)
-- `importFile` (XML/WXR)
-- `wpConfigConstants` (define constants)
-- `preferredVersions` (pick WP/PHP; matches CLI `--wp` / `--php`)
-- `blueprintSteps` that include `extraLibraries` (e.g., Jetpack) and `features.networking` when browser networking is required
-
-### Tips
-
-- Use `--blueprint-may-read-adjacent-files` when the blueprint needs local files (e.g., custom plugin ZIP) during `run-blueprint` or `build-snapshot`.
-- For iterative authoring, keep blueprints small and compose via separate files.
-- Validate against the published schema URL above to catch typos.
-- For Gutenberg/nightly testing, set `--wp=<version>` to align with target WP.
-- To share quickly, encode the blueprint as base64 in the Playground URL fragment or host the JSON/ZIP and pass `?blueprint-url=…`.
+Run a local Blueprint or build a snapshot with the parent skill's CLI commands. Use `--blueprint-may-read-adjacent-files` only when a local Blueprint needs bundled neighboring files. For an existing V1 Blueprint without `version`, see [V1 compatibility](../../blueprint/references/v1-compatibility.md); new V2 files do not use `preferredVersions`, `features`, top-level `login`, or `steps`.

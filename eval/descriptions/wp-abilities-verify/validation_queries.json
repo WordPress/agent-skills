@@ -1,0 +1,10 @@
+[
+  { "query": "Check whether every registered ability in acme-bookings has a valid schema, correct capability callback, and behavior that matches its annotations.", "should_trigger": true },
+  { "query": "Give me a runtime verification report for the abilities in wp-content/plugins/fulfillment-tools using admin and subscriber test users.", "should_trigger": true },
+  { "query": "The audit says cancel-order is destructive=false. Verify the source and registration instead of trusting that field.", "should_trigger": true },
+  { "query": "Validate a completed Abilities API rollout for a plugin and cross-check its registrations against the migration audit.", "should_trigger": true },
+  { "query": "Plan the semantic grouping for a plugin's future abilities from its REST endpoints.", "should_trigger": false },
+  { "query": "Use @wp-playground/cli to reproduce a plugin crash with PHP 8.3 and Xdebug.", "should_trigger": false },
+  { "query": "Register an ability category and expose a new public tool for reading orders.", "should_trigger": false },
+  { "query": "Add REST API permission tests for the posts controller without touching abilities.", "should_trigger": false }
+]

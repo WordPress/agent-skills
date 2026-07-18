@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { parseWpGutenbergMapFromHtml } from "./upstream-index-lib.mjs";
 
 const SOURCES = {
   wordpressCoreVersionCheck: "https://api.wordpress.org/core/version-check/1.7/",
@@ -15,26 +16,6 @@ function mkdirp(dirPath) {
 function writeJson(filePath, value) {
   mkdirp(path.dirname(filePath));
   fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-}
-
-function stripTags(html) {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function decodeHtml(text) {
-  return text
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, "\"")
-    .replace(/&#39;/g, "'")
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
 }
 
 async function fetchText(url) {
@@ -55,34 +36,6 @@ async function fetchJson(url) {
   } catch {
     throw new Error(`Expected JSON from ${url}, got non-JSON response`);
   }
-}
-
-function parseWpGutenbergMapFromHtml(html) {
-  // Best-effort HTML table parsing without dependencies:
-  // 1) find the first <table> that contains "WordPress Version" and "Gutenberg Versions"
-  // 2) extract rows, then extract cells
-  const tables = [...html.matchAll(/<table[\s\S]*?<\/table>/gi)].map((m) => m[0]);
-  const target = tables.find((t) => /WordPress\s*Version/i.test(t) && /Gutenberg\s*Versions/i.test(t));
-  if (!target) return { rows: [], note: "table-not-found" };
-
-  const rowHtml = [...target.matchAll(/<tr[\s\S]*?<\/tr>/gi)].map((m) => m[0]);
-  const rows = [];
-
-  for (const r of rowHtml) {
-    const cellHtml = [...r.matchAll(/<(td|th)[^>]*>([\s\S]*?)<\/\1>/gi)].map((m) => m[2]);
-    if (cellHtml.length < 2) continue;
-
-    const cells = cellHtml.map((c) => decodeHtml(stripTags(c)));
-    const wp = cells[0];
-    const gb = cells[1];
-
-    if (/WordPress\s*Version/i.test(wp) || /Gutenberg\s*Versions/i.test(gb)) continue;
-    if (!/^\d+\.\d+/.test(wp)) continue;
-
-    rows.push({ wordpress: wp, gutenberg: gb });
-  }
-
-  return { rows, note: null };
 }
 
 function normalizeWpVersionCheckPayload(payload) {

@@ -1,6 +1,6 @@
 # Hooks, filters, constants, and gates
 
-The public extension surface of the AI plugin v1.1.0. Anchored to source — the source is canonical.
+The public extension surface of the AI plugin v1.2.0. Anchored to source — the source is canonical.
 
 ## Constants (v0.6.0+)
 
@@ -8,7 +8,7 @@ Defined in `ai.php` `constants()`. The 0.6.0 release renamed the family from `AI
 
 | Constant | Source | Use |
 | --- | --- | --- |
-| `WPAI_VERSION` | `'1.1.0'` (string literal) | Version detection in downstream code |
+| `WPAI_VERSION` | `'1.2.0'` (string literal) | Version detection in downstream code |
 | `WPAI_PLUGIN_FILE` | `__FILE__` (ai.php) | The main plugin file path |
 | `WPAI_PLUGIN_DIR` | `plugin_dir_path( WPAI_PLUGIN_FILE )` | Filesystem path to the plugin directory |
 | `WPAI_PLUGIN_URL` | `plugin_dir_url( WPAI_PLUGIN_FILE )` | URL to the plugin directory (for asset references) |
@@ -17,8 +17,8 @@ Defined in `ai.php` `constants()`. The 0.6.0 release renamed the family from `AI
 Use these in downstream plugins to detect the AI plugin's presence and version, and to reference its assets when integrating with its UI.
 
 ```php
-if ( defined( 'WPAI_VERSION' ) && version_compare( WPAI_VERSION, '0.8.0', '>=' ) ) {
-    // Guidelines integration is available.
+if ( defined( 'WPAI_VERSION' ) && version_compare( WPAI_VERSION, '1.2.0', '>=' ) ) {
+    // Use the current canonical AI plugin extension surface.
 }
 ```
 
@@ -46,8 +46,6 @@ The AI plugin uses this gate internally before initializing experiments (#268). 
 - `WordPress\AI\format_guidelines_for_prompt( array $categories, ?string $block_name = null ): string` — convenience wrapper around `Guidelines::get_instance()->format_for_prompt()`.
 - `WordPress\AI\get_post_context( int $post_id ): array` — associative post-context array for prompts (callers read keys like `$context['content']`); it is **not** a pre-formatted string.
 - `WordPress\AI\get_preferred_models_for_text_generation(): array` — returns the plugin's preferred model list for `using_model_preference()`.
-- `WordPress\AI\get_min_content_length( string $feature_id, int $content_length = 250 ): int` — (v1.1.0+) minimum character count before a content-dependent feature is available; runs the `wpai_min_content_length` filter.
-- `WordPress\AI\has_image_generation_support( bool $reset_cache = false ): bool` — (v1.0.2+) whether any configured connector supports image generation; result is filterable via `wpai_has_image_generation_support` (v1.1.0+).
 
 These are namespaced functions in `WordPress\AI`. Import as `use function WordPress\AI\normalize_content;` (or use the fully qualified name).
 
@@ -69,20 +67,23 @@ These are namespaced functions in `WordPress\AI`. Import as `use function WordPr
 | `wpai_use_guidelines` | `Guidelines::should_use_guidelines()` | `true` | Disable Guidelines integration entirely |
 | `wpai_max_guideline_length` | `Guidelines::format_for_prompt()` | `5000` (chars) | Per-category truncation length |
 
+### Requests and feature settings
+
+| Filter | Where | Use |
+| --- | --- | --- |
+| `wpai_default_request_timeout` | AI request configuration | Set the documented default request timeout |
+| `wpai_settings_feature_groups` | Settings → AI feature metadata | Extend or adjust feature groups |
+| `wpai_settings_feature_metadata` | Settings → AI feature metadata | Extend metadata supplied by Features |
+| `wpai_feature_{$id}_settings` | A feature's settings metadata | Adjust settings for one Feature |
+
+Advanced settings are Feature-provided metadata on the existing Settings → AI surface. These filters extend that data; they do not establish a separate public settings registry.
+
 ### Content normalization
 
 | Filter | Where | Default | Use |
 | --- | --- | --- | --- |
 | `wpai_pre_normalize_content` | `WordPress\AI\normalize_content()` | input | Modify content before normalization |
 | `wpai_normalize_content` | `WordPress\AI\normalize_content()` | output | Modify content after normalization |
-
-### Content thresholds and capability detection (v1.1.0+)
-
-| Filter | Where | Default | Use |
-| --- | --- | --- | --- |
-| `wpai_min_content_length` | `WordPress\AI\get_min_content_length()` | `250` (chars) | Per-feature minimum character count before content-dependent features enable; replaces the deprecated `wpai_summarization_min_content_length` |
-| `wpai_has_image_generation_support` | `WordPress\AI\has_image_generation_support()` | auto-detected bool | Claim Image Generation support when auto-detection misses it (e.g., connectors authenticating without an API key, such as OAuth) |
-| `wpai_comment_moderation_moderate_guests` | Comment Moderation experiment | setting value (default yes) | Override whether guest comments are auto-moderated |
 
 ### Ability system-instruction filter
 

@@ -1,5 +1,6 @@
 {
   "name": "Build and install skillpacks",
+  "kind": "repository-infrastructure",
   "skills": [],
   "query": "Package this repo's skills for Codex, VS Code, Claude, and Cursor and install them into another repository.",
   "expected_behavior": [

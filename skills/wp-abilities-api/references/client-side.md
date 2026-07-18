@@ -12,12 +12,26 @@ WordPress 6.9 introduced the server-side Abilities API. WordPress 7.0 added the 
 ### Server abilities + client UI (most common)
 
 ```php
-add_action( 'admin_enqueue_scripts', function () {
+add_action( 'init', function () {
+    wp_register_script_module(
+        'my-plugin-admin',
+        plugins_url( 'build/admin.js', __FILE__ ),
+        array( '@wordpress/abilities' ),
+        '1.0.0'
+    );
+} );
+
+add_action( 'admin_enqueue_scripts', function ( $hook_suffix ) {
+    if ( 'settings_page_my-plugin' !== $hook_suffix ) {
+        return;
+    }
+
     wp_enqueue_script_module( '@wordpress/core-abilities' );
+    wp_enqueue_script_module( 'my-plugin-admin' );
 } );
 ```
 
-This loads `@wordpress/core-abilities` plus its dependency `@wordpress/abilities`, and the server abilities show up in the store automatically. WordPress core enqueues `@wordpress/core-abilities` on all admin pages, so server abilities are available in the admin by default — you don't need to re-enqueue unless you're outside admin.
+`wp_register_script_module()` makes the plugin's compiled script module available; it does not load it. `wp_enqueue_script_module()` loads it on the matching screen. Keep this page-scoped enqueue pattern, and explicitly enqueue `@wordpress/core-abilities`: it loads its `@wordpress/abilities` dependency and registers server abilities in the store automatically.
 
 ### Client-only abilities on a specific page
 
@@ -124,18 +138,31 @@ registerAbility( {
 
 ### Permission callback
 
+Render the capability state with the page that owns the client-only ability:
+
+```php
+<div
+    id="my-plugin-root"
+    data-can-manage-options="<?php echo current_user_can( 'manage_options' ) ? '1' : '0'; ?>"
+></div>
+```
+
 ```js
+const { registerAbility } = await import( '@wordpress/abilities' );
+const root = document.getElementById( 'my-plugin-root' );
+const canManageOptions = root?.dataset.canManageOptions === '1';
+
 registerAbility( {
     name: 'my-plugin/admin-action',
     label: 'Admin Action',
-    description: 'An action only available to administrators',
+    description: 'Runs an administrator-only client action',
     category: 'my-plugin-actions',
-    permissionCallback: () => currentUserCan( 'manage_options' ),
-    callback: async () => ({ success: true }),
+    permissionCallback: () => canManageOptions,
+    callback: async () => ( { success: true } ),
 } );
 ```
 
-Returns false → throws `ability_permission_denied`.
+This client check controls discoverability and execution in the UI; server-backed work still needs a server-side `permission_callback`. Returning false throws `ability_permission_denied`.
 
 ## Annotations
 

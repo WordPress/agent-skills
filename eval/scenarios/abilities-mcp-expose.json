@@ -6,19 +6,25 @@
     "Step 1: Run wordpress-router to classify repo kind",
     "Step 2: Run wp-project-triage to detect plugin structure",
     "Step 3: Route to wp-abilities-api skill (point at references/mcp-exposure.md)",
-    "Step 4: Recommend installing the MCP Adapter via Composer (composer require wordpress/mcp-adapter); use Jetpack Autoloader if multiple plugins on the site depend on it",
-    "Step 5: Note that the default server (mcp-adapter-default-server) exposes everything; for production with mixed-trust abilities, register a custom server via the mcp_adapter_init action",
-    "Step 6: Audit existing abilities for proper meta.annotations: 'list pending comments' should be readonly:true, 'approve' should NOT be readonly (it mutates), 'mark as spam' should be destructive:true",
-    "Step 7: Ensure every ability has a permission_callback (especially destructive ones); MCP clients act as authenticated users",
-    "Step 8: Set up an Application Password for the Claude Desktop user; explain Settings → Permalinks must NOT be Plain",
-    "Step 9: Verify by hitting /wp-json/ for the namespace and connecting Claude Desktop to confirm tools appear"
+    "Step 4: Check PHP before installation: MCP Adapter 0.5.0 requires PHP 7.4+; on PHP 7.2 or 7.3, stop and upgrade the runtime or do not enable MCP exposure",
+    "Step 5: Install with composer require wordpress/mcp-adapter; when multiple plugins depend on it, also run composer require automattic/jetpack-autoloader and bootstrap vendor/autoload_packages.php",
+    "Step 6: Mark only intentionally exposed abilities with meta.mcp.public set to true; the default server filters discovery to that public set, while permission_callback still controls execution",
+    "Step 7: Audit existing abilities for proper meta.annotations: 'list pending comments' should be readonly:true, 'approve' should NOT be readonly (it mutates), 'mark as spam' should be destructive:true",
+    "Step 8: Ensure every ability has a permission_callback (especially destructive ones); MCP clients act as authenticated users",
+    "Step 9: Set up an Application Password for the Claude Desktop user; explain Settings → Permalinks must NOT be Plain",
+    "Step 10: Verify by hitting /wp-json/ for the namespace and connecting Claude Desktop to confirm tools appear",
+    "Step 11: Use a custom server only when the integration needs an explicit ability allow-list or a tools/resources/prompts split"
   ],
   "success_criteria": [
     "Routes to wp-abilities-api with mcp-exposure.md reference",
+    "Stops on PHP 7.2 or 7.3 and requires PHP 7.4+ before installing MCP Adapter 0.5.0",
     "Recommends Composer installation of wordpress/mcp-adapter (not the standalone plugin zip for production)",
-    "Mentions Jetpack Autoloader for multi-plugin scenarios",
+    "Uses composer require automattic/jetpack-autoloader and vendor/autoload_packages.php for multi-plugin scenarios",
     "Audits annotations: readonly for read operations, destructive for spam/delete",
     "Confirms permission_callback on all abilities (especially destructive ones)",
+    "Requires meta.mcp.public true for default-server discovery",
+    "Does not claim the default server exposes every registered ability",
+    "Keeps permission_callback enforcement separate from public discovery metadata",
     "Surfaces the Plain permalinks gotcha",
     "Mentions Application Passwords as the practical local-dev auth method"
   ]

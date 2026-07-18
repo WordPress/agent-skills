@@ -1,0 +1,10 @@
+[
+  { "query": "Run this local plugin in WordPress Playground rather than my production-like stack; I want a clean PHP 8.2 repro with a mounted checkout.", "should_trigger": true },
+  { "query": "Show me how to launch @wp-playground/cli against a Blueprint URL and verify each setup step completed.", "should_trigger": true },
+  { "query": "Package a temporary Playground site as a snapshot after activating my block theme and demo content.", "should_trigger": true },
+  { "query": "Use Playground to switch WordPress and PHP versions while we isolate a compatibility regression in acme-newsletter.", "should_trigger": true },
+  { "query": "Create a production-ready Kubernetes environment for WordPress with MariaDB and persistent uploads.", "should_trigger": false },
+  { "query": "Review the Blueprint JSON schema and upgrade it to a V2 environment contract.", "should_trigger": false },
+  { "query": "Use wp-cli inside our existing Lando container to deactivate every network plugin.", "should_trigger": false },
+  { "query": "Implement an interactivity API directive that updates a product filter without reloading.", "should_trigger": false }
+]

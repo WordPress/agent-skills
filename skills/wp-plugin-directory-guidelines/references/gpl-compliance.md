@@ -17,8 +17,8 @@
 WordPress is licensed under **GPLv2 or later**. All plugins distributed via WordPress.org must be:
 
 1. **100% GPL-compatible** (code, images, CSS, and all assets)
-2. Include a **license declaration** in the main plugin file header
-3. Include the **full license text** or a URI reference to it
+2. A GPL-compatible `License` declaration is required for WordPress.org acceptance.
+3. `License URI` is optional metadata. When present, it must match the declared license; its absence alone is not a failure.
 4. **Not restrict freedoms** granted by the GPL
 
 ## GPL Versions Summary
@@ -41,7 +41,7 @@ For full license texts, see:
 When reviewing a plugin, verify:
 
 - [ ] Main plugin file has a valid `License:` header (e.g., `GPL-2.0-or-later`, `GPL-2.0+`, `GPLv2 or later`)
-- [ ] Main plugin file has a `License URI:` header pointing to the GPL text
+- [ ] If present, `License URI:` matches the declared license (optional, recommended for clarity)
 - [ ] If bundled libraries exist, each has a GPL-compatible license
 - [ ] No "split licensing" (e.g., code GPL but premium features proprietary)
 - [ ] No additional restrictions beyond what GPL allows
@@ -55,15 +55,21 @@ License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 ```
 
+`License URI` is optional, recommended for clarity.
+
 ```
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 ```
 
+`License URI` is optional, recommended for clarity.
+
 ```
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 ```
+
+`License URI` is optional, recommended for clarity.
 
 ## Accepted Licenses by the WordPress.org Plugin Directory
 

@@ -1,0 +1,8 @@
+[
+  { "query": "Our agency has a plugin with fifteen custom REST routes. Give us the evidence-based Abilities API audit we need before estimating the migration.", "should_trigger": true },
+  { "query": "Review wp-content/plugins/ledger-sync for REST operations that should become agent-facing abilities, and write the planning artifact for the team.", "should_trigger": true },
+  { "query": "I want a capability-aware inventory and recommendation set for translating this plugin's API surface into WordPress abilities.", "should_trigger": true },
+  { "query": "Fix an incorrect permission_callback on the /reports route and add endpoint tests.", "should_trigger": false },
+  { "query": "Explain whether WordPress Playground supports mounting my local plugin on PHP 8.4.", "should_trigger": false },
+  { "query": "Audit the npm dependencies in our WordPress block plugin for vulnerable packages.", "should_trigger": false }
+]

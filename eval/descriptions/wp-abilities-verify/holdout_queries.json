@@ -1,0 +1,8 @@
+[
+  { "query": "Review this plugin's abilities deployment for false readonly claims, malformed input_schema declarations, and privilege leaks before release.", "should_trigger": true },
+  { "query": "Please prove that the WordPress abilities registered by C:/repos/tax-tools behave as their metadata promises, then save a verification report.", "should_trigger": true },
+  { "query": "Our agent integration has shipped. Perform a health check on the registered abilities, including audit alignment and permission roundtrips.", "should_trigger": true },
+  { "query": "Migrate the plugin from a custom endpoint to the new WordPress Abilities API.", "should_trigger": false },
+  { "query": "Make a Blueprint V2 fixture that logs into wp-admin and imports a starter site.", "should_trigger": false },
+  { "query": "Update our plugin readme to document its REST routes and authentication headers.", "should_trigger": false }
+]

@@ -164,11 +164,15 @@ Returned by `generate_*_result()` methods. Useful methods:
 
 The object is serializable; `rest_ensure_response( $result )` works directly in REST callbacks.
 
+### Split `WP_Error` from successful results first
+
+Every `generate_*_result()` call can instead return `WP_Error`. Branch on `is_wp_error( $result )` before metadata access. On errors, use only `get_error_code()`, `get_error_message()`, and `get_error_data()`; call `getProviderMetadata()` and `getModelMetadata()` only on the successful `GenerativeAiResult` branch.
+
 ## Architecture (worth knowing)
 
 The AI Client is two layers:
 
-1. **`wordpress/php-ai-client`** — the framework-agnostic PHP SDK, bundled into Core. camelCase methods, throws exceptions.
+1. **`wordpress/php-ai-client`** — the framework-agnostic PHP SDK, bundled into Core. WordPress 7.0.2 bundles PHP AI Client 1.3.1; the standalone Composer latest is PHP AI Client 1.4.0, so do not assume standalone-only additions are available in Core before WordPress updates its dependency. camelCase methods, throws exceptions.
 2. **`WP_AI_Client_Prompt_Builder`** — Core's WordPress wrapper. snake_case methods, returns `WP_Error`, integrates with WordPress HTTP, the Connectors API, and the hooks system.
 
 `wp_ai_client_prompt()` is the recommended entry point. It returns the wrapper, which catches SDK exceptions and converts them to `WP_Error` for you.

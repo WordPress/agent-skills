@@ -1,0 +1,19 @@
+{
+  "name": "Run and debug a local plugin with Playground CLI 3.1",
+  "skills": ["wp-playground"],
+  "query": "Run the plugin in my current directory on Playground CLI 3.1.45 with PHP 8.3 and Xdebug. Also show the advanced command for an existing WordPress tree with automatic workers.",
+  "expected_behavior": [
+    "Use npx @wp-playground/cli@3.1.45 start --path=. --php=8.3 --xdebug for the normal workflow",
+    "Explain that start auto-detects the project and opens the browser",
+    "Use server --auto-mount=. --workers=auto for advanced worker control",
+    "Use --wordpress-install-mode=install-from-existing-files-if-needed for an existing WordPress tree",
+    "Do not emit removed or ignored legacy flags"
+  ],
+  "success_criteria": [
+    "Selects start for normal local work",
+    "Uses only --xdebug",
+    "Uses --workers=auto",
+    "Uses the current WordPress install-mode option",
+    "Pins the audited CLI version"
+  ]
+}

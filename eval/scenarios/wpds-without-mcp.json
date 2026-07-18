@@ -1,0 +1,19 @@
+{
+  "name": "Use WPDS guidance when its MCP server is unavailable",
+  "skills": ["wpds"],
+  "query": "Build a WordPress admin settings form with current WordPress components and tokens, but the WPDS MCP server is not installed in this session.",
+  "expected_behavior": [
+    "Check for WPDS MCP resources before depending on them",
+    "State that MCP-only pages, component records, and token lists could not be queried",
+    "Continue with official Component Reference, Gutenberg Storybook, @wordpress/components, and @wordpress/ui sources",
+    "Verify each used prop or token against an official page or installed package source",
+    "Do not invent a component API or token name",
+    "Keep the answer focused on the UI layer"
+  ],
+  "success_criteria": [
+    "Does not block solely because MCP is absent",
+    "Uses only official fallback sources",
+    "Discloses the narrower evidence available without MCP",
+    "Produces verifiable UI guidance"
+  ]
+}

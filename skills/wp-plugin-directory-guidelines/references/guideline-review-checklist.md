@@ -33,15 +33,18 @@ Use this section as a structured checklist when reviewing a plugin. Each guideli
 
 **Check:** Does the main plugin file have a `License:` header with a GPL-compatible value? Are all bundled third-party libraries under compatible licenses?
 
+A GPL-compatible `License` declaration is required for WordPress.org acceptance. `License URI` is optional metadata; when present, it must match the declared license, and its absence alone is not a failure.
+
 **Violation signals:**
-- Missing `License:` or `License URI:` header in the main plugin file
+- Missing or GPL-incompatible `License:` declaration in the main plugin file
+- A present `License URI:` does not match the declared license
 - License is `Proprietary`, `All Rights Reserved`, `CC-BY-NC`, `CC-BY-ND`, `SSPL`, `BSL`, `Commons Clause`, `EPL`, `EUPL`, or `MPL-1.0`
 - Bundled library under a license not in the GPL-Compatible Licenses table (see below)
 - PHP files encoded with ionCube, Zend Guard, or similar — source cannot be exercised → violation
 
 **Verdict:** Flag as **FAIL** with the specific file and license value found.
 
-**Fix:** Use `GPL-2.0-or-later` (recommended). Add full license text or a `License URI:` to `https://www.gnu.org/licenses/gpl-2.0.html`. Replace incompatible libraries.
+**Fix:** Use `GPL-2.0-or-later` (recommended). A matching `License URI:` may be added to `https://www.gnu.org/licenses/gpl-2.0.html` (optional, recommended for clarity). Replace incompatible libraries.
 
 ---
 

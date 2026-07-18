@@ -1,0 +1,14 @@
+[
+  { "query": "Start a disposable WordPress Playground instance for C:/work/acme-events, auto-mount the plugin, and debug it with Xdebug.", "should_trigger": true },
+  { "query": "I need an @wp-playground/cli workflow to run this Blueprint locally and save a snapshot for a bug report.", "should_trigger": true },
+  { "query": "Can you reproduce the issue in a throwaway WP environment using Playground with WordPress 6.9 and PHP 8.3?", "should_trigger": true },
+  { "query": "Help me mount two local plugins into WordPress Playground and use the browser editor to test their interaction.", "should_trigger": true },
+  { "query": "Our QA team needs a repeatable Playground Blueprint that installs the theme and opens a local site for smoke testing.", "should_trigger": true },
+  { "query": "Debug plugins/ledger-sync with @wp-playground/cli, a local mount, and an IDE connection for PHP breakpoints.", "should_trigger": true },
+  { "query": "Create a Docker wp-env setup for our multisite plugin and import a MySQL dump.", "should_trigger": false },
+  { "query": "Write a WordPress Playground Blueprint V2 environment definition with a login step and custom constants.", "should_trigger": false },
+  { "query": "Add an Abilities API registration that works inside an existing Playground test fixture.", "should_trigger": false },
+  { "query": "Fix the nonce verification failure in our custom REST endpoint on a real staging site.", "should_trigger": false },
+  { "query": "Create a PHPUnit integration test for an activation hook using the repository's Docker database.", "should_trigger": false },
+  { "query": "Update theme.json spacing tokens so the site editor matches our design system.", "should_trigger": false }
+]

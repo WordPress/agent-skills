@@ -1,0 +1,14 @@
+[
+  { "query": "Audit C:/work/acme-payments for REST endpoints we could expose through the WordPress Abilities API before anyone starts registration work.", "should_trigger": true },
+  { "query": "Can you survey the REST controllers in my WooCommerce extension and write an abilities migration audit to docs/plans/checkout-abilities.md?", "should_trigger": true },
+  { "query": "We are planning agent actions for the Event Tickets plugin; identify candidate wp_register_ability registrations and the capability gates first.", "should_trigger": true },
+  { "query": "Before implementation, produce a shareable Abilities API audit for plugins/acme-subscriptions, including routes, callbacks, and proposed semantic intents.", "should_trigger": true },
+  { "query": "I need a preflight inventory of this plugin's REST surface so product can decide which user workflows become abilities.", "should_trigger": true },
+  { "query": "Take a look at C:/repos/member-tools and plan its Abilities API rollout from the existing REST endpoints, not from guesses.", "should_trigger": true },
+  { "query": "Register wp_register_ability calls in this plugin and wire each execute callback into the new API.", "should_trigger": false },
+  { "query": "Validate that our existing abilities do not claim readonly while updating options at runtime.", "should_trigger": false },
+  { "query": "Add a nonce-protected REST endpoint under acme/v1 for updating a member profile.", "should_trigger": false },
+  { "query": "Build a disposable WordPress Playground Blueprint to activate the acme-payments plugin for QA.", "should_trigger": false },
+  { "query": "Run PHPStan over the plugin's REST controller classes and fix the baseline errors.", "should_trigger": false },
+  { "query": "Create a Gutenberg sidebar panel that calls our existing orders REST route.", "should_trigger": false }
+]

@@ -1,8 +1,7 @@
 ---
 name: wpds
-description: "Use when building or reviewing WordPress admin/editor UIs with the WordPress Design System (WPDS/DS): choosing and composing components (Button, Card, Modal, Panel, DataViews, ToggleControl, and other `@wordpress/components`/`@wordpress/ui` primitives), applying design tokens (color primitives, spacing scales, typography presets/variables), following DS patterns and accessibility guidance, or aligning Gutenberg, WooCommerce, WordPress.com, Jetpack screens and Storybook stories with WPDS. Requires the WPDS MCP server for canonical component and design-token documentation."
-compatibility: "Requires WPDS MCP server configured and running. Targets WordPress 6.9+ (PHP 7.2.24+)."
-license: GPL-2.0-or-later
+description: "Use when building UIs leveraging the WordPress Design System (WPDS) and its components, tokens, patterns, etc."
+compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). WPDS MCP is preferred when available; official WordPress component/package sources are the fallback."
 ---
 
 # WordPress Design System (WPDS)
@@ -27,17 +26,25 @@ Use this skill when the user mentions:
 
 ## Rules
 
-### Use the WPDS MCP server to access WPDS-related documentation
+### Check the WPDS MCP server before choosing sources
 
-- Use the WPDS MCP server to retrieve the canonical, authoritative documentation:
+1. Check whether the WPDS MCP resources (`wpds://pages`, `wpds://components`, `wpds://design-tokens`) are available.
+2. If available, use them as the canonical component/token source:
   - reference site (`wpds://pages`)
   - list of available components (`wpds://components`) and specific component information (`wpds://components/:name`)
   - list of available tokens (`wpds://design-tokens`)
-- DO NOT search the web for canonical documentation about the WordPress Design System. If asked by the user, push back and ask for confirmation, warning them that the MCP server is the best place to provide information
+3. If the WPDS MCP server is unavailable, state that MCP-only resources could not be queried (including pages, component records, and token lists) and use only official WordPress sources:
+   - [Component Reference](https://developer.wordpress.org/block-editor/reference-guides/components/)
+   - [`@wordpress/components` package reference](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-components/)
+   - [Gutenberg Storybook](https://wordpress.github.io/gutenberg/)
+   - [`@wordpress/ui` tagged package source](https://github.com/WordPress/gutenberg/tree/trunk/packages/ui)
+4. In fallback mode, verify every component prop and token against a cited official page or installed package type/source. Do not invent undocumented APIs or token names.
+
+For version-specific fallback evidence, use the source tag that matches the installed package version rather than assuming trunk behavior.
 
 ### Required documentation
 
-Before working on any WPDS-related tasks, make sure you read relevant documentation on the reference site. This documentation should take the absolute precedence when evaluating the best course of action for any given tasks.
+Before working on any WPDS-related task, follow the source decision above and read the relevant available documentation. When MCP is available, its resources take precedence; otherwise, disclose the narrower MCP-only evidence and rely on the listed official fallback sources.
 
 ### Boundaries
 

@@ -1,0 +1,8 @@
+[
+  { "query": "I want a no-Docker, disposable WordPress lab for a client plugin: mount the folder locally, pin PHP, and inspect failures with Xdebug.", "should_trigger": true },
+  { "query": "Build and share a WordPress Playground snapshot from the Blueprint in tests/fixtures/storefront.json.", "should_trigger": true },
+  { "query": "Walk me through a browser-or-CLI Playground setup for testing a theme without changing my current wp-env installation.", "should_trigger": true },
+  { "query": "Provision a long-lived managed WordPress host with backups, cron, and a production domain.", "should_trigger": false },
+  { "query": "Add a Blueprint validation command to CI but do not run a disposable WordPress environment.", "should_trigger": false },
+  { "query": "Investigate an Xdebug configuration problem in our Docker Compose PHP-FPM service.", "should_trigger": false }
+]

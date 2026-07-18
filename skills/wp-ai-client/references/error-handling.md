@@ -7,12 +7,27 @@ The AI Client follows WordPress conventions: `WP_Error` on failure, semantic HTT
 The wrapper catches `Exception` subclasses from the underlying SDK and converts them to `WP_Error`. (It does **not** catch a PHP `TypeError` from a wrong-typed argument — that's an `Error`, not an `Exception` — so match the builder signatures in `references/prompt-builder.md`.) Never wrap calls in try/catch for SDK failures — check `is_wp_error()`:
 
 ```php
-$result = wp_ai_client_prompt( 'Hello' )->generate_text_result();
+$result = wp_ai_client_prompt( 'Summarize this text.' )
+    ->with_text( $text )
+    ->generate_text_result();
+
 if ( is_wp_error( $result ) ) {
-    // Inspect ->get_error_code(), ->get_error_message(), ->get_error_data()
+    error_log(
+        sprintf(
+            'AI request failed [%s]: %s',
+            $result->get_error_code(),
+            $result->get_error_message()
+        )
+    );
+    $upstream_data = $result->get_error_data();
     return $result;
 }
+
+$provider_metadata = $result->getProviderMetadata();
+$model_metadata    = $result->getModelMetadata();
 ```
+
+The error path must use only `WP_Error` methods: `get_error_code()`, `get_error_message()`, and `get_error_data()`. `getProviderMetadata()` and `getModelMetadata()` belong exclusively to the successful `GenerativeAiResult` path after `is_wp_error( $result )` returns false.
 
 When passed to `rest_ensure_response()`, a `WP_Error` automatically receives a meaningful HTTP status code based on the underlying failure. You don't need to map status codes manually.
 
@@ -23,7 +38,7 @@ The Core wrapper maps caught SDK exceptions to a small set of **stable `WP_Error
 - **No provider configured / no compatible model.** `is_supported_*()` would have returned `false` had you checked first. The error from a generator in this state is still meaningful, but the user-facing fix is "configure a provider in Settings → Connectors."
 - **Rate limited / quota exhausted.** Provider-specific. Usually `429`-class. Surface a generic "try again shortly" to the user; log the upstream message for ops.
 - **Validation error from the model.** Most common with `as_json_response()` if the schema is too strict or the prompt is ambiguous. Loosen the schema, lower temperature, or add an explicit example to the system instruction.
-- **Provider returned an opaque error.** Pull `getProviderMetadata()` off the result (when you used `*_result()`) for the actual upstream message — the wrapper sometimes loses detail in translation.
+- **Provider returned an opaque error.** Log the `WP_Error` code, message, and data. Do not use `GenerativeAiResult` metadata methods on the error object.
 
 ## The `wp_ai_client_prevent_prompt` filter
 
@@ -79,7 +94,7 @@ Don't dump full prompts into PHP error logs — they may contain user content, P
 
 - error code,
 - HTTP status (from `$error->get_error_data()['status']` if present),
-- provider/model metadata if you have a `*_result()`,
+- provider/model metadata only after a `*_result()` call returned a successful `GenerativeAiResult`,
 - a short hash of the prompt for correlation if you really need it.
 
 Keep the actual prompt text in your application's audit log, behind whatever access controls you already use for sensitive content.

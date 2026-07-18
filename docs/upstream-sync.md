@@ -42,6 +42,8 @@ This keeps automation deterministic and reviewable before it starts rewriting sk
 - Optional: use Agent Skills reference validator:
   - `skills-ref validate skills/<skill-name>`
 
+The updater is transactional with respect to parsing: it fetches and normalizes all three sources before writing any index. If the canonical WordPress/Gutenberg mapping cannot be parsed into at least one row, the command exits non-zero and preserves the checked-in indexes. Never accept `table-not-found` or an empty `rows` array as a successful refresh.
+
 ## Canonical sources
 
 The automation should prefer canonical sources and avoid scraping where possible.

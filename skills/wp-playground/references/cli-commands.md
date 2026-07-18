@@ -1,39 +1,33 @@
-## Playground CLI command cheatsheet
+# Playground CLI 3.1.45 commands
 
-> Requires Node.js 20.18+ and npm/npx.
-> Latest version: 3.0.20 (November 2025)
+Pin `@wp-playground/cli@3.1.45`. PHP 8.3 is the default; choices are `"5.2"`, `"7.4"`, and `"8.0"` through `"8.5"`.
 
-### What's new in 2025
+## Normal local work: `start`
 
-- **PHP 8.3 is now the default** (since July 2025).
-- **New PHP extensions**: ImageMagick, SOAP, and AVIF GD support.
-- **OpCache enabled**: 42% faster response times (185ms → 108ms average).
-- **Multi-worker default**: `--experimental-multi-worker` now defaults to CPU count minus one.
+`start` auto-detects a plugin, theme, `wp-content`, or WordPress directory, mounts it, opens a browser, and persists state.
 
-### Install / run server
+```powershell
+npx @wp-playground/cli@3.1.45 start --path=. --wp=latest --php=8.3
+npx @wp-playground/cli@3.1.45 start --path=. --xdebug
+npx @wp-playground/cli@3.1.45 start --path=. --php=8.3 --xdebug
+```
 
-- `npx @wp-playground/cli@latest server [--port=9400] [--auto-mount] [--wp=<ver>] [--php=<ver>] [--verbosity=debug] [--blueprint=<url-or-path>]`
-- Mounts:
-  - `--auto-mount` (detect plugin/theme in CWD)
-  - `--mount=/abs/host:/vfs/path` (repeatable)
-  - `--mount-before-install` (apply mounts before WP install)
+## Advanced control: `server`
 
-### Run a blueprint
+`server` is for advanced mounting, worker controls, and existing-tree setup.
 
-- `npx @wp-playground/cli@latest run-blueprint --blueprint=<file-or-url> [--blueprint-may-read-adjacent-files] [--wp=<ver>] [--php=<ver>] [--verbosity=debug]`
-- Use for scripted setup; no persistent server.
+```powershell
+npx @wp-playground/cli@3.1.45 server --auto-mount=. --workers=auto
+npx @wp-playground/cli@3.1.45 server --auto-mount=. --wordpress-install-mode=install-from-existing-files-if-needed
+```
 
-### Build a snapshot
+`--workers=4` fixes the count; `--workers=auto` uses one worker per CPU core minus one. Both are server-only. Valid install modes are `download-and-install`, `install-from-existing-files`, `install-from-existing-files-if-needed`, and `do-not-attempt-installing`.
 
-- `npx @wp-playground/cli@latest build-snapshot --blueprint=<file-or-url> --outfile=./site.zip [--verbosity=debug]`
-- Produces a sharable ZIP usable by Playground UI or other CLI commands.
+## Batch Blueprint operations
 
-### Debugging flags
+```powershell
+npx @wp-playground/cli@3.1.45 run-blueprint --blueprint=./blueprint.json --blueprint-may-read-adjacent-files
+npx @wp-playground/cli@3.1.45 build-snapshot --blueprint=./blueprint.json --outfile=./site.zip
+```
 
-- `--xdebug` / `--enable-xdebug` (depends on release) to start Xdebug listener.
-- `--experimental-multi-worker` to speed multi-step blueprints; disable if unstable.
-
-### Version control
-
-- `--wp=<version>` to pick WordPress version (defaults to latest).
-- `--php=<version>` to pick PHP version (defaults to 8.3 since July 2025).
+Use the adjacent-files flag only when a local Blueprint reads bundled files next to its JSON file. `run-blueprint` exits after execution; `build-snapshot` writes the requested ZIP.

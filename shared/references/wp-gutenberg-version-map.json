@@ -1,5 +1,98 @@
 {
   "source": "https://developer.wordpress.org/block-editor/contributors/versions-in-wordpress/",
-  "note": "table-not-found",
-  "rows": []
+  "note": null,
+  "rows": [
+    {
+      "wordpress": "7.0.X",
+      "gutenberg": "22.6"
+    },
+    {
+      "wordpress": "6.9.X",
+      "gutenberg": "21.9"
+    },
+    {
+      "wordpress": "6.8.X",
+      "gutenberg": "20.4"
+    },
+    {
+      "wordpress": "6.7.X",
+      "gutenberg": "19.3"
+    },
+    {
+      "wordpress": "6.6.X",
+      "gutenberg": "18.5"
+    },
+    {
+      "wordpress": "6.5.X",
+      "gutenberg": "17.7"
+    },
+    {
+      "wordpress": "6.4.X",
+      "gutenberg": "16.7"
+    },
+    {
+      "wordpress": "6.3.X",
+      "gutenberg": "16.1"
+    },
+    {
+      "wordpress": "6.2.X",
+      "gutenberg": "15.1"
+    },
+    {
+      "wordpress": "6.1.X",
+      "gutenberg": "14.1"
+    },
+    {
+      "wordpress": "6.0.X",
+      "gutenberg": "13.0"
+    },
+    {
+      "wordpress": "5.9.X",
+      "gutenberg": "11.9"
+    },
+    {
+      "wordpress": "5.8.X",
+      "gutenberg": "10.7"
+    },
+    {
+      "wordpress": "5.7.X",
+      "gutenberg": "9.9"
+    },
+    {
+      "wordpress": "5.6.X",
+      "gutenberg": "9.2"
+    },
+    {
+      "wordpress": "5.5.X",
+      "gutenberg": "8.5"
+    },
+    {
+      "wordpress": "5.4.X",
+      "gutenberg": "7.5"
+    },
+    {
+      "wordpress": "5.3.X",
+      "gutenberg": "6.5"
+    },
+    {
+      "wordpress": "5.2.X",
+      "gutenberg": "5.4"
+    },
+    {
+      "wordpress": "5.1.X",
+      "gutenberg": "4.8"
+    },
+    {
+      "wordpress": "5.0.3-5.0.22",
+      "gutenberg": "4.7.1"
+    },
+    {
+      "wordpress": "5.0.2",
+      "gutenberg": "4.7.0"
+    },
+    {
+      "wordpress": "5.0.0-5.0.1",
+      "gutenberg": "4.6.1"
+    }
+  ]
 }
