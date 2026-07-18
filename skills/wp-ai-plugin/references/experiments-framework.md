@@ -27,7 +27,7 @@ From `includes/Abstracts/Abstract_Feature.php`:
 - **`public function get_settings_fields(): array`** — optional override. Return field definitions for the DataForm UI on the AI settings page.
 - **`final public static function get_field_option_name( string $option_name ): string`** — generates `wpai_feature_{$id}_field_{$option_name}`. Use for namespaced option storage.
 
-The interface (`Contracts\Feature`) preserves its twelve public methods in v1.2.0: `get_id` (static), `get_label`, `get_description`, `get_category`, `get_stability`, `register`, `is_globally_enabled`, `is_individually_enabled`, `is_enabled`, `get_settings_fields_metadata`, `get_image`, and `get_capability`.
+The interface (`Contracts\Feature`) lists twelve public methods (unchanged as of v1.2.0): `get_id` (static), `get_label`, `get_description`, `get_category`, `get_stability`, `register`, `is_globally_enabled` (added v1.0.1), `is_individually_enabled` (added v1.0.1), `is_enabled`, `get_settings_fields_metadata` (added v0.7.0), `get_image` (added v0.8.0), and `get_capability` (added v0.9.0).
 
 ## The canonical example
 
@@ -91,6 +91,14 @@ Before registering another read capability, inspect the core read-only `core/rea
 ### Advanced feature settings
 
 Features supply advanced settings through their own metadata and settings-field methods. Use the documented `wpai_settings_feature_groups`, `wpai_settings_feature_metadata`, and `wpai_feature_{$id}_settings` filters to extend that existing metadata. There is no separate public registry for advanced settings to invent.
+
+### Added in v1.2.0
+
+- **`Suggest_Reply`** (`suggest-reply`, `Experiment_Category::ADMIN`) — adds a "Suggest reply" action to the Comments screen row actions and the Activity dashboard widget so moderators can generate a reply to a comment; registers the paired `ai/suggest-reply` Ability (#724).
+- Two new **read-only Abilities**, registered by `Main` and kept almost identical to the proposed WordPress core classes so the implementations stay in sync:
+  - **`core/read-content`** (`includes/Abilities/Content/Content.php`, category `content`) — fetch a single readable post by ID or by post type + slug, or query multiple posts filtered by post type, status, author, parent, or included IDs. Only post types flagged with `show_in_abilities` are eligible; raw fields are returned only for posts the current user can edit (#739).
+  - **`core/read-users`** (`includes/Abilities/Users/Users.php`, category `user`) — fetch a single readable user by ID, email, username, or slug, or a paginated collection filtered by roles, published-post authorship, or included IDs; field-level access is enforced per user (#774).
+- The `show_in_abilities` polyfill (`includes/Abilities/Show_In_Abilities.php`) now also marks curated **post types** (previously only settings), so `core/read-content` returns data on a stock site until WordPress core ships the flag natively — after which core owns it, like `show_in_rest`.
 
 ## The enabled-state model
 

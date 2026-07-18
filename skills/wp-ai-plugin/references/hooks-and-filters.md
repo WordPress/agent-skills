@@ -71,7 +71,7 @@ These are namespaced functions in `WordPress\AI`. Import as `use function WordPr
 
 | Filter | Where | Use |
 | --- | --- | --- |
-| `wpai_default_request_timeout` | AI request configuration | Set the documented default request timeout |
+| `wpai_default_request_timeout` (v1.2.0+) | `includes/helpers.php` | Per-request timeout, filtered as `( int $default_timeout, string $feature_id )`; used for the image-generation request. ⚠️ The 1.2.0 changelog/`readme.txt` call this `wp_ai_client_default_request_timeout` — that name is in *no* plugin PHP (most likely the core AI Client's own filter); the plugin applies `wpai_default_request_timeout`. |
 | `wpai_settings_feature_groups` | Settings → AI feature metadata | Extend or adjust feature groups |
 | `wpai_settings_feature_metadata` | Settings → AI feature metadata | Extend metadata supplied by Features |
 | `wpai_feature_{$id}_settings` | A feature's settings metadata | Adjust settings for one Feature |
@@ -84,6 +84,15 @@ Advanced settings are Feature-provided metadata on the existing Settings → AI 
 | --- | --- | --- | --- |
 | `wpai_pre_normalize_content` | `WordPress\AI\normalize_content()` | input | Modify content before normalization |
 | `wpai_normalize_content` | `WordPress\AI\normalize_content()` | output | Modify content after normalization |
+
+### Content thresholds and capability detection (v1.1.0+)
+
+| Filter | Where | Default | Use |
+| --- | --- | --- | --- |
+| `wpai_min_content_length` | `WordPress\AI\get_min_content_length()` | `250` (chars) | Per-feature minimum character count before content-dependent features enable; replaces the deprecated `wpai_summarization_min_content_length` |
+| `wpai_has_image_generation_support` | `WordPress\AI\has_image_generation_support()` | auto-detected bool | Claim Image Generation support when auto-detection misses it (e.g., connectors authenticating without an API key, such as OAuth) |
+| `wpai_comment_moderation_moderate_guests` | Comment Moderation experiment | setting value (default yes) | Override whether guest comments are auto-moderated |
+
 
 ### Ability system-instruction filter
 

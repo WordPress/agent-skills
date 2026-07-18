@@ -2,6 +2,7 @@
 name: wp-ai-plugin
 description: "Use when extending the canonical WordPress AI plugin (`wordpress.org/plugins/ai`, repo `WordPress/ai`, v1.0+) — adding a downstream Experiment via the `wpai_default_feature_classes` filter or `wpai_register_features` action, registering a paired Ability that consumes Guidelines automatically, customizing prompts/responses through documented filters, or respecting `wp_supports_ai()` and the `WPAI_*` constants. Use this — not `wp-ai-client` — when the user wants to add a feature *to the AI plugin itself* rather than build an independent AI feature in their own plugin."
 compatibility: "Targets WordPress 7.0+ (PHP 7.4+) and the AI plugin v0.6.0+ (Abstract_Feature); v0.8.0+ adds wp_supports_ai, Guidelines, and dashboard widgets (current canonical release: v1.2.0). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+license: GPL-2.0-or-later
 ---
 
 # WP AI Plugin
@@ -23,7 +24,7 @@ If the task is to build an AI feature in your own plugin without involving the c
 - Repo root (run `wordpress-router` and `wp-project-triage` first).
 - Confirmation that the canonical AI plugin (`WordPress/ai`, slug `ai`) is installed and active. v0.6.0+ exposes `Abstract_Feature` and the `WPAI_*` constants. v0.8.0+ adds `wp_supports_ai()`, the Guidelines service, and the AI Status / AI Capabilities dashboard widgets.
 - Whether you're extending *upstream* (PR to `WordPress/ai`) or *downstream* (your own plugin that hooks into the AI plugin). The patterns differ.
-- Target AI plugin version. The 0.x cycle has had renames; the source is the canonical reference.
+- Target AI plugin version (current canonical release: v1.2.0). The 0.x cycle had renames, and the 1.x line keeps adding Experiments and Abilities each release; the source is the canonical reference.
 
 ## Procedure
 
@@ -147,6 +148,10 @@ The `ability_class` key points to your `Abstract_Ability` subclass. That class i
 
 Naming convention: ability IDs use the `ai/` prefix when registered by the AI plugin. Your downstream plugin can use its own prefix (e.g., `my-plugin/internal-links`).
 
+Canonical Abilities to study (v1.2.0 source): `ai/suggest-reply` (an admin/comments experiment — a comment-reply suggester paired with the `Suggest_Reply` Experiment), plus the read-only core Abilities `core/read-content`, `core/read-users`, and `core/read-settings`. The read Abilities are the clearest examples of schema + `permission_callback` for exposing WordPress data safely: each supports a single-item mode and a query/collection mode, and gates field-level access on `current_user_can` (raw fields only for objects the current user can edit/view).
+
+**Exposing your own data to the read Abilities.** `core/read-content` and `core/read-settings` only surface objects flagged with `show_in_abilities`. To make your custom post type or setting readable, pass `'show_in_abilities' => true` to `register_post_type()` / `register_setting()`, and register it **before** the Abilities API initializes (`wp_abilities_api_init`) so it lands in the ability's input schema. Until WordPress core ships this flag natively, the plugin polyfills it onto curated core objects in `includes/Abilities/Show_In_Abilities.php` (once core owns it, it behaves like `show_in_rest`).
+
 ### 5) Opt into Guidelines (if your Ability generates content)
 
 Guidelines integration is automatic at the Ability level — set `guideline_categories()` on your `Abstract_Ability` subclass and `Abstract_Ability::get_system_instruction()` (which loads the base text via `load_system_instruction_from_file()`, then appends guidelines) folds the formatted guidelines into your system instruction:
@@ -163,6 +168,8 @@ class My_Internal_Linker_Ability extends \WordPress\AI\Abstracts\Abstract_Abilit
 ```
 
 Returning an empty array (the default) skips Guidelines entirely. When `guideline_categories()` returns a non-empty array AND the Gutenberg `wp_guideline` CPT is registered, the system instruction is automatically appended with an XML-tagged `<guidelines>` block. See `references/guidelines-integration.md` for the full Guidelines service API and how to use it outside `Abstract_Ability` if needed.
+
+> **Upstream in flux.** As of AI plugin 1.2.0 the store is still Gutenberg's `wp_guideline` CPT with the `site` / `copy` / `images` / `additional` categories, so the above is accurate for the current release. Gutenberg 23.6 replaces this primitive with **"Knowledge"**: a `wp_knowledge` CPT with per-scope guideline rows and a filterable scope registry (`site`, `copy`, `images`, `blocks`, `additional`) — still experimental in the Gutenberg plugin (`lib/experimental/knowledge/`), not yet staged as WP 7.1 compat code. Verify which storage the installed versions use before depending on names; details in `references/guidelines-integration.md`.
 
 ### 6) Add a dashboard widget if useful (optional)
 
@@ -191,7 +198,9 @@ The plugin exposes filters at several layers. The most useful ones, by need:
 - **Disable AI features globally**: `wpai_features_enabled` (default `true`, applied in `Loader::initialize_features()`).
 - **Customize Guidelines max length**: `wpai_max_guideline_length` (default 5000 chars per category).
 - **Disable Guidelines integration**: `wpai_use_guidelines` (default `true`).
-- **Set the default request timeout**: `wpai_default_request_timeout`.
+- **Adjust the minimum content threshold** (v1.1.0+): `wpai_min_content_length` (default 250 characters, per feature). Content-dependent Experiments (Summarization, Content Resizing, Content Classification, etc.) are disabled in the editor until the post reaches this character count. The legacy `wpai_summarization_min_content_length` filter was deprecated in 1.1.0 in favor of this one.
+- **Claim Image Generation support** (v1.1.0+): `wpai_has_image_generation_support` — lets a third party declare image-generation support when it can't be auto-detected (e.g., a connector authenticating without an API key, such as OAuth).
+- **Tune the default request timeout** (v1.2.0+): `wpai_default_request_timeout` — filters the per-request timeout as `( int $default_timeout, string $feature_id )`; the plugin uses it for the image-generation request (`includes/helpers.php`). ⚠️ The 1.2.0 changelog and `readme.txt` call this `wp_ai_client_default_request_timeout`, but that name appears in *no* PHP in the plugin — the applied filter is `wpai_default_request_timeout`. (`wp_ai_client_default_request_timeout` is most likely the core AI Client's own timeout filter; verify against the installed core version before using it.)
 - **Extend Settings → AI feature groups or metadata**: `wpai_settings_feature_groups` and `wpai_settings_feature_metadata`; use `wpai_feature_{$id}_settings` for a single feature's settings.
 - **Modify a system instruction before sending**: filters fire inside each Ability's `load_system_instruction_from_file()`. Search source for `apply_filters` near the Ability's `system-instruction.php` file.
 
@@ -201,7 +210,7 @@ For the full filter list at the version you're targeting, grep the source — se
 
 ## Verification
 
-- Settings → AI lists your Experiment with the correct label, description, and category.
+- Settings → AI lists your Experiment with the correct label, description, and category. (Since v1.2.0, per-feature configuration lives under an "Advanced settings" section that is collapsed by default.)
 - Toggling the Experiment on/off persists across reloads (writes to `wpai_feature_{$id}_enabled`).
 - With the AI plugin deactivated, your downstream code does not produce fatals or PHP notices (the `function_exists( 'wp_supports_ai' )` and `class_exists` guards work).
 - If your Ability declared `guideline_categories()`, edits to the site Guidelines (in Gutenberg's `wp_guideline` CPT) change the system instruction your Ability uses.
@@ -228,7 +237,10 @@ For canonical detail before inventing patterns:
   - `includes/Features/Registry.php` — the registry passed to `wpai_register_features`
   - `includes/Experiments/Example_Experiment/Example_Experiment.php` — canonical example to copy
   - `includes/Experiments/Title_Generation/Title_Generation.php` — Experiment + paired Ability registration
-  - `includes/Services/Guidelines.php` — Guidelines service (v0.8.0+)
+  - `includes/Experiments/Suggest_Reply/Suggest_Reply.php` — v1.2.0 admin/comments Experiment + `ai/suggest-reply` Ability
+  - `includes/Abilities/Content/Content.php` (`core/read-content`), `includes/Abilities/Users/Users.php` (`core/read-users`), `includes/Abilities/Settings/Settings.php` (`core/read-settings`) — v1.2.0 read-only Abilities
+  - `includes/Abilities/Show_In_Abilities.php` — how `show_in_abilities` gates what the read Abilities expose
+  - `includes/Services/Guidelines.php` — Guidelines service (v0.8.0+; being renamed to "Knowledge" upstream in Gutenberg trunk / WP 7.1)
 - **AI Team blog (release notes, roadmap)**: https://make.wordpress.org/ai/
 - **Plugin lead's #core-ai channel** on WordPress Slack for live discussion
 

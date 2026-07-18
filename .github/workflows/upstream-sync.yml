@@ -28,7 +28,12 @@ jobs:
 
             - WordPress core versions (from api.wordpress.org)
             - Gutenberg releases (from GitHub Releases API)
+            - WordPress/ai (canonical AI plugin) releases (from GitHub Releases API)
             - WordPress ↔ Gutenberg mapping (from developer.wordpress.org docs)
+
+            If CI fails on this PR, the drift check caught a skill whose
+            declared canonical release now lags upstream — re-sync that skill
+            (see docs/upstream-sync.md) as a follow-up.
           branch: chore/upstream-indices
           delete-branch: true
 

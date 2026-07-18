@@ -5,6 +5,7 @@ import { parseWpGutenbergMapFromHtml } from "./upstream-index-lib.mjs";
 const SOURCES = {
   wordpressCoreVersionCheck: "https://api.wordpress.org/core/version-check/1.7/",
   gutenbergReleases: "https://api.github.com/repos/WordPress/gutenberg/releases?per_page=50",
+  aiPluginReleases: "https://api.github.com/repos/WordPress/ai/releases?per_page=30",
   wpGutenbergMapDoc:
     "https://developer.wordpress.org/block-editor/contributors/versions-in-wordpress/",
 };
@@ -91,14 +92,16 @@ async function main() {
   const repoRoot = process.cwd();
   const outDir = path.join(repoRoot, "shared", "references");
 
-  const [wpVersionPayload, gbReleasesPayload, mapHtml] = await Promise.all([
+  const [wpVersionPayload, gbReleasesPayload, aiReleasesPayload, mapHtml] = await Promise.all([
     fetchJson(SOURCES.wordpressCoreVersionCheck),
     fetchJson(SOURCES.gutenbergReleases),
+    fetchJson(SOURCES.aiPluginReleases),
     fetchText(SOURCES.wpGutenbergMapDoc),
   ]);
 
   const wordpress = normalizeWpVersionCheckPayload(wpVersionPayload);
   const gutenberg = normalizeGutenbergReleases(gbReleasesPayload);
+  const aiPlugin = normalizeGutenbergReleases(aiReleasesPayload); // Same GitHub Releases shape.
   const map = parseWpGutenbergMapFromHtml(mapHtml);
 
   writeJson(path.join(outDir, "wordpress-core-versions.json"), {
@@ -109,6 +112,11 @@ async function main() {
   writeJson(path.join(outDir, "gutenberg-releases.json"), {
     source: SOURCES.gutenbergReleases,
     ...gutenberg,
+  });
+
+  writeJson(path.join(outDir, "ai-plugin-releases.json"), {
+    source: SOURCES.aiPluginReleases,
+    ...aiPlugin,
   });
 
   writeJson(path.join(outDir, "wp-gutenberg-version-map.json"), {

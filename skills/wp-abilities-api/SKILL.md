@@ -69,6 +69,8 @@ Implement the ability in PHP registration with:
 
 Use the documented init hooks for Abilities API registration so they load at the right time (see `references/php-registration.md`).
 
+For worked examples of read-only, permission-gated abilities (single-item *and* collection modes, field-level access gated on `current_user_can`), study the AI plugin's `core/read-content`, `core/read-users`, and `core/read-settings` abilities (WordPress/ai 1.2.0, `includes/Abilities/`). They mirror the proposed WordPress core ability classes closely and use the `show_in_abilities` registration flag to decide which post types/settings to expose.
+
 ### 5) Confirm REST exposure
 
 - Verify the REST endpoints exist and return expected results (see `references/rest-api.md`).
