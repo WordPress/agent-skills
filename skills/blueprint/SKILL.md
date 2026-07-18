@@ -2,6 +2,7 @@
 name: blueprint
 description: Use when creating, editing, or reviewing WordPress Playground Blueprint JSON files.
 compatibility: "WordPress 6.9+, PHP 7.2.24+. Optionally Playground CLI or a browser"
+license: GPL-2.0-or-later
 ---
 
 # WordPress Playground Blueprints

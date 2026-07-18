@@ -2,6 +2,7 @@
 name: wpds
 description: "Use when building UIs leveraging the WordPress Design System (WPDS) and its components, tokens, patterns, etc."
 compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). WPDS MCP is preferred when available; official WordPress component/package sources are the fallback."
+license: GPL-2.0-or-later
 ---
 
 # WordPress Design System (WPDS)
