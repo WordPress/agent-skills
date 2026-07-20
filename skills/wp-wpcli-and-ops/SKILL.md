@@ -1,7 +1,7 @@
 ---
 name: wp-wpcli-and-ops
 description: "Use when working with WP-CLI (wp) for WordPress operations: safe search-replace, db export/import, plugin/theme/user/content management, cron, cache flushing, multisite, and scripting/automation with wp-cli.yml."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires WP-CLI in the execution environment."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Requires WP-CLI in the execution environment."
 ---
 
 # WP-CLI and Ops
