@@ -1,0 +1,26 @@
+{
+  "name": "Create an accessible dark hero block pattern",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-patterns"],
+  "query": "Create a bold full-width hero block pattern for a creative agency theme. Use a dark background, a large heading, a short subtitle, and two CTA buttons. It should be available from the inserter.",
+  "expected_behavior": [
+    "Step 1: Route the task to wp-patterns after classifying the repository and pattern target",
+    "Step 2: Confirm or infer the theme slug, text domain, pattern title, slug, and category",
+    "Step 3: Create a filesystem pattern file under patterns/",
+    "Step 4: Add required PHP headers including Title, Slug, and Categories, plus useful Keywords and Viewport Width",
+    "Step 5: Use valid block markup with balanced block comments and valid JSON attributes",
+    "Step 6: Use theme presets for dark background, text color, spacing, typography, and button styling instead of inline CSS or custom classes",
+    "Step 7: Escape and internationalize all visible strings and attribute text with the target text domain",
+    "Step 8: Keep heading levels accessible, use descriptive CTA labels, and avoid scripts or query-time PHP",
+    "Step 9: Verify the pattern appears in the inserter and inserts without block validation errors"
+  ],
+  "success_criteria": [
+    "Pattern file is placed in patterns/ and uses a theme-scoped slug",
+    "PHP header includes Title, Slug, Categories, Keywords, and Viewport Width",
+    "Block markup is valid, balanced, and parses without recovery prompts",
+    "All user-visible strings use escaped i18n functions such as esc_html_e() or esc_html__()",
+    "Any URL or attribute output uses esc_url(), esc_attr_e(), or esc_attr__() as appropriate",
+    "Styling relies on theme presets and block attributes, not inline style tags, scripts, or custom CSS classes",
+    "Hero uses an accessible heading level, readable contrast, and descriptive CTA button text",
+    "Verification mentions checking the inserter and WordPress editor parsing"
+  ]
+}
