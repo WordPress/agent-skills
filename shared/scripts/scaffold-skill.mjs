@@ -49,7 +49,7 @@ function main() {
   assert(!fs.existsSync(skillDir), `Skill directory already exists: ${path.relative(repoRoot, skillDir)}`);
   fs.mkdirSync(skillDir, { recursive: true });
 
-  const skillBody = `---\nname: ${skillName}\ndescription: ${description}\ncompatibility: Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node.\n---\n\n# ${skillName}\n\n## When to use\n\n## Inputs required\n\n## Procedure\n\n## Verification\n\n## Failure modes / debugging\n\n## Escalation\n`;
+  const skillBody = `---\nname: ${skillName}\ndescription: ${description}\ncompatibility: Targets WordPress 7.0+ (PHP 7.4.0+). Filesystem-based agent with bash + node.\n---\n\n# ${skillName}\n\n## When to use\n\n## Inputs required\n\n## Procedure\n\n## Verification\n\n## Failure modes / debugging\n\n## Escalation\n`;
   fs.writeFileSync(skillMd, skillBody, "utf8");
 
   fs.mkdirSync(path.dirname(scenarioPath), { recursive: true });
