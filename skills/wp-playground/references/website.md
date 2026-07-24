@@ -5,7 +5,7 @@ Use this reference when the agent must use `https://playground.wordpress.net/` i
 ## Route first
 
 - For Blueprint JSON structure, schema, resources, steps, or bundles, use the `blueprint` skill first; the Blueprint skill is the source of truth for Blueprint details.
-- For local filesystem mounts, snapshots, Xdebug, or headless validation, use `references/cli.md` instead.
+- For local filesystem mounts, snapshots, Xdebug, or headless validation, return to the `wp-playground` routing procedure and select the local CLI or debugging workflow.
 
 ## Working model for agents
 

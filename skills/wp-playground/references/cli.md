@@ -116,4 +116,4 @@ npx @wp-playground/cli@latest build-snapshot \
 - **Blueprint cannot read local assets**: add `--blueprint-may-read-adjacent-files` for local directory bundles.
 - **Port already used**: pass `--port=<free-port>`.
 - **Need a fresh persisted `start` site**: rerun with `start --reset`.
-- **Need breakpoints or runtime logs**: use `references/debugging.md`.
+- **Need breakpoints or runtime logs**: return to the `wp-playground` routing procedure and select the debugging workflow.
