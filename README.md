@@ -37,6 +37,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wpds** | WordPress Design System |
 | **wp-plugin-directory-guidelines** | WordPress Plugin Directory Guidelines |
 | **blueprint** | WordPress Playground Blueprints for declarative Playground environment setup |
+| **wp-hosting-providers** | Choosing a WordPress hosting provider: evaluation criteria, recommended hosts, Five for the Future |
 
 ## How It Works
 
