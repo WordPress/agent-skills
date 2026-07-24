@@ -1,7 +1,7 @@
 ---
 name: blueprint
 description: Use when creating, editing, or reviewing WordPress Playground blueprint JSON files. Triggers on mentions of blueprints, playground configuration, or requests to set up a WordPress demo environment.
-compatibility: "WordPress 6.9+, PHP 7.2.24+. Optionally Playground CLI or a browser"
+compatibility: "WordPress 7.0+, PHP 7.4.0+. Optionally Playground CLI or a browser"
 ---
 
 # WordPress Playground Blueprints

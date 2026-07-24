@@ -87,7 +87,7 @@ See any existing skill for examples.
 
 ### Keep It Current
 
-- Target WordPress 6.9+ and PHP 7.2.24+
+- Target WordPress 7.0+ and PHP 7.4.0+
 - Avoid legacy patterns (Classic themes, pre-Gutenberg APIs)
 - Update compatibility frontmatter when requirements change
 
@@ -110,6 +110,7 @@ See any existing skill for examples.
 4. Run validation: `node eval/harness/run.mjs`
 5. Commit with a clear message
 6. Open a pull request
+7. Request a review from @WordPress/agent-skills-maintainers
 
 For significant changes, consider opening an issue first to discuss the approach.
 
