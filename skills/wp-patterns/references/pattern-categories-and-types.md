@@ -103,6 +103,14 @@ For archive, search, category, and author templates, **prefer inherited query co
 
 For CPT or event listings, confirm the post type slug, taxonomy/date assumptions, and available blocks before generating markup.
 
+## Comparison, Pricing, Timeline, and Schedule Patterns
+
+Use clear headings, list/table or labeled-card structure, and non-color-only emphasis for featured states.
+
+## Social, Navigation, and Search Patterns
+
+Use native blocks and verify accessible labels, link text, and search context. In 404 patterns, pair the Search block with recovery copy that explains what the user can try next.
+
 ## Block Type Connections
 
 Connect patterns to specific block types so they appear as options for those blocks:

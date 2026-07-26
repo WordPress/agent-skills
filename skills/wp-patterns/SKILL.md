@@ -21,7 +21,7 @@ compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Filesystem-based agent with
 
 ## Guardrails
 
-1. **Block markup only** — express all visual design through block comment attributes and `preset` slugs. Read `references/design-with-tokens.md` for the core principle.
+1. **Block markup only** — express all visual design through block comment attributes and `preset` slugs. No inline `<style>` tags, no custom CSS classes, no arbitrary HTML outside of block wrappers. Read `references/design-with-tokens.md` for the core principle.
 
 2. **No JavaScript** — patterns are static `block markup`. For interactivity, use blocks that natively support it (Navigation, Search, Query Loop).
 
@@ -31,7 +31,7 @@ compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Filesystem-based agent with
 
 5. **Native blocks for behavior** — use Query Loop, Search, Navigation, Social Icons, or an existing form block instead of custom PHP/HTML behavior. For newsletter, donation, payment, or map behavior, create a CTA/placeholder or use an existing block/plugin.
 
-6. **Local assets** — read `references/pattern-registration.md` and `references/anti-patterns.md` for asset and placeholder rules.
+6. **Local assets** — use `get_theme_file_uri()` with `esc_url()`; no external placeholder URLs unless the user approves. Read `references/pattern-registration.md` and `references/anti-patterns.md` for examples.
 
 ## Procedure
 
@@ -54,7 +54,7 @@ Make five deliberate design decisions — purpose, tone, spatial composition, ty
 
 Read `references/design-with-tokens.md` for the decision framework and `preset` mapping.
 
-For pattern-type metadata (starter pages, template patterns, template parts, query loops, forms/CTAs), read `references/pattern-categories-and-types.md` — including the Query Loop patterns section when using `core/query`.
+For pattern-type metadata (starter pages, template patterns, template parts, query loops, forms/CTAs, comparison/pricing, social/navigation/search, 404), read `references/pattern-categories-and-types.md` — including the Query Loop patterns section when using `core/query`.
 
 When the request calls for a visually _distinctive_ composition, read `references/visual-composition.md`.
 
@@ -150,6 +150,8 @@ Common failures:
 - **Manual registration fails**: confirm the code runs on `init`, categories are registered before patterns, and pattern content remains static block markup.
 
 ## Escalation
+
+Stop and ask for help or consult canonical docs when:
 
 - Theme-specific `preset` slugs, text domains, asset paths, or pattern categories cannot be verified.
 - Color contrast, image meaning, or content hierarchy needs human design/accessibility judgment.
