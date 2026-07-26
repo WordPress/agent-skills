@@ -1,0 +1,18 @@
+{
+  "name": "Playground wrapper delegates by intent",
+  "skills": ["wordpress-router", "wp-playground", "blueprint"],
+  "query": "I need a WordPress Playground setup. First write the Blueprint, then tell me how to run it locally and share it as a browser link.",
+  "expected_behavior": [
+    "Step 1: Use wp-playground as the wrapper for the multi-part Playground request",
+    "Step 2: Delegate Blueprint JSON authoring to the blueprint skill",
+    "Step 3: Use wp-playground/references/cli.md for the local run command",
+    "Step 4: Use wp-playground/references/website.md for the browser share link guidance",
+    "Step 5: Avoid duplicating Blueprint schema reference details in wp-playground"
+  ],
+  "success_criteria": [
+    "Keeps blueprint as the canonical schema source",
+    "Keeps CLI and website workflows under wp-playground references",
+    "Does not introduce or require new top-level playground-cli or playground-website skills",
+    "Provides distinct verification for Blueprint, local run, and share link"
+  ]
+}
