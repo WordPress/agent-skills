@@ -1,7 +1,7 @@
 ---
 name: wp-patterns
 description: "Generate technically correct, design-distinctive WordPress block patterns. Use when creating block patterns, starter page patterns, template patterns, template part patterns, or improving pattern design quality. Covers pattern registration (PHP headers, auto/manual), block markup syntax, theme.json design tokens, categories, template types, accessibility, and i18n/escaping."
-compatibility: "WordPress 6.9 with PHP 7.2.24 or later. Requires 6.0+ for auto-registration, 6.7+ for full preset support. Patterns use block markup (HTML comments with JSON), PHP file headers, and theme.json presets."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Patterns use block markup (HTML comments with JSON), PHP file headers, and theme.json presets."
 ---
 
 # WordPress Block Patterns

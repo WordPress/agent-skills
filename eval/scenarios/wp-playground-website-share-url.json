@@ -1,0 +1,22 @@
+{
+  "name": "Playground website share URL workflow",
+  "skills": ["wordpress-router", "wp-playground", "blueprint"],
+  "query": "Turn this Blueprint into a playground.wordpress.net link I can share with a reviewer.",
+  "expected_behavior": [
+    "Step 1: Route to wp-playground for the website/share-link workflow",
+    "Step 2: Use the blueprint skill if the Blueprint JSON itself needs validation or editing",
+    "Step 3: Read wp-playground/references/website.md for browser-only constraints",
+    "Step 4: Use an encodeURIComponent-encoded inline URL fragment only for small Blueprints",
+    "Step 5: Recommend hosting JSON or a ZIP bundle and using blueprint-url for larger setups",
+    "Step 6: Require hosted Blueprint URLs and bundles to be public and served with Access-Control-Allow-Origin: *",
+    "Step 7: Verify the generated link in a fresh browser session"
+  ],
+  "success_criteria": [
+    "Does not ask the Playground website to read local filesystem paths",
+    "Encodes inline Blueprint JSON with encodeURIComponent or uses Base64 when appropriate",
+    "Uses blueprint-url for hosted large Blueprints or bundles",
+    "Mentions CORS requirements for hosted Blueprint URLs",
+    "Includes browser verification",
+    "Does not require a new top-level playground-website skill"
+  ]
+}
