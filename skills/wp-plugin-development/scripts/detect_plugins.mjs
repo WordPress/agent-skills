@@ -64,6 +64,12 @@ function findFilesRecursive(repoRoot, predicate, { maxFiles = 6000, maxDepth = 1
   return { results, truncated: false };
 }
 
+function cleanupHeaderValue(value) {
+  // Mirrors WordPress core's _cleanup_header_comment(): drop a trailing `*/` or `?>`
+  // so single-line docblocks like `/* Version: 1.0.0 */` yield just the value.
+  return value.replace(/\s*(?:\*\/|\?>).*/, "").trim();
+}
+
 function parsePluginHeader(contents) {
   // WordPress reads plugin headers from the top of the file. We only need key fields.
   const header = {};
@@ -78,8 +84,13 @@ function parsePluginHeader(contents) {
     ["Domain Path", "domainPath"],
   ];
   for (const [label, key] of pairs) {
-    const m = contents.match(new RegExp(`^\\s*${label}:\\s*(.+)\\s*$`, "im"));
-    if (m) header[key] = m[1].trim();
+    // Headers normally live in a docblock, so the label is preceded by ` * `. Core allows
+    // the same leading comment characters (`^[ \t\/*#@]*` in get_file_data()); `^\s*` does
+    // not, and would skip every conventionally formatted plugin.
+    const m = contents.match(new RegExp(`^[ \\t/*#@]*${label}:(.*)$`, "im"));
+    if (!m) continue;
+    const value = cleanupHeaderValue(m[1]);
+    if (value) header[key] = value;
   }
   if (!header.name) return null;
   return header;
