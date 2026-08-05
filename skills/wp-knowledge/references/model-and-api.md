@@ -21,7 +21,7 @@ Settings > Guidelines is a user-facing surface on top of Knowledge. Its scope ro
 
 Built-in Knowledge types:
 
-- `guideline`: site guidance, backed by `guideline-` slugs and the Settings > Guidelines experience.
+- `guideline`: site guidance, backed by `guideline-` slugs and the Settings > Guidelines experience. Use it when the same material should be available to agents and reusable as system-prompt context by another integration.
 - `memory`: remembered facts and observations for later context.
 - `note`: private freeform working text and the save-time fallback when no type term is assigned.
 
@@ -46,7 +46,7 @@ Block-specific guideline rows may also exist when the target runtime exposes the
 Use `/wp/v2/knowledge` for document-like rows. These rows should use:
 
 - `post_title` as the discoverable name.
-- `post_excerpt` as a short description an agent can scan before loading full content.
+- `post_excerpt` as a concise discovery summary, analogous to a skill description, that helps an agent decide whether to load full content.
 - `post_content` as the full body, usually markdown or blocks.
 - `wp_knowledge_type` terms to classify the row.
 
@@ -124,7 +124,7 @@ Use `context=edit` only for authenticated flows that need raw content or editabl
 
 Load progressively:
 
-1. List readable candidates using title, excerpt, slug, modified date, and type terms.
+1. Put each readable candidate's title and excerpt into agent discovery context, alongside its slug, modified date, and type terms.
 2. Select the smallest relevant set for the task.
 3. Load full `content.raw` only for selected rows.
 4. Preserve source boundaries in prompt assembly so memories, skills, notes, and guidelines are not blended together.

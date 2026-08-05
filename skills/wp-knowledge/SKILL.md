@@ -1,16 +1,19 @@
 ---
 name: wp-knowledge
-description: "Use when adding, consuming, or auditing WordPress Knowledge support in plugins, themes, mu-plugins, agent integrations, or Gutenberg/Core work: wp_knowledge CPT, wp_knowledge_type taxonomy, /wp/v2/knowledge, /wp/v2/content-guidelines, Gutenberg 23.6+ Guidelines experiment, guideline/memory/note/custom skill types, plugin defaults, capability-safe writes, and progressive agent context loading."
+description: "Use when adding, consuming, or auditing WordPress site notes or Knowledge support in plugins, themes, mu-plugins, agent integrations, or Gutenberg/Core work: wp_knowledge CPT, wp_knowledge_type taxonomy, /wp/v2/knowledge, /wp/v2/content-guidelines, Gutenberg 23.6+ Guidelines experiment, guideline/memory/note/custom skill types, plugin defaults, capability-safe writes, and progressive agent context loading."
 compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+) with the Gutenberg 23.6+ Guidelines experiment active until Knowledge ships in Core. Filesystem-based agent with bash + node. Some verification requires WP-CLI or wp-env."
 ---
 
 # WP Knowledge
+
+WordPress Knowledge is the shared, non-public content layer for reusable site context. It stores notes, memories, guidance, and custom procedures as standard WordPress content so plugins, people, agents, and other tools can discover and reuse the same material instead of each integration inventing private storage.
 
 ## When to use
 
 Use this skill when a WordPress project needs to:
 
 - create or consume `wp_knowledge` posts or `wp_knowledge_type` terms
+- add notes or reusable site context that should be available beyond one plugin
 - read or write Knowledge through `/wp/v2/knowledge`
 - use the Settings > Guidelines surface and its `/wp/v2/content-guidelines` route
 - register or consume Knowledge types such as `guideline`, `memory`, `note`, or a plugin-defined `skill`
@@ -63,7 +66,7 @@ For the storage model, type slugs, REST routes, and privacy rules, read:
 
 Use the narrowest type that matches the data:
 
-- `guideline`: site-wide guidance shown through Settings > Guidelines and backed by `guideline-` slugs.
+- `guideline`: site-wide guidance shown through Settings > Guidelines and backed by `guideline-` slugs. Use it when the same material should guide agents and serve as system-prompt context for another integration.
 - `memory`: remembered facts or observations, usually private and agent-created after checking for duplicates.
 - `note`: private freeform working text and the default generic document type.
 - `skill`: procedural guidance loaded on demand only when the target site has registered or accepted a `skill` type.
@@ -90,9 +93,10 @@ For implementation patterns and PHP snippets, read:
 
 Agents that consume Knowledge should:
 
-- list candidates with title, excerpt, slug, modified date, and type
+- put each readable row's title and excerpt into agent discovery context alongside its slug, modified date, and type
+- treat the excerpt like a skill description: a concise, decision-useful summary that helps the agent decide whether to load the body
 - select the smallest relevant set for the current task
-- load full content only for selected rows
+- load full content only for the selected rows
 - keep source boundaries visible in prompt assembly
 - keep `draft`, `pending`, `auto-draft`, and `trash` rows out of prompt context
 - treat `guideline` rows as site guidance, `memory` rows as remembered facts, `skill` rows as procedures, and `note` rows as supporting working text
@@ -121,6 +125,7 @@ Avoid writing rows on every page load. Prefer activation, setup screens, WP-CLI 
 - REST reads work with `context=edit` only for authenticated users with permission.
 - Server-side queries filter by type term and still call `current_user_can( 'read_post', $post_id )`.
 - Plugin-provided defaults are idempotent and do not clobber user-edited rows.
+- Agent discovery exposes titles and excerpts before loading full content.
 - Agent context loading is progressive and excludes drafts, trash, unreadable private rows, and unrelated rows.
 - Repo PHP/JS lint, tests, and build commands pass where available.
 
