@@ -26,7 +26,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-block-themes** | Block themes: `theme.json`, templates, patterns, style variations |
 | **wp-plugin-development** | Plugin architecture, hooks, settings API, security |
 | **wp-rest-api** | REST API routes/endpoints, schema, auth, and response shaping |
-| **wp-knowledge** | WordPress Guidelines/Knowledge: `wp_knowledge`, legacy `wp_guideline`, REST, skills, artifacts/notes, memory, plans |
+| **wp-knowledge** | WordPress Knowledge: `wp_knowledge`, REST, guidelines, skills, memory, notes |
 | **wp-interactivity-api** | Frontend interactivity with `data-wp-*` directives and stores |
 | **wp-abilities-api** | Capability-based permissions and REST API authentication |
 | **wp-abilities-audit** | Audit a plugin's REST surface and propose Abilities API registrations |
@@ -124,7 +124,7 @@ When you ask your AI assistant to work on WordPress code, it reads these skills 
 
 ## Compatibility
 
-- **WordPress 6.9+** (PHP 7.2.24+)
+- Most skills target **WordPress 6.9+** (PHP 7.2.24+); individual skill frontmatter may declare a stricter contract.
 - Works with any AI assistant that supports project-level instructions
 
 ## Contributing

@@ -2,71 +2,69 @@
 
 ## Availability guard
 
-Prefer the active shared surface from WordPress core, Gutenberg, WordPress.com, or a site platform. Knowledge is preferred; legacy Guidelines is a fallback or compatibility read surface.
+Require the complete Knowledge surface from WordPress core or Gutenberg. For current pre-Core work, make Gutenberg 23.6+ with the Guidelines experiment an explicit dependency when your feature needs Knowledge.
 
 ```php
-function my_plugin_guidelines_backend(): ?array {
-	if ( post_type_exists( 'wp_knowledge' ) && taxonomy_exists( 'wp_knowledge_type' ) ) {
-		return array(
-			'post_type'   => 'wp_knowledge',
-			'taxonomy'    => 'wp_knowledge_type',
-			'rest_base'   => 'knowledge',
-			'types_hook'  => 'wp_knowledge_types',
-			'publish_cap' => 'publish_knowledge_items',
-		);
-	}
-
-	if ( post_type_exists( 'wp_guideline' ) && taxonomy_exists( 'wp_guideline_type' ) ) {
-		return array(
-			'post_type'   => 'wp_guideline',
-			'taxonomy'    => 'wp_guideline_type',
-			'rest_base'   => 'guidelines',
-			'types_hook'  => 'wp_guideline_types',
-			'publish_cap' => 'publish_guidelines',
-		);
-	}
-
-	return null;
+function my_plugin_has_knowledge(): bool {
+	return post_type_exists( 'wp_knowledge' ) && taxonomy_exists( 'wp_knowledge_type' );
 }
-```
 
-If a product requires a polyfill, keep it no-op when a complete shared backend already exists. Do not register partial combinations such as `wp_knowledge` with `wp_guideline_type`.
+function my_plugin_require_knowledge(): bool {
+	if ( my_plugin_has_knowledge() ) {
+		return true;
+	}
 
-## Register known type labels
-
-When the target surface exposes a type registry filter, use it to declare labels for types your plugin understands. This does not replace taxonomy terms; it only lets the site map known slugs to human-readable labels when terms are created.
-
-```php
-function my_plugin_register_guideline_type_labels(): void {
-	foreach ( array( 'wp_knowledge_types', 'wp_guideline_types' ) as $hook ) {
-		add_filter(
-			$hook,
-			static function ( array $types ): array {
-				$types['skill'] = array(
-					'title' => __( 'Skill', 'my-plugin' ),
+	if ( is_admin() ) {
+		add_action(
+			'admin_notices',
+			static function (): void {
+				printf(
+					'<div class="notice notice-warning"><p>%s</p></div>',
+					esc_html__( 'This feature requires the WordPress Knowledge API. Enable the Gutenberg 23.6+ Guidelines experiment or use a WordPress version that includes Knowledge.', 'my-plugin' )
 				);
-
-				return $types;
 			}
 		);
 	}
+
+	return false;
 }
 ```
 
-On pure Gutenberg/Core Knowledge, `guideline`, `memory`, and `note` are built in. Register or verify custom terms such as `skill`, `plan`, `instruction`, or `artifact` before relying on them.
+Do not register partial combinations or alternate storage. If `wp_knowledge` is unavailable, skip the Knowledge path and surface the dependency clearly.
+
+## Register known type labels
+
+When the target surface exposes the type registry, use it to declare labels for custom types your plugin understands. This does not replace taxonomy terms; it only lets the site map known slugs to human-readable labels when terms are created.
+
+```php
+function my_plugin_register_knowledge_type_labels(): void {
+	add_filter(
+		'wp_knowledge_types',
+		static function ( array $types ): array {
+			$types['skill'] = array(
+				'title' => __( 'Skill', 'my-plugin' ),
+			);
+
+			return $types;
+		}
+	);
+}
+```
+
+`guideline`, `memory`, and `note` are built in. Register or verify custom terms such as `skill` before relying on them.
 
 ## Resolve or create a type term
 
 Create terms idempotently and store term ids, not raw strings, when assigning hierarchical taxonomy terms.
 
 ```php
-function my_plugin_get_guideline_type_term_id( array $backend, string $slug, string $name ) {
-	$term = term_exists( $slug, $backend['taxonomy'] );
+function my_plugin_get_knowledge_type_term_id( string $slug, string $name ) {
+	$term = term_exists( $slug, 'wp_knowledge_type' );
 
 	if ( ! $term ) {
 		$term = wp_insert_term(
 			$name,
-			$backend['taxonomy'],
+			'wp_knowledge_type',
 			array( 'slug' => $slug )
 		);
 	}
@@ -79,44 +77,17 @@ function my_plugin_get_guideline_type_term_id( array $backend, string $slug, str
 }
 ```
 
-## Prefer code-defined defaults when available
-
-On WordPress.com, use code-defined defaults when bundled knowledge should appear in agent read paths without creating database rows on every site.
-
-```php
-function my_plugin_register_default_transcribe_skill(): void {
-	if ( ! function_exists( 'wpcom_ai_register_default_guideline' ) ) {
-		return;
-	}
-
-	wpcom_ai_register_default_guideline(
-		'skill',
-		'my-plugin-transcribe',
-		array(
-			'title'          => __( 'Transcribe', 'my-plugin' ),
-			'description'    => __( 'Transcription cleanup and formatting rules.', 'my-plugin' ),
-			'content'        => "Use site-specific spelling.\nRemove filler words when confidence is high.",
-			'source'         => 'https://example.com/my-plugin/transcribe',
-			'allow_override' => true,
-		)
-	);
-}
-```
-
-Use persistent posts only when users need local editable copies, revisions, ownership, or export/import for that row.
-
 ## Seed a plugin-provided skill
 
 Seed persistent skills idempotently. Do not overwrite user-edited content after install. Use a stable `post_name` and a plugin-specific meta key to detect untouched seed rows.
 
 ```php
-function my_plugin_seed_transcribe_guideline(): void {
-	$backend = my_plugin_guidelines_backend();
-	if ( null === $backend ) {
+function my_plugin_seed_transcribe_skill(): void {
+	if ( ! my_plugin_require_knowledge() ) {
 		return;
 	}
 
-	$term_id = my_plugin_get_guideline_type_term_id( $backend, 'skill', __( 'Skill', 'my-plugin' ) );
+	$term_id = my_plugin_get_knowledge_type_term_id( 'skill', __( 'Skill', 'my-plugin' ) );
 	if ( is_wp_error( $term_id ) ) {
 		return;
 	}
@@ -124,7 +95,7 @@ function my_plugin_seed_transcribe_guideline(): void {
 	$slug     = 'my-plugin-transcribe';
 	$content  = "Use site-specific spelling.\nRemove filler words when confidence is high.";
 	$hash     = hash( 'sha256', $content );
-	$existing = get_page_by_path( $slug, OBJECT, $backend['post_type'] );
+	$existing = get_page_by_path( $slug, OBJECT, 'wp_knowledge' );
 
 	if ( $existing instanceof WP_Post ) {
 		$seed_hash    = get_post_meta( $existing->ID, '_my_plugin_seed_hash', true );
@@ -148,8 +119,8 @@ function my_plugin_seed_transcribe_guideline(): void {
 
 	$post_id = wp_insert_post(
 		array(
-			'post_type'    => $backend['post_type'],
-			'post_status'  => current_user_can( $backend['publish_cap'] ) ? 'publish' : 'private',
+			'post_type'    => 'wp_knowledge',
+			'post_status'  => current_user_can( 'publish_knowledge_items' ) ? 'publish' : 'private',
 			'post_name'    => $slug,
 			'post_title'   => __( 'Transcribe', 'my-plugin' ),
 			'post_excerpt' => __( 'Transcription cleanup and formatting rules.', 'my-plugin' ),
@@ -162,12 +133,9 @@ function my_plugin_seed_transcribe_guideline(): void {
 		return;
 	}
 
-	wp_set_object_terms( $post_id, array( $term_id ), $backend['taxonomy'] );
+	wp_set_object_terms( $post_id, array( $term_id ), 'wp_knowledge_type' );
 	update_post_meta( $post_id, '_my_plugin_seed_hash', $hash );
-
-	if ( ! metadata_exists( 'post', $post_id, 'guideline_source' ) ) {
-		update_post_meta( $post_id, 'guideline_source', 'https://example.com/my-plugin/transcribe' );
-	}
+	update_post_meta( $post_id, '_my_plugin_seed_source', 'https://example.com/my-plugin/transcribe' );
 }
 ```
 
@@ -178,21 +146,20 @@ Run seeders from an administrator-controlled setup path, not on every request. F
 Use normal post queries plus capability checks. Do not read private rows with direct SQL.
 
 ```php
-function my_plugin_get_readable_guidelines_by_term( int $term_id ): array {
-	$backend = my_plugin_guidelines_backend();
-	if ( null === $backend ) {
+function my_plugin_get_readable_knowledge_by_term( int $term_id ): array {
+	if ( ! my_plugin_has_knowledge() ) {
 		return array();
 	}
 
 	$query = new WP_Query(
 		array(
-			'post_type'      => $backend['post_type'],
+			'post_type'      => 'wp_knowledge',
 			'post_status'    => array( 'private', 'publish' ),
 			'posts_per_page' => 20,
 			'no_found_rows'  => true,
 			'tax_query'      => array(
 				array(
-					'taxonomy' => $backend['taxonomy'],
+					'taxonomy' => 'wp_knowledge_type',
 					'field'    => 'term_id',
 					'terms'    => array( $term_id ),
 				),
@@ -215,15 +182,32 @@ function my_plugin_get_readable_guidelines_by_term( int $term_id ): array {
 }
 ```
 
-If the WordPress.com `wpcom/guidelines` ability is available and the caller is an agent workflow, prefer the ability for list/get/search/create/update/delete because it applies the product-specific type, status, default-guideline, and compatibility behavior.
+## Agent discovery pattern
+
+Use title and excerpt for discovery before loading full bodies.
+
+```php
+function my_plugin_prepare_knowledge_discovery_item( WP_Post $post ): array {
+	return array(
+		'id'       => $post->ID,
+		'slug'     => $post->post_name,
+		'title'    => get_the_title( $post ),
+		'excerpt'  => get_the_excerpt( $post ),
+		'modified' => get_post_modified_time( DATE_ATOM, false, $post ),
+		'types'    => wp_get_object_terms( $post->ID, 'wp_knowledge_type', array( 'fields' => 'slugs' ) ),
+	);
+}
+```
+
+Only load `post_content` after the agent or user has selected relevant rows for the current task.
 
 ## Plugin integration checklist
 
-- Prefer `wp_knowledge` over legacy `wp_guideline` for new writes when Knowledge is complete.
-- Avoid storing agent skills or instructions in plugin-only options when the site supports a shared backend.
+- Require `wp_knowledge` and `wp_knowledge_type` before integrating.
+- Avoid storing agent skills, memories, or notes in plugin-only options when the site supports Knowledge.
+- Register or verify custom Knowledge types before writing rows.
 - Keep slugs stable so other clients can discover plugin-provided rows.
 - Keep excerpts short and task-oriented; agents use them for discovery.
 - Treat content as user-editable after creation.
 - Preserve revisions by updating posts through WordPress APIs.
 - Test Contributor, Author, Editor, and Administrator access if your plugin writes private rows.
-- Test both Knowledge and legacy fallback paths when the product promises compatibility.

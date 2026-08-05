@@ -35,7 +35,7 @@ Route by intent even if repo kind is broad (like `wp-site`):
   - Route → `wp-plugin-development`.
 - **REST endpoint / register_rest_route / permission_callback**
   - Route → `wp-rest-api`.
-- **Guidelines / Knowledge / wp_knowledge / wp_knowledge_type / legacy wp_guideline / content-guidelines / agent skills, memories, artifacts, notes, plans, or instructions stored in WordPress**
+- **Guidelines / Knowledge / wp_knowledge / wp_knowledge_type / content-guidelines / agent skills, memories, or notes stored in WordPress**
   - Route → `wp-knowledge`.
 - **WP-CLI / wp-cli.yml / commands**
   - Route → `wp-wpcli-and-ops`.

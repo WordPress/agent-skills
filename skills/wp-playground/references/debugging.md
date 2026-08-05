@@ -13,4 +13,3 @@
 - To inspect runtime state:
   - Open the Playground browser console; the Service Worker logs network/FS events.
   - Use the “Terminal” tab (if available) to run WP-CLI inside the instance.
-

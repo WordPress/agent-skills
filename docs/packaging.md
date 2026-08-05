@@ -25,4 +25,3 @@ Outputs:
 - `node shared/scripts/skillpack-install.mjs --dest=../some-repo --targets=codex,vscode,claude,cursor`
 
 By default, install mode is `replace` (it replaces only the skill directories it installs).
-
