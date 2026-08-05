@@ -1,0 +1,23 @@
+{
+  "name": "Create an editorial forest cover with low-positioned copy",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-patterns"],
+  "query": "Create an editorial full-bleed forest cover pattern with a background image, a large left-aligned title near the top, and a short italic description anchored low on the left.",
+  "expected_behavior": [
+    "Step 1: Route to wp-patterns and gather target theme, text domain, image asset, title, slug, and categories",
+    "Step 2: Create a filesystem pattern with required headers and realistic keywords",
+    "Step 3: Use a full-width Cover block with image and dim overlay suitable for readable text",
+    "Step 4: Use asymmetric vertical spacing so the title and description occupy distinct visual zones",
+    "Step 5: Use italic supporting copy without relying on skipped heading levels or vague placeholder text",
+    "Step 6: Escape and translate all visible strings",
+    "Step 7: Verify contrast, mobile stacking, and editor parsing"
+  ],
+  "success_criteria": [
+    "Full-bleed Cover block has a readable overlay and left-aligned composition",
+    "Title and description are spatially separated rather than stacked in a generic centered hero",
+    "Supporting copy is short, realistic, and styled as a secondary editorial voice",
+    "Heading level is accessible and sequential",
+    "Image alt handling is intentional: decorative background or descriptive alt as appropriate",
+    "No scripts, inline style tags, custom CSS classes, or runtime PHP",
+    "Verification covers contrast and responsive layout"
+  ]
+}

@@ -407,7 +407,7 @@ The runtime harness writes a dedicated section in the run report:
 ```markdown
 ## Runtime harness
 
-**Env:** wp-env (Docker), WordPress 6.9, <plugin> <version>
+**Env:** wp-env (Docker), WordPress 7.0, <plugin> <version>
 **Captured:** <YYYY-MM-DD HH:MM>
 
 ### Check 1 — enumeration

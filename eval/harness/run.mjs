@@ -66,8 +66,8 @@ function validateSkillName(name) {
 
 const compatibilityContracts = {
   default: {
-    required: ["WordPress 6.9", "PHP 7.2.24"],
-    label: "WP 6.9 + PHP 7.2.24+",
+    required: ["WordPress 7.0", "PHP 7.4.0"],
+    label: "WP 7.0 + PHP 7.4.0+",
   },
   "wp-knowledge": {
     required: ["WordPress 7.0", "PHP 7.4.0", "Gutenberg 23.6"],

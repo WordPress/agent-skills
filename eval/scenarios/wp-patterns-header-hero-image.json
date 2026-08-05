@@ -1,0 +1,23 @@
+{
+  "name": "Create a header plus full-width hero image starter pattern",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-patterns"],
+  "query": "Create a starter page pattern that opens with a clean header containing Site Logo, Site Title, and Navigation, followed by a full-width hero image cover.",
+  "expected_behavior": [
+    "Step 1: Route to wp-patterns and identify whether the pattern is for page content or a template part",
+    "Step 2: Add Block Types metadata appropriate for a starter page or template-part pattern",
+    "Step 3: Use Site Logo, Site Title, and Navigation native blocks in a flex header",
+    "Step 4: Add a full-width Cover block below the header with no top margin gap",
+    "Step 5: Use a local or approved image asset with intentional focal point/crop behavior",
+    "Step 6: Escape and translate any custom visible text",
+    "Step 7: Verify header responsiveness, navigation behavior, and hero image rendering"
+  ],
+  "success_criteria": [
+    "Uses native Site Logo, Site Title, and Navigation blocks rather than static fake nav markup",
+    "Header and hero image form one page-opener composition",
+    "Includes correct pattern headers and appropriate Block Types metadata",
+    "Uses block-native flex/constrained layout controls",
+    "Image source is local/approved and accessible handling is intentional",
+    "Avoids custom CSS classes, scripts, and inline style tags",
+    "Verification covers responsive header wrapping and hero rendering"
+  ]
+}

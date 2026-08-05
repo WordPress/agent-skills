@@ -1,0 +1,23 @@
+{
+  "name": "Create a centered image pattern on a two-tone split background",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-patterns"],
+  "query": "Create a full-width collection teaser pattern with a centered image, a vertical two-tone split background, and a widely tracked uppercase title below the image.",
+  "expected_behavior": [
+    "Step 1: Route to wp-patterns and confirm image asset, title text, text domain, metadata, and color presets",
+    "Step 2: Use a Cover or full-width Group with a hard-stop two-tone background",
+    "Step 3: Center a single image inside a constrained content area",
+    "Step 4: Add a short uppercase title below with intentional tracking and enough padding to avoid clipping",
+    "Step 5: Use decorative or descriptive alt text appropriately",
+    "Step 6: Escape and translate the title and image alt text",
+    "Step 7: Verify mobile fit, image loading, and editor parsing"
+  ],
+  "success_criteria": [
+    "Uses a split two-tone background and centered image composition",
+    "Title is short, uppercase, and intentionally spaced without overflowing",
+    "Image asset is local/approved and alt handling is correct",
+    "Uses block-native layout and no custom CSS classes",
+    "All strings are escaped and internationalized",
+    "No scripts, inline style tags, or query-time PHP",
+    "Verification includes mobile fit and image rendering"
+  ]
+}
