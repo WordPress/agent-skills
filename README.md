@@ -26,7 +26,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-block-themes** | Block themes: `theme.json`, templates, patterns, style variations |
 | **wp-plugin-development** | Plugin architecture, hooks, settings API, security |
 | **wp-rest-api** | REST API routes/endpoints, schema, auth, and response shaping |
-| **wp-guideline** | WordPress Guidelines: `wp_guideline`, type taxonomy, REST, skills, artifacts, memory, plans |
+| **wp-knowledge** | WordPress Guidelines/Knowledge: `wp_knowledge`, legacy `wp_guideline`, REST, skills, artifacts/notes, memory, plans |
 | **wp-interactivity-api** | Frontend interactivity with `data-wp-*` directives and stores |
 | **wp-abilities-api** | Capability-based permissions and REST API authentication |
 | **wp-abilities-audit** | Audit a plugin's REST surface and propose Abilities API registrations |
