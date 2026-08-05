@@ -1,7 +1,7 @@
 ---
 name: wp-knowledge
 description: "Use when adding, consuming, or auditing WordPress Guidelines and Knowledge support in plugins, themes, mu-plugins, WordPress.com agent integrations, or Gutenberg/Core work: wp_knowledge CPT, wp_knowledge_type taxonomy, /wp/v2/knowledge, /wp/v2/content-guidelines, legacy wp_guideline compatibility, wpcom/guidelines ability usage, content guideline scopes, memories, skills, plans, artifacts/notes, instructions, plugin defaults, and agent context loading."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+) and Gutenberg/WordPress.com Guidelines or Knowledge implementations. Filesystem-based agent with bash + node. Some verification requires WP-CLI or wp-env."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+) and Gutenberg/WordPress.com Guidelines or Knowledge implementations. Filesystem-based agent with bash + node. Some verification requires WP-CLI or wp-env."
 ---
 
 # WP Knowledge
