@@ -57,3 +57,17 @@ References:
 
 - Border radius presets: https://make.wordpress.org/core/2025/11/12/theme-json-border-radius-presets-support-in-wordpress-6-9/
 - Form element styling: https://developer.wordpress.org/news/2025/11/how-wordpress-6-9-gives-forms-a-theme-json-makeover/
+
+## Slug normalisation gotcha
+
+> **Slug normaliser trap (silent failure).** WordPress inserts hyphens inside preset/custom slugs before emitting CSS vars: slug `3xl` becomes `--wp--preset--font-size--3-xl`; slug `cardShadow` becomes `--wp--custom--card-shadow`. A handwritten reference to the *un-normalised* form (e.g. `var(--wp--preset--font-size--3xl)`) resolves to nothing and silently falls back to the second `var()` argument.
+
+Before assembling the variable name, `WP_Theme_JSON` passes each preset/custom slug through `_wp_to_kebab_case()`, which splits it into word tokens — at digit/letter boundaries, camelCase transitions, and non-alphanumeric characters — lowercases them, and joins with `-`. Reference the emitted form, not the slug you typed.
+
+Grep pattern to catch un-normalised references in CSS/SCSS/PHP/JS:
+
+```
+var\(\s*--wp--(?:preset|custom)--[a-z-]+--\d+[a-z]
+```
+
+This matches a digit immediately followed by a letter inside the variable name (`3xl`, `2xs`, `4x-large`) — every emitted form keeps the hyphen (`3-xl`, `2-xs`, `4-x-large`) and is correctly not flagged.
