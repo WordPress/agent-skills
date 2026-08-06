@@ -1,6 +1,6 @@
 ---
 name: wp-knowledge
-description: "Use when adding, consuming, or auditing WordPress site notes or Knowledge support in plugins, themes, mu-plugins, agent integrations, or Gutenberg/Core work: wp_knowledge CPT, wp_knowledge_type taxonomy, /wp/v2/knowledge, /wp/v2/content-guidelines, Gutenberg 23.6+ Guidelines experiment, guideline/memory/note/custom skill types, plugin defaults, capability-safe writes, and progressive agent context loading."
+description: "Use when adding, consuming, or auditing WordPress site notes or Knowledge support in plugins, themes, mu-plugins, agent integrations, or Gutenberg/Core work: wp_knowledge CPT, wp_knowledge_type taxonomy, /wp/v2/knowledge, /wp/v2/knowledge/guideline-scopes, Gutenberg 23.6+ Guidelines experiment, guideline/memory/note/custom skill types, plugin defaults, capability-safe writes, and progressive agent context loading."
 compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+) with the Gutenberg 23.6+ Guidelines experiment active until Knowledge ships in Core. Filesystem-based agent with bash + node. Some verification requires WP-CLI or wp-env."
 ---
 
@@ -15,7 +15,7 @@ Use this skill when a WordPress project needs to:
 - create or consume `wp_knowledge` posts or `wp_knowledge_type` terms
 - add notes or reusable site context that should be available beyond one plugin
 - read or write Knowledge through `/wp/v2/knowledge`
-- use the Settings > Guidelines surface and its `/wp/v2/content-guidelines` route
+- use the Settings > Guidelines surface and its read-only `/wp/v2/knowledge/guideline-scopes` registry
 - register or consume Knowledge types such as `guideline`, `memory`, `note`, or a plugin-defined `skill`
 - ship plugin-provided skills, memories, notes, or defaults
 - migrate plugin-private prompts, memories, or notes into WordPress storage
@@ -42,7 +42,8 @@ Use this skill when a WordPress project needs to:
 Search the target codebase for:
 
 - `wp_knowledge`, `wp_knowledge_type`, `wp_knowledge_types`
-- `/wp/v2/knowledge`, `content-guidelines`, `guideline-scopes`
+- `/wp/v2/knowledge`, `knowledge/guideline-scopes`, `wp_guideline_scopes`
+- `wp_knowledge_get_or_create_type_term`
 - `read_knowledge_items`, `edit_knowledge_items`, `publish_knowledge_items`
 - existing prompt, memory, skill, note, or default storage
 
@@ -52,8 +53,10 @@ Knowledge requires a complete `wp_knowledge` backend. Check all of these before 
 
 - `post_type_exists( 'wp_knowledge' )`
 - `taxonomy_exists( 'wp_knowledge_type' )`
+- `function_exists( 'wp_knowledge_get_or_create_type_term' )`
 - REST index exposes `/wp/v2/knowledge`
 - term endpoint exposes `/wp/v2/wp_knowledge_type`
+- if relying on Settings > Guidelines, REST index exposes the read-only `/wp/v2/knowledge/guideline-scopes` registry
 - if relying on Settings > Guidelines, the Gutenberg 23.6+ Guidelines experiment is active
 
 Do not add a partial compatibility layer or alternate backend. If Knowledge is unavailable, make the dependency explicit: document the Gutenberg/Core requirement, add an admin/setup check, or skip the integration path until the site provides `wp_knowledge`.
@@ -71,13 +74,15 @@ Use the narrowest type that matches the data:
 - `note`: private freeform working text and the default generic document type.
 - `skill`: procedural guidance loaded on demand only when the target site has registered or accepted a `skill` type.
 
-Do not assume custom types exist. Register custom type labels through `wp_knowledge_types`, then resolve or create a matching `wp_knowledge_type` term before writing rows.
+Treat guideline scopes as an extensible UI registry. Read the active list from `/wp/v2/knowledge/guideline-scopes`; use `wp_guideline_scopes` when a plugin owns a new Settings > Guidelines section, and never hard-code the default list.
+
+Do not assume custom types exist. Register custom type labels through `wp_knowledge_types`, then resolve or create the matching `wp_knowledge_type` term with `wp_knowledge_get_or_create_type_term()` before writing rows.
 
 ### 3) Read and write through WordPress primitives
 
 Use normal WordPress post, taxonomy, REST, and capability APIs:
 
-- Resolve the `wp_knowledge_type` term before assigning it.
+- Resolve the `wp_knowledge_type` term with `wp_knowledge_get_or_create_type_term()` before assigning its term id.
 - Store rows in standard fields: title, excerpt, content, author, status.
 - Default agent-created or user-specific rows to `private`.
 - Use `publish` only for site-wide rows from an administrator-controlled flow or explicit user request.
@@ -118,7 +123,8 @@ Avoid writing rows on every page load. Prefer activation, setup screens, WP-CLI 
 ## Verification
 
 - Triage still detects the expected WordPress project type.
-- The target site exposes `wp_knowledge`, `wp_knowledge_type`, `/wp/v2/knowledge`, and the needed Knowledge capabilities.
+- The target site exposes `wp_knowledge`, `wp_knowledge_type`, `wp_knowledge_get_or_create_type_term()`, `/wp/v2/knowledge`, and the needed Knowledge capabilities.
+- Settings > Guidelines integrations read scope labels from `/wp/v2/knowledge/guideline-scopes` and write all rows through `/wp/v2/knowledge`.
 - Gutenberg 23.6+ Guidelines experiment is active when the integration depends on Settings > Guidelines behavior.
 - Created rows have the expected status, author, title, excerpt, content, slug, and type terms.
 - Knowledge writes use `wp_knowledge` with `wp_knowledge_type`.
@@ -133,6 +139,8 @@ Avoid writing rows on every page load. Prefer activation, setup screens, WP-CLI 
 
 - Missing `/wp/v2/knowledge`:
   - Knowledge support is not active, the Gutenberg 23.6+ Guidelines experiment is disabled, or the site uses an older runtime.
+- Missing `/wp/v2/knowledge/guideline-scopes`:
+  - The Guidelines surface is unavailable or the target runtime predates the scope registry; do not invent a compatibility endpoint.
 - Cannot read the collection:
   - Check `current_user_can( 'read_knowledge_items' )` and authenticated REST state.
 - REST collection returns an empty array:

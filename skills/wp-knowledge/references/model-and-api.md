@@ -15,7 +15,7 @@ Use WordPress content primitives instead of plugin-private schemas:
 
 Until Knowledge ships in Core, require WordPress 7.0+ behavior through Gutenberg 23.6+ with the Guidelines experiment active. Do not create parallel post types such as `wp_skill`, `wp_memory`, or plugin-specific options when the target site supports `wp_knowledge`.
 
-Settings > Guidelines is a user-facing surface on top of Knowledge. Its scope rows are still `wp_knowledge` posts with `wp_knowledge_type=guideline`; use `/wp/v2/content-guidelines` only for that Settings experience and `/wp/v2/knowledge` for general document rows.
+Settings > Guidelines is a user-facing surface on top of Knowledge. Read its scope labels from the read-only `/wp/v2/knowledge/guideline-scopes` registry. Read and write every content row, including guideline rows, through `/wp/v2/knowledge`.
 
 ## Type slugs
 
@@ -34,14 +34,23 @@ Plugins can register type labels through the `wp_knowledge_types` filter. That r
 
 ## Guideline scopes
 
-Guideline scope rows use the `guideline` type and reserved slugs such as:
+Guideline scopes define the sections and labels shown by Settings > Guidelines. They are registry entries, not content rows. Fetch the current registry with:
 
-- `guideline-site`
-- `guideline-copy`
-- `guideline-images`
-- `guideline-additional`
+```http
+GET /wp-json/wp/v2/knowledge/guideline-scopes
+```
 
-Block-specific guideline rows may also exist when the target runtime exposes them. Do not store memories, skills, or notes in the guideline scope route.
+The read-only response contains `slug`, `title`, `description`, and `order`. Default scopes include:
+
+- `site`
+- `copy`
+- `images`
+- `blocks`
+- `additional`
+
+Treat these as defaults, not a fixed list. Plugins can add, change, or remove scopes with the `wp_guideline_scopes` filter, and clients should render the returned registry instead of hard-coding scope labels.
+
+Each non-block scope is backed by at most one `guideline`-typed row whose post slug is `guideline-{scope}`. The `blocks` scope is the exception: it groups per-block rows such as `guideline-block-*` rather than owning one `guideline-blocks` row. The registry has no write methods; use `/wp/v2/knowledge` for every row.
 
 Use `/wp/v2/knowledge` for document-like rows. These rows should use:
 
@@ -84,8 +93,16 @@ Confirm Knowledge availability before using REST:
 
 ```php
 function my_plugin_has_knowledge(): bool {
-	return post_type_exists( 'wp_knowledge' ) && taxonomy_exists( 'wp_knowledge_type' );
+	return post_type_exists( 'wp_knowledge' )
+		&& taxonomy_exists( 'wp_knowledge_type' )
+		&& function_exists( 'wp_knowledge_get_or_create_type_term' );
 }
+```
+
+Read guideline scope labels from the registry, never from a hard-coded list:
+
+```http
+GET /wp-json/wp/v2/knowledge/guideline-scopes
 ```
 
 Resolve a type term before querying by type:

@@ -6,7 +6,9 @@ Require the complete Knowledge surface from WordPress core or Gutenberg. For cur
 
 ```php
 function my_plugin_has_knowledge(): bool {
-	return post_type_exists( 'wp_knowledge' ) && taxonomy_exists( 'wp_knowledge_type' );
+	return post_type_exists( 'wp_knowledge' )
+		&& taxonomy_exists( 'wp_knowledge_type' )
+		&& function_exists( 'wp_knowledge_get_or_create_type_term' );
 }
 
 function my_plugin_require_knowledge(): bool {
@@ -53,29 +55,41 @@ function my_plugin_register_knowledge_type_labels(): void {
 
 `guideline`, `memory`, and `note` are built in. Register or verify custom terms such as `skill` before relying on them.
 
-## Resolve or create a type term
+## Register a guideline scope
 
-Create terms idempotently and store term ids, not raw strings, when assigning hierarchical taxonomy terms.
+Guideline scopes are extensible UI registry entries. Register a scope only when the plugin owns a Settings > Guidelines section; store its row through `/wp/v2/knowledge` like every other Knowledge row.
 
 ```php
-function my_plugin_get_knowledge_type_term_id( string $slug, string $name ) {
-	$term = term_exists( $slug, 'wp_knowledge_type' );
+function my_plugin_register_guideline_scope(): void {
+	add_filter(
+		'wp_guideline_scopes',
+		static function ( array $scopes ): array {
+			$scopes['seo'] = array(
+				'title'       => __( 'SEO', 'my-plugin' ),
+				'description' => __( 'Set site-wide search presentation guidance.', 'my-plugin' ),
+				'order'       => 60,
+			);
 
-	if ( ! $term ) {
-		$term = wp_insert_term(
-			$name,
-			'wp_knowledge_type',
-			array( 'slug' => $slug )
-		);
-	}
-
-	if ( is_wp_error( $term ) ) {
-		return $term;
-	}
-
-	return (int) $term['term_id'];
+			return $scopes;
+		}
+	);
 }
 ```
+
+Clients should fetch `/wp/v2/knowledge/guideline-scopes` and render the returned slugs and labels instead of assuming the defaults.
+
+## Resolve or create a type term
+
+Use the Knowledge helper instead of duplicating term lookup and creation. It creates the term name in the site locale and returns the term id, or `null` on failure.
+
+```php
+$term_id = wp_knowledge_get_or_create_type_term( 'skill' );
+if ( null === $term_id ) {
+	return;
+}
+```
+
+Store term ids, not raw strings, when assigning the hierarchical taxonomy.
 
 ## Seed a plugin-provided skill
 
@@ -87,8 +101,8 @@ function my_plugin_seed_transcribe_skill(): void {
 		return;
 	}
 
-	$term_id = my_plugin_get_knowledge_type_term_id( 'skill', __( 'Skill', 'my-plugin' ) );
-	if ( is_wp_error( $term_id ) ) {
+	$term_id = wp_knowledge_get_or_create_type_term( 'skill' );
+	if ( null === $term_id ) {
 		return;
 	}
 
