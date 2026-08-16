@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/github/skills/skills/**)",
+      "Read(//d/github/skills/shared/**)",
+      "Read(//d/github/skills/docs/**)",
+      "Read(//d/github/skills/eval/**)",
+      "WebFetch(domain:help.blotato.com)"
+    ]
+  }
+}
