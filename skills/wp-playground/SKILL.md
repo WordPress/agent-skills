@@ -1,101 +1,52 @@
 ---
 name: wp-playground
-description: "Use for WordPress Playground workflows: fast disposable WP instances in the browser or locally via @wp-playground/cli (server, run-blueprint, build-snapshot), auto-mounting plugins/themes, switching WP/PHP versions, blueprints, and debugging (Xdebug)."
-compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Playground CLI requires Node.js 20.18+; runs WP in WebAssembly with SQLite."
+description: "Use as the WordPress Playground routing wrapper for ambiguous Playground work, local CLI runs with @wp-playground/cli, playground.wordpress.net share links, browser previews, snapshots, mounts, version switching, and Xdebug. For Blueprint JSON authoring or review, use the blueprint skill directly."
+compatibility: "Targets WordPress 7.0+, PHP 7.4.0+. Playground CLI requires Node.js 20.18+; runs WordPress in WebAssembly with SQLite."
 ---
 
 # WordPress Playground
 
-## When to use
-
-- Spin up a disposable WordPress to test a plugin/theme without full stack setup.
-- Run or iterate on Playground Blueprints (JSON) locally.
-- Build a reproducible snapshot of a site for sharing or CI.
-- Switch WP/PHP versions quickly to reproduce issues.
-- Debug plugin/theme code with Xdebug in an isolated Playground.
-
-## Inputs required
-
-- Host machine readiness: Node.js ≥ 20.18, `npm`/`npx` available.
-- Project path to mount (`--auto-mount` or explicit mount mapping).
-- Desired WP version/PHP version (optional; defaults to latest WP, PHP 8.3).
-- Blueprint location/URL if running a blueprint.
-- Port preference if 9400 conflicts.
-- Whether Xdebug is needed.
+This is a thin routing wrapper. Use it to pick the right Playground workflow, then load only the focused reference or skill needed for the task.
 
 ## Procedure
 
-### 0) Guardrails
+1. Identify the user intent: Blueprint authoring/review, local CLI execution, browser-only website/share link workflow, Xdebug/stuck CLI run, or a mixed Playground request.
+2. Route to the focused source below, loading more than one only when the request has multiple distinct parts.
+3. For mixed requests, delegate Blueprint JSON work to `blueprint`, then return here for runtime, CLI, debugging, or sharing guidance.
 
-- Playground instances are ephemeral and SQLite-backed; **never** point at production data.
-- Confirm Node ≥ 20.18 (`node -v`) before running CLI.
-- If mounting local code, ensure it is clean of secrets; Playground copies files into an in-memory FS.
+- **Blueprint JSON, schema, steps, resources, bundles, or Blueprint review**: use the `blueprint` skill directly. Do not duplicate Blueprint schema details here.
+- **Local CLI execution**: read `references/cli.md` for `@wp-playground/cli` server, `run-blueprint`, `build-snapshot`, mounts, version switching, and local validation.
+- **Xdebug or stuck CLI runs**: read `references/debugging.md` for Xdebug, runtime logs, worker flags, and stuck CLI runs.
+- **Browser-only Playground website workflows**: read `references/website.md` for `playground.wordpress.net`, share URLs, Blueprint Editor, hosted bundles, and browser limitations.
 
-### 1) Quick local spin-up (auto-mount)
+## Inputs required
 
-```bash
-cd <plugin-or-theme-root>
-npx @wp-playground/cli@latest server --auto-mount
-```
-- Opens on http://localhost:9400 by default. Auto-detects plugin/theme and installs it.
-- Add `--wp=<version>` / `--php=<version>` as needed.
-- For classic full installs already present, add `--skip-wordpress-setup` and mount the whole tree.
+- The intended workflow: Blueprint authoring, local CLI run, website/share link, snapshot, or debugging.
+- Project or bundle path if local code must be mounted or packaged.
+- Desired WordPress/PHP versions if compatibility matters.
+- Port preference if a local server is needed.
+- Whether browser-only sharing or local filesystem access is required.
 
-### 2) Manual mounts or multiple mounts
+## Guardrails
 
-- Use `--mount=/host/path:/vfs/path` (repeatable) when auto-mount is insufficient (multi-plugin, mu-plugins, custom content).
-- Mount before install with `--mount-before-install` for bootstrapping installer flows.
-- Reference: `references/cli-commands.md`
-
-### 3) Run a Blueprint (no server needed)
-
-```bash
-npx @wp-playground/cli@latest run-blueprint --blueprint=<file-or-url>
-```
-- Use for scripted setup/CI validation. Supports remote URLs and local files.
-- Allow bundled assets in local blueprints with `--blueprint-may-read-adjacent-files` when required.
-- See `references/blueprints.md` for structure and common flags.
-
-### 4) Build a snapshot for sharing
-
-```bash
-npx @wp-playground/cli@latest build-snapshot --blueprint=<file> --outfile=./site.zip
-```
-- Produces a ZIP you can load in Playground or attach to bug reports.
-
-### 5) Debugging with Xdebug
-
-- Start with `--xdebug` (or `--enable-xdebug` depending on CLI release) to expose an IDE key, then connect VS Code/PhpStorm to the host/port shown in CLI output.
-- Combine with `--auto-mount` for plugin/theme debugging.
-- Checklist: `references/debugging.md`
-
-### 6) Version switching
-
-- Use `--wp=` to pin WP (e.g., 7.0.0) and `--php=` to test compatibility.
-- If feature depends on Gutenberg trunk, prefer the latest WP release plus plugin if available; Playground images track stable WP plus bundled Gutenberg.
-
-### 7) Browser-only workflows (no CLI)
-
-- Launch quick previews with URL fragments or query params:
-  - Fragment: `https://playground.wordpress.net/#<base64-or-json-blueprint>`
-  - Query: `https://playground.wordpress.net/?blueprint-url=<public-url-or-zip>`
-- Use the live Blueprint Editor (playground.wordpress.net) to author blueprints with schema help; paste JSON and copy a shareable link.
+- Playground instances are disposable, SQLite-backed environments; never point them at production data.
+- Keep Blueprint JSON guidance in `blueprint` so the schema and examples have one source of truth.
+- For local CLI work, verify Node.js 20.18+ and `npm`/`npx` before running commands.
+- Browser-only Playground cannot read local filesystem paths; use public URLs, hosted ZIP bundles, or inline Blueprint JSON.
 
 ## Verification
 
-- Verify mounted code is active (plugin listed/active; theme selected).
-- For blueprints/snapshots, re-run with `--verbosity=debug` to confirm steps executed.
-- Run targeted smoke (e.g., `wp plugin list` inside Playground shell via browser terminal if exposed) or UI click-path.
+- For Blueprint content, validate against the published schema and follow the `blueprint` skill verification.
+- For local CLI runs, verify the mounted plugin/theme or Blueprint side effects in the Playground instance.
+- For share links, open the generated URL and confirm the expected landing page and installed assets load.
 
-## Failure modes / debugging
+## Failure modes
 
-- **CLI exits complaining about Node**: upgrade to ≥ 20.18.
-- **Mount not applied**: check path, use absolute path, add `--verbosity=debug`.
-- **Blueprint cannot read local assets**: add `--blueprint-may-read-adjacent-files`.
-- **Port already used**: `--port=<free-port>`.
-- **Slow/locked UI**: disable `--experimental-multi-worker` if enabled; or enable it to improve throughput on CPU-bound runs.
+- **Blueprint work routed here**: stop and use the `blueprint` skill for schema keys, steps, resources, bundles, validation, or Blueprint review.
+- **Local filesystem needed in a browser-only workflow**: use `references/cli.md`; `playground.wordpress.net` cannot read local filesystem paths.
+- **Shareable browser link requested from a local CLI workflow**: use `references/website.md`; local server URLs are not portable share links.
+- **Debugging treated as a second-hop reference**: read `references/debugging.md` directly for Xdebug, logs, worker flags, and stuck CLI runs.
 
 ## Escalation
 
-- If PHP extensions or native DB access are required, Playground may be unsuitable; fall back to full WP stack or wp-env/Docker.
-- For browser-only embedding or VS Code extension specifics, consult the upstream docs: https://wordpress.github.io/wordpress-playground/
+- If the task needs PHP extensions, native database access, persistence, or production-like infrastructure that Playground cannot provide, use a full WordPress stack such as wp-env, Docker, or the project-provided environment.

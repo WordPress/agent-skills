@@ -54,6 +54,8 @@ Register by setting `Block Types` to `core/post-content`:
 
 Starter patterns should be **complete page layouts** — not partial sections.
 
+Include `Block Types: core/post-content` unless the pattern is specifically for a template or template part.
+
 ## Template Patterns
 
 Patterns that suggest themselves when editing a specific template type in the Site Editor.
@@ -92,6 +94,22 @@ Register with `Template Types`:
 | `taxonomy` | Custom taxonomy archive |
 | `attachment` | Attachment page |
 | `comments` | Comments template section |
+
+## Query Loop Patterns
+
+Use `core/query` with `core/post-template`, post title/excerpt/date/featured image blocks, **pagination** when needed, and **`core/query-no-results`** where relevant.
+
+For archive, search, category, and author templates, **prefer inherited query context** (`"inherit":true`) instead of custom PHP or hardcoded query args.
+
+For CPT or event listings, confirm the post type slug, taxonomy/date assumptions, and available blocks before generating markup.
+
+## Comparison, Pricing, Timeline, and Schedule Patterns
+
+Use clear headings, list/table or labeled-card structure, and non-color-only emphasis for featured states.
+
+## Social, Navigation, and Search Patterns
+
+Use native blocks and verify accessible labels, link text, and search context. In 404 patterns, pair the Search block with recovery copy that explains what the user can try next.
 
 ## Block Type Connections
 

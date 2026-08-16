@@ -2,31 +2,16 @@
 
 Common mistakes that produce generic, broken, or inaccessible patterns.
 
-## Generic AI Aesthetic Markers
+## Design Quality Checklist
 
-These indicate lazy generation — patterns that look like every other AI output:
-
-**Layout monotony:**
-- Three equal-width columns for everything (services, team, features)
-- Identical padding on every section (`spacing|50` everywhere)
-- Symmetric layouts with no visual hierarchy variation
-- Every section centered, no left-aligned or asymmetric compositions
-
-**Color flatness:**
-- Only using `base` and `contrast` — no accent colors, no dark sections
-- All sections have the same background — no rhythm of light/dark/accent
-- Buttons all the same color with no primary/secondary distinction
-
-**Typography sameness:**
-- All headings the same size — no scale contrast between hero and section heads
-- No use of `fontFamily` for heading/body distinction
-- Missing typographic details: no letter-spacing, no line-height tuning
-- All text the same color — no use of `secondary` or muted tones for supporting text
-
-**How to fix:** Make at least 3 distinctive design choices per pattern:
-1. One unexpected layout decision (asymmetric split, wide/narrow alternation, grid)
-2. One bold color move (dark section, accent background, gradient)
-3. One typographic contrast (display size, letter-spacing, font family switch)
+- [ ] **Not generic**: pattern makes at least 3 distinctive design choices
+- [ ] **Layout variety**: not defaulting to 3 equal columns or uniform symmetric layouts
+- [ ] **Color rhythm**: sections alternate or vary backgrounds — not all the same
+- [ ] **Typography contrast**: headings clearly distinct from body (size, family, or weight)
+- [ ] **Spatial intention**: padding and gaps vary by context, not uniform everywhere
+- [ ] **Meaningful content**: placeholder text reflects real use, buttons describe actions
+- [ ] **Specific structure**: comparisons, timelines, schedules, pricing, menus, and documentation cards have labels that make sense without relying on visual position alone
+- [ ] **Restrained but distinctive**: corporate/professional patterns still include a clear hierarchy, accent, or layout choice; playful patterns do not become a one-note palette or repeated gradient treatment
 
 ## Technical Anti-Patterns
 
@@ -51,7 +36,7 @@ These indicate lazy generation — patterns that look like every other AI output
 {"backgroundColor":"contrast","textColor":"base"}
 ```
 
-Use hardcoded values only when no suitable preset exists and the design requires a specific color. Always prefer presets — they adapt to theme changes and style variations.
+Use hardcoded values only when no suitable `preset` exists and the design requires a specific color.
 
 ### Missing Escaping and i18n
 ```php
@@ -90,8 +75,6 @@ Use hardcoded values only when no suitable preset exists and the design requires
 <!-- /wp:group -->
   <!-- /wp:columns -->
 ```
-
-Every `<!-- wp:block -->` must have a matching `<!-- /wp:block -->` and nesting must be properly ordered.
 
 ### Placeholder Image URLs
 ```html
@@ -149,3 +132,19 @@ When using dark backgrounds, verify text presets provide adequate contrast:
 
 ### Missing ARIA on Decorative Elements
 Spacer blocks should include `aria-hidden="true"` (WordPress adds this automatically). If generating custom separator patterns, ensure decorative elements don't announce to screen readers.
+
+## Technical Validation Checklist
+
+- [ ] Every `<!-- wp:block -->` has matching `<!-- /wp:block -->`
+- [ ] JSON in block comments is valid (no trailing commas, strings double-quoted)
+- [ ] All user-visible strings use `esc_html_e()` or `esc_html__()`
+- [ ] All URLs use `esc_url()`
+- [ ] All attribute values with translatable text use `esc_attr_e()` or `esc_attr__()`
+- [ ] Informational images have descriptive translated alt text; decorative images use empty alt text intentionally
+- [ ] Heading levels are sequential (h2 → h3 → h4, never skip)
+- [ ] Preset slugs are valid defaults or documented as theme-specific
+- [ ] `Slug` in header uses correct namespace: `theme-slug/pattern-name`
+- [ ] No inline `<style>`, no `<script>`, no custom CSS classes
+- [ ] No query-dependent PHP functions
+- [ ] Button/link labels are action-specific; avoid vague labels such as "Click Here" or "Read More"
+- [ ] Updating an existing pattern preserves the `Slug` unless intentionally creating a new pattern
