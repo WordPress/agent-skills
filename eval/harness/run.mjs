@@ -77,6 +77,27 @@ function runJsonCommand(command, args, cwd) {
   }
 }
 
+function scenarioSkillCoverage(repoRoot) {
+  // Which skills are exercised by at least one eval scenario. Scenarios are
+  // JSON files declaring the skills they route through (see
+  // eval/scenarios/README.md).
+  const scenariosRoot = path.join(repoRoot, "eval", "scenarios");
+  const covered = new Set();
+  if (!fs.existsSync(scenariosRoot)) return covered;
+  for (const entry of fs.readdirSync(scenariosRoot)) {
+    if (!entry.endsWith(".json")) continue;
+    const scenarioPath = path.join(scenariosRoot, entry);
+    let scenario;
+    try {
+      scenario = JSON.parse(readUtf8(scenarioPath));
+    } catch (error) {
+      throw new Error(`Invalid JSON in eval/scenarios/${entry}: ${error.message}`);
+    }
+    for (const skill of scenario.skills ?? []) covered.add(skill);
+  }
+  return covered;
+}
+
 function main() {
   const repoRoot = process.cwd();
 
@@ -116,6 +137,13 @@ function main() {
       `Compatibility contract mismatch in ${path.relative(repoRoot, skillPath)} (expected WP 7.0 + PHP 7.4.0+)`
     );
   }
+
+  const covered = scenarioSkillCoverage(repoRoot);
+  const uncovered = skillDirs.map((dir) => path.basename(dir)).filter((name) => !covered.has(name));
+  assert(
+    uncovered.length === 0,
+    `Skills with no eval scenario (see docs/principles.md): ${uncovered.join(", ")}`
+  );
 
   const triageScript = path.join(repoRoot, "skills", "wp-project-triage", "scripts", "detect_wp_project.mjs");
   assert(fs.existsSync(triageScript), "Missing triage detector script");
