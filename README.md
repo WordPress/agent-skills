@@ -2,7 +2,7 @@
 
 **Teach AI coding assistants how to build WordPress the right way.**
 
-Agent Skills are portable bundles of instructions, checklists, and scripts that help AI assistants (Claude, Copilot, Codex, Cursor, etc.) understand WordPress development patterns, avoid common mistakes, and follow best practices.
+Agent Skills are portable bundles of instructions, checklists, and scripts that help AI assistants (Claude, Copilot, Codex, Cursor, Warp, etc.) understand WordPress development patterns, avoid common mistakes, and follow best practices.
 
 > **AI Authorship Disclosure:** These skills were generated using GPT-5.2 Codex (High Reasoning) from official Gutenberg and WordPress documentation, then reviewed and edited by WordPress contributors. We tested skills with AI assistants and iterated based on results. This is v1, and skills will improve as the community uses them and contributes fixes. See [docs/ai-authorship.md](docs/ai-authorship.md) for details. ([WordPress AI Guidelines](https://make.wordpress.org/ai/handbook/ai-guidelines/))
 
@@ -130,7 +130,7 @@ cd agent-skills
 node shared/scripts/skillpack-build.mjs --clean
 
 # Install into your WordPress project
-node shared/scripts/skillpack-install.mjs --dest=../your-wp-project --targets=codex,vscode,claude,cursor
+node shared/scripts/skillpack-install.mjs --dest=../your-wp-project --targets=codex,vscode,claude,cursor,warp
 ```
 
 This copies skills into:
@@ -138,6 +138,7 @@ This copies skills into:
 - `.github/skills/` for VS Code / GitHub Copilot
 - `.claude/skills/` for Claude Code (project-level)
 - `.cursor/skills/` for Cursor (project-level)
+- `.agents/skills/` for Warp (project-level, recommended)
 
 Antigravity is opt-in for project-level installs. To also copy skills into `.agents/skills/`, include `antigravity` when building and installing:
 
@@ -162,6 +163,13 @@ node shared/scripts/skillpack-install.mjs --targets=antigravity-global
 ```
 
 This installs skills to `~/.gemini/antigravity/skills/` where Antigravity will discover them.
+### Install globally for Warp
+
+```bash
+node shared/scripts/skillpack-install.mjs --targets=warp-global
+```
+
+This installs skills to `~/.agents/skills/` where Warp will discover them.
 
 ### Available options
 
@@ -172,8 +180,8 @@ node shared/scripts/skillpack-install.mjs --list
 # Dry run (preview without installing)
 node shared/scripts/skillpack-install.mjs --global --dry-run
 
-# Install specific skills to a project (e.g. Claude + Cursor)
-node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude,cursor --skills=wp-wpcli-and-ops
+# Install specific skills to a project (e.g. Claude + Cursor + Warp)
+node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude,cursor,warp --skills=wp-wpcli-and-ops
 ```
 
 ### Manual installation

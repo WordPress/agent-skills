@@ -18,16 +18,17 @@ jobs:
       - name: Run local eval harness
         run: node eval/harness/run.mjs
 
-      - name: Build skillpacks (Codex + VS Code)
-        run: node shared/scripts/skillpack-build.mjs --clean --out=dist --targets=codex,vscode
+      - name: Build skillpacks (Codex + VS Code + Warp)
+        run: node shared/scripts/skillpack-build.mjs --clean --out=dist --targets=codex,vscode,warp
 
       - name: Install skillpacks (smoke)
         run: |
           rm -rf /tmp/skillpack-install-test
           mkdir -p /tmp/skillpack-install-test
-          node shared/scripts/skillpack-install.mjs --from=dist --dest=/tmp/skillpack-install-test --targets=codex,vscode
+          node shared/scripts/skillpack-install.mjs --from=dist --dest=/tmp/skillpack-install-test --targets=codex,vscode,warp
           test -f /tmp/skillpack-install-test/.codex/skills/wordpress-router/SKILL.md
           test -f /tmp/skillpack-install-test/.github/skills/wordpress-router/SKILL.md
+          test -f /tmp/skillpack-install-test/.agents/skills/wordpress-router/SKILL.md
 
       - uses: actions/setup-python@v5
         with:

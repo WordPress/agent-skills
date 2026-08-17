@@ -16,6 +16,7 @@ Outputs:
 - `dist/vscode/.github/skills/*` (VS Code / Copilot repo layout)
 - `dist/claude/.claude/skills/*` (Claude Code repo layout)
 - `dist/cursor/.cursor/skills/*` (Cursor repo layout)
+- `dist/warp/.agents/skills/*` (Warp repo layout)
 
 Antigravity is opt-in. Add `--targets=codex,vscode,claude,cursor,antigravity` to also build:
 
@@ -26,7 +27,7 @@ Antigravity is opt-in. Add `--targets=codex,vscode,claude,cursor,antigravity` to
 1. Build dist (above).
 2. Install into a destination repo:
 
-- `node shared/scripts/skillpack-install.mjs --dest=../some-repo --targets=codex,vscode,claude,cursor`
+- `node shared/scripts/skillpack-install.mjs --dest=../some-repo --targets=codex,vscode,claude,cursor,warp`
 
 To include Antigravity, build it first and include it in the install targets:
 
