@@ -64,6 +64,17 @@ function validateSkillName(name) {
   return null;
 }
 
+const compatibilityContracts = {
+  default: {
+    required: ["WordPress 7.0", "PHP 7.4.0"],
+    label: "WP 7.0 + PHP 7.4.0+",
+  },
+  "wp-knowledge": {
+    required: ["WordPress 7.0", "PHP 7.4.0", "Gutenberg 23.6"],
+    label: "WP 7.0 + PHP 7.4.0+ + Gutenberg 23.6+ Guidelines experiment",
+  },
+};
+
 function runJsonCommand(command, args, cwd) {
   const out = spawnSync(command, args, { cwd, encoding: "utf8" });
   if (out.status !== 0) {
@@ -111,9 +122,10 @@ function main() {
       compatibility.length <= 500,
       `Compatibility too long in ${path.relative(repoRoot, skillPath)} (${compatibility.length} chars)`
     );
+    const compatibilityContract = compatibilityContracts[fm.name] || compatibilityContracts.default;
     assert(
-      compatibility.includes("WordPress 7.0") && compatibility.includes("PHP 7.4.0"),
-      `Compatibility contract mismatch in ${path.relative(repoRoot, skillPath)} (expected WP 7.0 + PHP 7.4.0+)`
+      compatibilityContract.required.every((value) => compatibility.includes(value)),
+      `Compatibility contract mismatch in ${path.relative(repoRoot, skillPath)} (expected ${compatibilityContract.label})`
     );
   }
 
