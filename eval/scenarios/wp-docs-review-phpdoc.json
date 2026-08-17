@@ -1,0 +1,27 @@
+{
+  "name": "Review PHPDoc in a WordPress plugin",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-docs"],
+  "query": "Review the PHPDoc in this plugin and fix any violations of WordPress documentation standards",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage script to detect plugin structure",
+    "Step 3: Route to wp-docs based on documentation task",
+    "Step 4: Enter wp-docs review mode for existing documentation",
+    "Step 5: Scan PHP files for PHPDoc blocks",
+    "Step 6: Check summaries use third-person singular verb form (e.g. 'Retrieves' not 'Retrieve')",
+    "Step 7: Check @param tags follow 'type $name Description.' format",
+    "Step 8: Check @return tags include type and description (not bare @return)",
+    "Step 9: Check @since tags are present on all public and protected members",
+    "Step 10: Check hook documentation has PHPDoc blocks before do_action() and apply_filters() calls with @since and @param tags",
+    "Step 11: Report findings with specific file locations and suggested fixes"
+  ],
+  "success_criteria": [
+    "Checks that summaries use third-person singular verb form",
+    "Validates @param format includes type, variable name, and description",
+    "Flags bare @return tags missing type or description",
+    "Verifies @since tags are present on public and protected members",
+    "Checks hook documentation is complete for do_action and apply_filters calls",
+    "Reports findings with file paths and line references",
+    "Follows WordPress PHP Documentation Standards"
+  ]
+}
