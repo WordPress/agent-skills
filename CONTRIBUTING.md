@@ -36,12 +36,14 @@ node shared/scripts/scaffold-skill.mjs <skill-name> "<description>"
 
 ### 3. Add Evaluation Scenarios
 
-Every skill needs test scenarios under `eval/scenarios/`. These are simple markdown files describing:
-- A realistic prompt/task
-- What the AI should do
-- How to verify it worked
+Every skill needs test scenarios under `eval/scenarios/`. Scenarios are **JSON files only** (see `eval/scenarios/README.md`) — add one as `eval/scenarios/<skill-name>.json` with these fields:
+- `name` — a short description of the scenario
+- `skills` — the skill(s) it should route through
+- `query` — a realistic prompt/task
+- `expected_behavior` — the steps the AI should take, in order
+- `success_criteria` — how to verify it worked
 
-This is a great low-barrier contribution—you're essentially writing "what should happen when someone asks X?"
+This is a great low-barrier contribution—you're essentially writing "what should happen when someone asks X?" `node shared/scripts/scaffold-skill.mjs <skill-name> "<description>"` creates a starter scenario file for you.
 
 ### 4. Report Issues
 

@@ -9,7 +9,7 @@ function usage() {
       "",
       "Notes:",
       "- <skill-name> must be lowercase unicode letters/digits with hyphens (no leading/trailing hyphen, no --).",
-      "- Creates skills/<skill-name>/SKILL.md and eval/scenarios/<skill-name>.md",
+      "- Creates skills/<skill-name>/SKILL.md and eval/scenarios/<skill-name>.json",
       "",
     ].join("\n")
   );
@@ -44,7 +44,7 @@ function main() {
   const repoRoot = process.cwd();
   const skillDir = path.join(repoRoot, "skills", skillName);
   const skillMd = path.join(skillDir, "SKILL.md");
-  const scenarioPath = path.join(repoRoot, "eval", "scenarios", `${skillName}.md`);
+  const scenarioPath = path.join(repoRoot, "eval", "scenarios", `${skillName}.json`);
 
   assert(!fs.existsSync(skillDir), `Skill directory already exists: ${path.relative(repoRoot, skillDir)}`);
   fs.mkdirSync(skillDir, { recursive: true });
@@ -53,8 +53,14 @@ function main() {
   fs.writeFileSync(skillMd, skillBody, "utf8");
 
   fs.mkdirSync(path.dirname(scenarioPath), { recursive: true });
-  const scenario = `# Scenario: ${skillName}\n\n## Prompt\n\n## Expected behavior\n\n- Uses \`${skillName}\` when the prompt matches its description.\n- Follows the skill procedure and verifies results.\n`;
-  fs.writeFileSync(scenarioPath, scenario, "utf8");
+  const scenario = {
+    name: `TODO: describe the scenario for ${skillName}`,
+    skills: [skillName],
+    query: "TODO: a realistic user prompt that should route to this skill",
+    expected_behavior: [`Step 1: Route to ${skillName} because the task matches its description`, "TODO: add the remaining expected steps"],
+    success_criteria: [`Routes to ${skillName}`, "TODO: add the remaining pass/fail checks"],
+  };
+  fs.writeFileSync(scenarioPath, `${JSON.stringify(scenario, null, 2)}\n`, "utf8");
 
   process.stdout.write(`OK: created ${path.relative(repoRoot, skillMd)} and ${path.relative(repoRoot, scenarioPath)}\n`);
 }
