@@ -1,0 +1,21 @@
+{
+  "name": "Diagnose a HyperDB replica-lag bug and point to the right VIP log surface",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-vip-platform"],
+  "query": "This is a WordPress VIP plugin (vip-config/vip-config.php present). A form handler does $wpdb->insert() to a custom table and then immediately re-queries the row with $wpdb->get_row() to build the response, and the row is sometimes missing right after submit. Separately, I added error_log() calls to debug it but can't find them anywhere on disk. What's going on and how do I check?",
+  "expected_behavior": [
+    "Step 1: Route to wordpress-router / wp-project-triage, then wp-vip-platform on detecting VIP signals (vip-config/vip-config.php)",
+    "Step 2: Read references/databases.md and identify the missing row as a HyperDB replica-lag read-after-write issue, not a caching or logic bug",
+    "Step 3: Recommend avoiding the re-query (use the in-memory data / $wpdb->insert_id from the same request) rather than adding sleep()/retry loops",
+    "Step 4: Explicitly say no other db.php drop-in should be installed to work around this",
+    "Step 5: Read references/logging.md and explain error_log() output goes to Runtime Logs, not a local file, because the filesystem is read-only outside /tmp/",
+    "Step 6: Point to the VIP Dashboard Runtime Logs panel or `vip logs` (VIP-CLI) to find the error_log() output",
+    "Step 7: Do not suggest tailing a local file path or that the site's PHP error log needs to be relocated"
+  ],
+  "success_criteria": [
+    "Routes to wp-vip-platform",
+    "Diagnoses the missing row as replica lag (HyperDB), not a cache or race-condition-in-the-abstract answer",
+    "Does not propose a custom db.php drop-in or sleep()-based retry as the fix",
+    "Correctly explains error_log() output lands in Runtime Logs, reachable via VIP Dashboard or `vip logs`",
+    "Does not suggest a local log file path"
+  ]
+}

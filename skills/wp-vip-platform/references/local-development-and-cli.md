@@ -28,6 +28,20 @@ A local environment's configuration lives in a config file (see VIP docs for the
 - Investigating a live VIP environment (real logs, real cache state) → plain `vip ...` commands (require VIP-CLI auth against the actual application).
 - Anything that is just "run WP-CLI against this WordPress install" with no VIP-specific behavior involved → `wp-wpcli-and-ops`.
 
+## Disallowed WP-CLI commands
+
+Some WP-CLI commands are blocked on VIP because they'd let a user bypass the platform's own deploy/update/backup safety mechanisms. Known disallowed core commands include (non-exhaustive — check `docs.wpvip.com/vip-cli/wp-cli-with-vip-cli/disallowed-commands/` for the current list before assuming a command works or is blocked):
+
+- `check-update`, `download`, `install`, `is-installed`, `update`, `update-db`, `verify-checksums` — core/plugin/theme install-and-update commands. Code changes go through git deploys (`code-deployment.md`), not `wp core update` / `wp plugin install` against a live environment.
+- `multisite-convert`, `multisite-install` — multisite conversion/setup is a platform-level operation, not a WP-CLI task on VIP.
+- Most `wp db *` subcommands are disallowed — but `wp db query` is allowed and **defaults to read-only**; queries containing `DROP`, `TRUNCATE`, or `CREATE` are blocked outright. For actual backup/export/import workflows, use `vip export sql` (`backups-and-migration.md`), not `wp db export`/`wp db import` against a live VIP environment.
+- If a disallowed command's underlying behavior is genuinely needed, the documented workaround is a **custom WP-CLI command** built around `$wpdb->query()` or the relevant WordPress API, not trying to bypass the restriction.
+
+## Source (additions)
+
+- https://docs.wpvip.com/vip-cli/wp-cli-with-vip-cli/disallowed-commands/
+- https://docs.wpvip.com/vip-cli/wp-cli-with-vip-cli/
+
 ## Source
 
 - https://docs.wpvip.com/technical-references/vip-cli/
