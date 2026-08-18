@@ -13,6 +13,7 @@ This repo currently includes:
 - `wp-wpcli-and-ops`
 - `wp-performance`
 - `wp-phpstan`
+- `wp-vip-platform`
 
 Planned next skills (not yet implemented):
 

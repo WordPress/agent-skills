@@ -53,6 +53,8 @@ Route by intent even if repo kind is broad (like `wp-site`):
   - Route → `wp-performance`.
 - **Security / nonces / capabilities / sanitization/escaping / uploads**
   - Route → `wp-security` (planned).
+- **WordPress VIP platform (VIP Go) / VIP-CLI / Enterprise Search / Cron Control / VIP code review**
+  - Route → `wp-vip-platform`.
 
 ## Step 3: guardrails checklist (always)
 
