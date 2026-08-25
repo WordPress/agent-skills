@@ -1,0 +1,21 @@
+{
+  "name": "Protect agent-run WP-CLI with HOL Guard",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-wpcli-and-ops"],
+  "query": "I'm using a local coding agent to run a production wp search-replace. I want HOL Guard in front of the agent before it can execute WP-CLI writes. Give me the safe workflow.",
+  "expected_behavior": [
+    "Confirm production target and blast radius before any write",
+    "Require a backup and WP-CLI dry-run for search-replace",
+    "Install HOL Guard with an isolated CLI install when needed",
+    "Use hol-guard detect --json instead of guessing the active harness",
+    "Use hol-guard install, run --dry-run, run, and doctor for the detected supported harness",
+    "Treat deny, review-required, Guard error, or unavailable states as blocked rather than bypassing Guard",
+    "State that HOL Guard protects the supported local agent harness and is not native WordPress or WP-CLI server interception"
+  ],
+  "success_criteria": [
+    "HOL Guard itself is installed and invoked in the workflow",
+    "The agent is run through the Guard-owned harness path before WP-CLI writes",
+    "WordPress backup, targeting, and dry-run safeguards remain required",
+    "No unsupported claim of WordPress server-side interception is made",
+    "Protection is only claimed after hol-guard doctor verifies the harness"
+  ]
+}
