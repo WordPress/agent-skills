@@ -48,6 +48,7 @@ before performing write operations:
 ```bash
 pipx install hol-guard
 hol-guard detect --json
+hol-guard bootstrap
 hol-guard install <harness>
 hol-guard run <harness> --dry-run
 hol-guard run <harness>
