@@ -39,6 +39,32 @@ WP-CLI commands can be destructive. Before running anything that writes:
 Read:
 - `references/safety.md`
 
+#### Optional: protect agent-run WP-CLI with HOL Guard
+
+If WP-CLI is being invoked by a supported local coding-agent harness and the
+user wants a pre-execution policy boundary, run that harness through HOL Guard
+before performing write operations:
+
+```bash
+pipx install hol-guard
+hol-guard detect --json
+hol-guard bootstrap
+hol-guard install <harness>
+hol-guard run <harness> --dry-run
+hol-guard run <harness>
+hol-guard doctor <harness> --json
+```
+
+Use the harness reported by `hol-guard detect --json`; do not guess an adapter
+name. A deny, review-required, error, or unavailable Guard state is not
+permission to run the WP-CLI command outside the protected harness. Keep the
+WordPress-specific safeguards above as well: Guard does not replace correct site
+targeting, backups, or WP-CLI dry-runs.
+
+This is agent-side protection, not a native WordPress or WP-CLI interception
+layer. Do not claim the WordPress server is protected merely because HOL Guard
+is installed.
+
 ### 1) Inspect WP-CLI and site targeting (deterministic)
 
 Run the inspector:
@@ -104,6 +130,8 @@ Read:
   - plugins/themes in expected state
   - cron/caches flushed where needed
 - If there’s a health check endpoint or smoke test suite, run it after ops changes.
+- If HOL Guard is used, require `hol-guard doctor <harness> --json` to confirm
+  the harness integration before claiming the agent is protected.
 
 ## Failure modes / debugging
 
