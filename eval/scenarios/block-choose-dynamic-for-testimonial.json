@@ -1,0 +1,20 @@
+{
+  "name": "Default to dynamic for ambiguous block",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-block-development"],
+  "query": "Create a testimonial block — quote, person's name, photo, and their company. We're still figuring out the final design for these.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect project structure",
+    "Step 3: Route to wp-block-development skill",
+    "Step 4: Read references/static-vs-dynamic-blocks.md to decide rendering model",
+    "Step 5: Recognize that 'still figuring out the final design' implies markup will evolve",
+    "Step 6: Choose dynamic rendering to avoid deprecation chains as design iterates",
+    "Step 7: Add render field in block.json pointing to a PHP render file",
+    "Step 8: Keep save() returning null"
+  ],
+  "success_criteria": [
+    "Chooses dynamic rendering",
+    "Uses render field in block.json or render_callback",
+    "Does not freeze testimonial markup in post content via save()"
+  ]
+}
