@@ -37,11 +37,6 @@ Some WP-CLI commands are blocked on VIP because they'd let a user bypass the pla
 - Most `wp db *` subcommands are disallowed — but `wp db query` is allowed and **defaults to read-only**; queries containing `DROP`, `TRUNCATE`, or `CREATE` are blocked outright. For actual backup/export/import workflows, use `vip export sql` (`backups-and-migration.md`), not `wp db export`/`wp db import` against a live VIP environment.
 - If a disallowed command's underlying behavior is genuinely needed, the documented workaround is a **custom WP-CLI command** built around `$wpdb->query()` or the relevant WordPress API, not trying to bypass the restriction.
 
-## Source (additions)
-
-- https://docs.wpvip.com/vip-cli/wp-cli-with-vip-cli/disallowed-commands/
-- https://docs.wpvip.com/vip-cli/wp-cli-with-vip-cli/
-
 ## Source
 
 - https://docs.wpvip.com/technical-references/vip-cli/
@@ -51,3 +46,5 @@ Some WP-CLI commands are blocked on VIP because they'd let a user bypass the pla
 - https://docs.wpvip.com/vip-cli/commands/dev-env/start/
 - https://docs.wpvip.com/vip-cli/commands/logs/
 - https://docs.wpvip.com/vip-local-development-environment/
+- https://docs.wpvip.com/vip-cli/wp-cli-with-vip-cli/disallowed-commands/
+- https://docs.wpvip.com/vip-cli/wp-cli-with-vip-cli/
