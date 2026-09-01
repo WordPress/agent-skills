@@ -37,6 +37,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wpds** | WordPress Design System |
 | **wp-plugin-directory-guidelines** | WordPress Plugin Directory Guidelines |
 | **blueprint** | WordPress Playground Blueprints for declarative environment setup |
+| **wp-vip-platform** | WordPress VIP (VIP Go) platform: filesystem/media constraints, restricted functions, caching, Cron Control, deploys, Enterprise Search, VIP-CLI |
 
 ## How It Works
 

@@ -1,0 +1,21 @@
+{
+  "name": "Launch a new network site on a custom domain with unpublished media protected",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-vip-platform"],
+  "query": "We're on a WordPress VIP multisite network (subdomain structure). We need to launch a new network site on a custom domain, and until launch its uploaded media (draft post attachments) shouldn't be publicly downloadable by URL. Also, we want to lock the new site's /wp-admin/ to our office IP only, but keep the public frontend open. How do we do all of this?",
+  "expected_behavior": [
+    "Step 1: Route to wordpress-router / wp-project-triage, then wp-vip-platform on detecting VIP + multisite signals",
+    "Step 2: Read references/multisite.md — explain the custom domain must be added to the environment in the VIP Dashboard before the Site Address can be updated to it",
+    "Step 3: Note the network's subdomain vs subdirectory structure is fixed and not something to change per-site",
+    "Step 4: Read references/security-and-access-controls.md for the unpublished-media requirement — recommend Access-Controlled Files in 'restrict access to unpublished files' mode (via client-mu-plugins filter or vip-cli wp option), not 'restrict access to all files'",
+    "Step 5: For the /wp-admin/-only restriction while keeping the frontend public, recommend partial restriction of site access (not a full environment-wide IP Allow List, which would block the public frontend too)",
+    "Step 6: Do not propose .htaccess-based access rules or IP checks hand-rolled in PHP for either requirement",
+    "Step 7: Do not propose restricting all files (draft and published) when only unpublished/draft media needs protecting"
+  ],
+  "success_criteria": [
+    "Routes to wp-vip-platform",
+    "Correctly distinguishes 'restrict unpublished files' from 'restrict all files' Access-Controlled Files mode",
+    "Recommends partial site-access restriction for /wp-admin/-only, not an environment-wide IP allow list",
+    "Notes the custom domain has to be registered in the VIP Dashboard before it will resolve to the network site",
+    "No .htaccess or hand-rolled PHP IP-check suggestions"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "Fix a VIP PHPCS violation and purge cache after a content-driven change",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-vip-platform"],
+  "query": "This plugin runs on WordPress VIP (repo has vip-config/vip-config.php and client-mu-plugins/). PHPCS with WordPressVIPMinimum flags a call to get_page_by_title() in includes/class-landing-pages.php, and separately a scheduled job updates a batch of pages and needs their cached URLs purged afterward. Fix both.",
+  "expected_behavior": [
+    "Step 1: Route to wordpress-router, then wp-project-triage to classify the repo",
+    "Step 2: Recognize VIP signals (vip-config/vip-config.php, client-mu-plugins/) and route to wp-vip-platform",
+    "Step 3: Optionally run node skills/wp-vip-platform/scripts/detect_vip_project.mjs to confirm VIP signals deterministically",
+    "Step 4: Read references/restricted-functions-and-code-review.md and replace get_page_by_title() with wpcom_vip_get_page_by_title()",
+    "Step 5: Explain why the raw function is flagged (uncached lookup at VIP scale), not just apply the replacement silently",
+    "Step 6: Read references/caching.md for the batch-update cache purge case",
+    "Step 7: Recommend wpcom_vip_purge_edge_cache_for_post( $post_id ) for each updated page (or wpcom_vip_purge_edge_cache_for_url() if the URL is the only known value)",
+    "Step 8: Note that purge calls are queued and executed on shutdown (asynchronous), so a same-request check for purge completion is not meaningful",
+    "Step 9: Do not suggest direct filesystem writes or ini_set()/error_reporting() as part of the fix",
+    "Step 10: Do not route cron/job-scheduling questions to wp-wpcli-and-ops or assume wp-cron.php fires the job"
+  ],
+  "success_criteria": [
+    "Routes to wp-vip-platform (not wp-plugin-development or wp-performance alone)",
+    "get_page_by_title() replaced with wpcom_vip_get_page_by_title()",
+    "Explains the caching/performance-at-scale reason for the restriction",
+    "Recommends wpcom_vip_purge_edge_cache_for_post() (or _url()) for the batch update",
+    "Notes purge is asynchronous (queued on shutdown), not immediate",
+    "No suggestion of runtime filesystem writes outside /tmp/"
+  ]
+}
