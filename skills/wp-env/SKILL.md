@@ -24,6 +24,8 @@ Zero-config, Docker-based local WordPress development environment for plugins, t
 - this is a WordPress core or Gutenberg checkout
 - the user explicitly asks for wp-env or Docker
 
+wp-env can also run without Docker by using Playground as its runtime (`npx @wordpress/env start --runtime=playground`, experimental). That is still wp-env, driven by the same `.wp-env.json`, so treat it as a Docker-free fallback for a project that already carries wp-env config, not as a third option. It swaps MySQL for SQLite and drops `wp-env run` and the separate tests environment, which are most of the reasons to pick wp-env in the first place. For a quick Docker-free WordPress with no wp-env config, use the **wp-playground** skill directly.
+
 ## Inputs required
 
 1. **Docker status** -- verify Docker is installed and running: `docker info`
