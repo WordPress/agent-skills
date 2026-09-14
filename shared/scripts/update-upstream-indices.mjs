@@ -38,12 +38,16 @@ function decodeHtml(text) {
 }
 
 async function fetchText(url) {
-  const res = await fetch(url, {
-    headers: {
-      "user-agent": "wp-agent-skills-upstream-sync/0.1",
-      accept: "text/html,application/json",
-    },
-  });
+  const headers = {
+    "user-agent": "wp-agent-skills-upstream-sync/0.1",
+    accept: "text/html,application/json",
+  };
+  // Unauthenticated GitHub API calls share the runner's IP-wide rate limit and
+  // are refused with 403, so authenticate them when the workflow supplies a token.
+  if (process.env.GITHUB_TOKEN && new URL(url).hostname === "api.github.com") {
+    headers.authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
+  const res = await fetch(url, { headers });
   if (!res.ok) throw new Error(`Fetch failed ${res.status} for ${url}`);
   return await res.text();
 }

@@ -16,6 +16,8 @@ jobs:
           node-version: 20
 
       - name: Update indices
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: node shared/scripts/update-upstream-indices.mjs
 
       - name: Create PR if changed
