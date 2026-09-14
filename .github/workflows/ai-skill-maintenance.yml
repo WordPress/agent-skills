@@ -67,6 +67,10 @@ jobs:
     outputs:
       has_skill_updates: ${{ steps.generate.outputs.has_updates }}
     steps:
+      # Artifacts do not retain .git metadata; checkout supplies the base repository
+      # before the generated workspace overlays its changed files.
+      - uses: actions/checkout@v4
+
       - name: Download workspace
         uses: actions/download-artifact@v4
         with:
@@ -127,6 +131,10 @@ jobs:
     if: needs.generate-updates.outputs.has_skill_updates == 'true'
     runs-on: ubuntu-latest
     steps:
+      # Artifacts do not retain .git metadata; checkout supplies the base repository
+      # before the generated workspace overlays its changed files.
+      - uses: actions/checkout@v4
+
       - name: Download workspace
         uses: actions/download-artifact@v4
         with:
@@ -201,6 +209,9 @@ jobs:
       (needs.generate-updates.result == 'skipped' || needs.generate-updates.outputs.has_skill_updates == 'false')
     runs-on: ubuntu-latest
     steps:
+      # The artifact contains only the changed workspace files, not .git metadata.
+      - uses: actions/checkout@v4
+
       - name: Download workspace
         uses: actions/download-artifact@v4
         with:
