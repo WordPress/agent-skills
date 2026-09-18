@@ -1,6 +1,6 @@
 ## Playground website workflows
 
-Use this reference when the agent must use `https://playground.wordpress.net/` itself: create a browser Playground site, share a Playground URL, manage saved sites, or interact with the currently running WordPress site from DevTools/browser automation.
+Use this reference when the agent must use `https://playground.wordpress.net/` itself: create a browser Playground site, share a Playground URL, manage saved sites, or interact with the currently running WordPress site through WebMCP site tools, Playground MCP, or browser automation.
 
 ## Route first
 
@@ -9,7 +9,32 @@ Use this reference when the agent must use `https://playground.wordpress.net/` i
 
 ## Working model for agents
 
-`playground.wordpress.net` gives the agent three useful control surfaces:
+### Choose the connection method
+
+Respect a connection method explicitly requested by the user. Otherwise, prefer WebMCP for supported operations on the browser Playground site:
+
+1. Use the intended Playground tab, wait for WordPress to load, and discover the site's tools through the browser environment's tool discovery mechanism (sometimes called **Site tools**). Availability means tools are actually exposed and callable in this session, not simply that the browser can open Playground.
+2. Prefer the discovered WebMCP tool when it supports the requested operation. Inspect its description and input schema before calling it; do not assume that Playground MCP and WebMCP expose identical interfaces.
+3. If WebMCP is unavailable or lacks an operation, use an available Playground MCP connection targeting the same site, or the site-manager/client browser APIs below. Do not create a replacement site or reload away the user's current work just to change connection methods.
+
+WebMCP exposes tools through the open webpage. It does not require the local Playground MCP server, its WebSocket bridge, or `mcp=yes`. Those belong to the separate Playground MCP connection path; do not recommend that setup as a prerequisite for WebMCP. Keep URL/Blueprint setup and local CLI workflows routed according to the task.
+
+Examples to look for during discovery include:
+
+| Purpose | Example WebMCP tools |
+| --- | --- |
+| Site information and persistence | `playground_get_site_info`, `playground_list_sites`, `playground_rename_site`, `playground_save_in_browser` |
+| PHP and WordPress requests | `playground_execute_php`, `playground_request` |
+| Navigation | `playground_navigate`, `playground_get_current_url` |
+| Filesystem operations | `playground_read_file`, `playground_write_file`, `playground_list_files`, `playground_mkdir` |
+
+Use the discovered tool set as the source of truth. Playground can also proxy tools registered by plugins inside the WordPress iframe onto the outer page; rediscover tools after navigation or a site switch when needed. A WordPress ability registration alone does not make it a WebMCP tool.
+
+Background: [WordPress Playground and WebMCP: bringing AI agents into your browser workflow](https://make.wordpress.org/playground/2026/09/05/wordpress-playground-and-webmcp-bringing-ai-agents-into-your-browser-workflow/).
+
+### URL setup and browser API fallbacks
+
+`playground.wordpress.net` also provides these control surfaces for setup and operations not handled by available site tools:
 
 - **URL setup**: Query API parameters and Blueprint URLs create or open a site in a desired state. Use this before the site boots.
 - **Site manager**: `window.playgroundSites` manages the website's saved browser sites. Use it to list, create, switch, save, rename, delete, or reconfigure sites.
@@ -24,10 +49,10 @@ Use the website/site-manager layer to create or choose a site. Use the active si
 | Share a quick reviewer/demo site | Build a `https://playground.wordpress.net/?...` URL with Query API parameters. |
 | Share a multi-step setup | Use the `blueprint` skill to create/review the Blueprint, then pass it as a URL fragment or `?blueprint-url=`. |
 | Create a blank temporary site from the browser | Open `playground.wordpress.net`, then call `playgroundSites.createNewTemporarySite()`. |
-| Keep a temporary site after reload | Call `playgroundSites.saveInBrowser()` for OPFS persistence. |
-| Switch between saved browser sites | Call `playgroundSites.list()` and `playgroundSites.setActiveSite(slug)`. |
+| Keep a temporary site after reload | Prefer the discovered `playground_save_in_browser` tool; otherwise call `playgroundSites.saveInBrowser()` for OPFS persistence. |
+| Switch between saved browser sites | Prefer `playground_list_sites` for discovery; use `playgroundSites.setActiveSite(slug)` to switch if no discovered tool supports switching. Fall back to `playgroundSites.list()` for discovery. |
 | Change PHP version or networking on an existing saved site | Save it first, then call `setPhpVersion()` or `setNetworking()`. |
-| Inspect or modify WordPress files/content | Get the active client with `playgroundSites.getClient()` or `window.playground`, then use client file/PHP/request methods. |
+| Inspect or modify WordPress files/content | Prefer discovered WebMCP file/PHP/request tools. Otherwise use available Playground MCP tools or get the active client with `playgroundSites.getClient()` or `window.playground` and use its file/PHP/request methods. |
 
 ## Create or open a site with a URL
 
@@ -86,7 +111,7 @@ Other URL capabilities the agent may need:
 
 - Experimental builds: `core-pr=<number>` for WordPress core PRs, `gutenberg-pr=<number>` for Gutenberg PRs, `gutenberg-branch=<branch>` such as `trunk`.
 - Runtime extension: `php-extension=<manifest-url>`; accepts HTTP(S) URLs and may be repeated.
-- Browser MCP bridge: `mcp=yes`, optional `mcp-port=<port>`; default port is `7999`.
+- Playground MCP bridge only: `mcp=yes`, optional `mcp-port=<port>`; default port is `7999`. WebMCP does not require these parameters.
 - GitHub export form prefill: `gh-ensure-auth=yes`, `ghexport-repo-url=<repo-url>`, `ghexport-pr-action=create|update`, `ghexport-playground-root=<path>`, `ghexport-repo-root=<path>`, `ghexport-content-type=plugin|theme|wp-content|custom-paths`, `ghexport-plugin=<plugin-path>`, `ghexport-theme=<theme-dir>`, repeatable ghexport-path (`ghexport-path=<relative-path>`), `ghexport-commit-message=<message>`, `ghexport-allow-include-zip=yes|no`.
 
 ## Manage browser sites with `window.playgroundSites`
@@ -156,6 +181,7 @@ Keep the distinction clear:
 
 ## Verification
 
+- For WebMCP or Playground MCP operations, confirm the connection targets the intended site with a harmless information/read operation before making changes. Check tool results and verify the requested state in that same site before claiming success.
 - For a generated URL, open it in a fresh browser session and confirm versions, login state, installed assets, and landing page.
 - For `playgroundSites`, verify `sites.list()` shows the expected active site and storage type.
 - For client operations, run a harmless read first, such as `await client.listFiles('/wordpress')`, before writing files or changing state.
