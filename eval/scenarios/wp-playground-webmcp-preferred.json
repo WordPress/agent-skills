@@ -1,0 +1,19 @@
+{
+  "name": "Prefer WebMCP for browser Playground operations",
+  "skills": [
+    "wp-playground"
+  ],
+  "query": "Inspect the active theme in my open Playground site and save the site in this browser. Both WebMCP site tools and Playground MCP are connected to this site.",
+  "expected_behavior": [
+    "Read the website reference and discover callable tools on the intended Playground tab after WordPress loads",
+    "Inspect discovered descriptions and schemas and use a harmless read to confirm the target site",
+    "Prefer WebMCP tools for theme inspection and saving when supported",
+    "Check tool results and verify the theme and saved state in the same site"
+  ],
+  "success_criteria": [
+    "Uses WebMCP when both transports support the requested operation",
+    "Does not require a local MCP server or mcp=yes for WebMCP",
+    "Does not assume MCP and WebMCP input schemas are identical",
+    "Preserves the active browser site"
+  ]
+}
