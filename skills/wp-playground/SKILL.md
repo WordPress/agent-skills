@@ -1,6 +1,6 @@
 ---
 name: wp-playground
-description: "Use as the WordPress Playground routing wrapper for ambiguous Playground work, local CLI runs with @wp-playground/cli, playground.wordpress.net share links, browser previews, snapshots, mounts, version switching, and Xdebug. For Blueprint JSON authoring or review, use the blueprint skill directly."
+description: "Use as the WordPress Playground routing wrapper for ambiguous Playground work, local CLI runs with @wp-playground/cli, playground.wordpress.net share links, browser previews, WebMCP site tools, snapshots, mounts, version switching, and Xdebug. For Blueprint JSON authoring or review, use the blueprint skill directly."
 compatibility: "Targets WordPress 7.0+, PHP 7.4.0+. Playground CLI requires Node.js 20.18+; runs WordPress in WebAssembly with SQLite."
 ---
 
@@ -17,7 +17,7 @@ This is a thin routing wrapper. Use it to pick the right Playground workflow, th
 - **Blueprint JSON, schema, steps, resources, bundles, or Blueprint review**: use the `blueprint` skill directly. Do not duplicate Blueprint schema details here.
 - **Local CLI execution**: read `references/cli.md` for `@wp-playground/cli` server, `run-blueprint`, `build-snapshot`, mounts, version switching, and local validation.
 - **Xdebug or stuck CLI runs**: read `references/debugging.md` for Xdebug, runtime logs, worker flags, and stuck CLI runs.
-- **Browser-only Playground website workflows**: read `references/website.md` for `playground.wordpress.net`, share URLs, Blueprint Editor, hosted bundles, and browser limitations.
+- **Browser-only Playground website workflows**: read `references/website.md` for `playground.wordpress.net`, WebMCP site tools, share URLs, Blueprint Editor, hosted bundles, and browser limitations. Unless the user requests a specific connection method, prefer available WebMCP tools for supported browser operations; use available Playground MCP or browser APIs as fallbacks.
 
 ## Inputs required
 
