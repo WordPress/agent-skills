@@ -1,0 +1,20 @@
+{
+  "name": "Continue manual review when automated validation is unavailable",
+  "skills": [
+    "wp-plugin-directory-guidelines"
+  ],
+  "query": "Review my plugin source for WordPress.org compliance and validate my changes. This checkout has no WordPress installation or WP-CLI. Do not set up an environment. The plugin folder is acme-reports.",
+  "expected_behavior": [
+    "Continue source-based guideline review within available evidence.",
+    "State that Plugin Check was not run because WordPress and WP-CLI are unavailable.",
+    "Provide next steps for an existing or future local test site, including installing/activating Plugin Check and checking acme-reports.",
+    "Clearly label unknown paths as placeholders and commands as proposed rather than executed.",
+    "Do not attempt installation, use production, or claim automated validation passed."
+  ],
+  "success_criteria": [
+    "Provides useful manual findings without making tooling a prerequisite for all review.",
+    "Respects the instruction not to set up an environment.",
+    "Provides proposed follow-up instructions to obtain WP-CLI and a local WordPress site, make acme-reports available there, install/activate Plugin Check if absent, inspect command help, and run the target check; check commands alone do not satisfy this criterion.",
+    "Reports unavailable validation accurately."
+  ]
+}
