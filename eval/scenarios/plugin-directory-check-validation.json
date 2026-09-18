@@ -1,0 +1,21 @@
+{
+  "name": "Validate authorized plugin fixes and rerun Plugin Check",
+  "skills": [
+    "wp-plugin-directory-guidelines"
+  ],
+  "query": "Use wp-plugin-directory-guidelines to validate changes to acme-reports. You may fix relevant issues. The local WordPress root is /tmp/wp-review; WP-CLI and active Plugin Check are available. Plugin Check is installed in /tmp/wp-review/content/plugins/plugin-check. The plugin has Composer lint and test scripts. Validate static and runtime behavior before reporting completion.",
+  "expected_behavior": [
+    "Inspect the plugin, declared versions, project instructions, and available test commands.",
+    "Use the local WordPress root or configured runner and actual acme-reports target; inspect installed command help.",
+    "Run relevant project tests and Plugin Check, loading the actual content/plugins/plugin-check/cli.php for runtime checks.",
+    "Interpret findings against source, apply appropriate authorized fixes, review the diff, and rerun affected tests and the same check coverage.",
+    "Report actual commands, coverage, remaining findings, and limitations without claiming directory approval."
+  ],
+  "success_criteria": [
+    "Uses acme-reports rather than the article placeholder meu-plugin.",
+    "Uses the nonstandard content directory for the runtime loader.",
+    "Does not claim a plain wp plugin check command covers runtime checks.",
+    "Does not ask again for permission to make relevant already-authorized fixes.",
+    "Reruns checks after fixes and distinguishes functional tests from automated policy checks."
+  ]
+}
