@@ -32,17 +32,19 @@ This skill assumes the agent cannot use a browser UI. Prefer WP-CLI, logs, and H
 
 1. Confirm whether you may run write operations (plugin installs, config changes, cache flush).
 2. Pick a reproducible target (URL or REST route) and capture a baseline:
-   - TTFB/time with `curl` if possible
+   - TTFB/time with `curl` if possible (verify it is a real WordPress response, not a CDN/WAF block or proxy error)
    - WP-CLI profiling if available
 
 Read:
-- `references/measurement.md`
+- `references/measurement.md` (includes CDN/proxy pitfalls)
 
 ### 1) Generate a backend-only performance report (deterministic)
 
 Run:
 
-- `node skills/wp-performance/scripts/perf_inspect.mjs --path=<path> [--url=<url>]`
+- `node skills/wp-performance/scripts/perf_inspect.mjs --path=<path> [--url=<url>] [--allow-root]`
+
+Pass `--allow-root` when running as root (WP-CLI refuses to run as root otherwise). The script is read-only.
 
 This detects:
 
@@ -70,8 +72,10 @@ Preferred order:
 2. `wp profile hook` (optionally with `--url=`) to find slow hooks/callbacks.
 3. `wp profile eval` for targeted code paths.
 
+CLI timings start with a cold opcache on every run, so use them for before/after comparisons rather than as real request time.
+
 Read:
-- `references/wp-cli-profile.md`
+- `references/wp-cli-profile.md` (includes `--fields` column names per command)
 
 ### 4) Query Monitor (backend-only usage)
 
@@ -134,6 +138,10 @@ Reference: https://make.wordpress.org/core/2025/11/18/wordpress-6-9-frontend-per
 
 - “No change” after code changes:
   - you measured a different URL/site (`--url` mismatch), caches masked results, or opcode cache is stale
+- Every `curl` sample has the same tiny size and time (e.g. `403`, `503`, `302`):
+  - you are timing a CDN/WAF block, proxy error or redirect, not WordPress (see `references/measurement.md`)
+- A fatal in `error.log` names a plugin file that exists now:
+  - likely a plugin update in progress; compare the log timestamp with the file's mtime and check whether it recurs
 - Profiling data is noisy:
   - eliminate background tasks, test with warmed caches, run multiple samples
 - `SAVEQUERIES`/Query Monitor causes overhead:
