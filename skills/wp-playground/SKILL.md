@@ -17,7 +17,7 @@ This is a thin routing wrapper. Use it to pick the right Playground workflow, th
 - **Blueprint JSON, schema, steps, resources, bundles, or Blueprint review**: use the `blueprint` skill directly. Do not duplicate Blueprint schema details here.
 - **Local CLI execution**: read `references/cli.md` for `@wp-playground/cli` server, `run-blueprint`, `build-snapshot`, mounts, version switching, and local validation.
 - **Xdebug or stuck CLI runs**: read `references/debugging.md` for Xdebug, runtime logs, worker flags, and stuck CLI runs.
-- **Browser-only Playground website workflows**: read `references/website.md` for `playground.wordpress.net`, WebMCP site tools, share URLs, Blueprint Editor, hosted bundles, and browser limitations. Unless the user requests a specific connection method, prefer available WebMCP tools for supported browser operations; use available Playground MCP or browser APIs as fallbacks.
+- **Browser-only Playground website workflows**: read `references/website.md` for Query API and Blueprint URL setup, share links, and browser limitations. It routes existing-site operations to separate WebMCP, Playground MCP, and Sites API references; load only the selected method. Unless the user requests a specific connection method, prefer available WebMCP tools for supported browser operations.
 
 ## Inputs required
 
