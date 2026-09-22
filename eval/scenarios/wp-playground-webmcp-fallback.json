@@ -5,13 +5,14 @@
   ],
   "query": "Inspect the active theme in my existing Playground tab. This browser exposes no callable WebMCP tools, but Playground MCP is already connected to this site.",
   "expected_behavior": [
-    "Read the website reference and establish that WebMCP is unavailable in this session",
+    "Read website.md, establish that WebMCP is unavailable, and read mcp.md for the existing connection",
     "Use the existing Playground MCP connection and its discovered schema",
     "Confirm the intended site with a harmless read and report the active theme from the result"
   ],
   "success_criteria": [
     "Continues through available MCP without requiring WebMCP setup",
     "Does not create a replacement site or reload the existing site to change transports",
-    "Uses browser APIs as a fallback if no suitable MCP operation is available"
+    "Uses browser APIs as a fallback if no suitable MCP operation is available",
+    "Loads the MCP reference without requiring unrelated Sites API instructions"
   ]
 }
