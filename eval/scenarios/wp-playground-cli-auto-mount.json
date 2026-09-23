@@ -1,0 +1,20 @@
+{
+  "name": "Playground CLI auto-mount workflow",
+  "skills": ["wordpress-router", "wp-playground"],
+  "query": "Spin up this plugin in WordPress Playground locally with the CLI and auto-mount it so I can test it in wp-admin.",
+  "expected_behavior": [
+    "Step 1: Route ambiguous local Playground CLI work to wp-playground",
+    "Step 2: Read wp-playground/references/cli.md for CLI-specific commands",
+    "Step 3: Check Node.js 20.18+ before running @wp-playground/cli",
+    "Step 4: Prefer npx @wp-playground/cli@latest start from the plugin root for the simple local workflow",
+    "Step 5: Use --port=<free-port> if the default port is busy",
+    "Step 6: Verify the plugin is installed and active in the Playground instance"
+  ],
+  "success_criteria": [
+    "Does not route to a separate playground-cli top-level skill",
+    "Uses wp-playground as the wrapper and its CLI reference for details",
+    "Prefers the start command for simple local plugin/theme testing",
+    "Includes Node version guardrail",
+    "Includes post-run verification"
+  ]
+}

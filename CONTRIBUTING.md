@@ -110,6 +110,7 @@ See any existing skill for examples.
 4. Run validation: `node eval/harness/run.mjs`
 5. Commit with a clear message
 6. Open a pull request
+7. Request a review from @WordPress/agent-skills-maintainers
 
 For significant changes, consider opening an issue first to discuss the approach.
 

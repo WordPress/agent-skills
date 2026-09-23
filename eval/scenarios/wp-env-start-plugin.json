@@ -1,0 +1,27 @@
+{
+  "name": "Set up wp-env for a WordPress plugin",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-env"],
+  "query": "Set up a local WordPress development environment for my plugin so I can run its PHPUnit tests against a real database.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure and existing tooling",
+    "Step 3: Confirm wp-env is the right tool rather than wp-playground (PHPUnit against a real MySQL database)",
+    "Step 4: Check Docker is installed and running with docker info",
+    "Step 5: Check Node.js version is >= 18.12.0",
+    "Step 6: Check for existing .wp-env.json configuration",
+    "Step 7: If no .wp-env.json exists, confirm auto-detection will find Plugin Name header",
+    "Step 8: Install wp-env if not already installed (npm -g install @wordpress/env)",
+    "Step 9: Run wp-env start to launch the environment",
+    "Step 10: Verify environment is running with wp-env status",
+    "Step 11: Confirm plugin appears in WordPress admin with wp-env run cli wp plugin list"
+  ],
+  "success_criteria": [
+    "wp-env is chosen over wp-playground for a reason listed in the skill (real database needed)",
+    "Docker is verified as running before attempting wp-env start",
+    "wp-env is installed (globally or locally)",
+    "Environment starts successfully on default or configured port",
+    "Plugin is auto-detected and mounted in the WordPress instance",
+    "Admin dashboard is accessible at the reported URL",
+    "No bare plugin slugs used in .wp-env.json (full ZIP URLs for wp.org plugins)"
+  ]
+}
