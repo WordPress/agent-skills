@@ -36,6 +36,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-performance** | Profiling, caching, database optimization, Server-Timing |
 | **wp-phpstan** | PHPStan static analysis for WordPress projects (config, baselines, WP-specific typing) |
 | **wp-playground** | WordPress Playground for instant local environments |
+| **wp-lab-pass** | Verify a change against a real local WordPress site: instrument the side effect, toggle environment states, check evidence |
 | **wpds** | WordPress Design System |
 | **wp-plugin-directory-guidelines** | WordPress Plugin Directory Guidelines |
 | **blueprint** | WordPress Playground Blueprints for declarative Playground environment setup |
