@@ -1,0 +1,26 @@
+{
+  "name": "Add an admin list table for plugin data",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-admin-ui"],
+  "query": "Add an admin page to my plugin that shows a searchable, sortable table of items stored in a custom DB table. Include bulk delete. Make sure it's secure.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage script to detect plugin structure",
+    "Step 3: Route to wp-admin-ui based on admin interface task",
+    "Step 4: Register admin menu page with add_menu_page() hooked on admin_menu",
+    "Step 5: Gate render callback immediately with current_user_can()",
+    "Step 6: Create class extending WP_List_Table with get_columns(), get_sortable_columns(), get_bulk_actions(), prepare_items()",
+    "Step 7: Implement prepare_items() with sanitized orderby/order, pagination via set_pagination_args()",
+    "Step 8: Add nonce field in the form wrapping the table",
+    "Step 9: Implement process_bulk_action() with check_admin_referer() and current_user_can() before deleting",
+    "Step 10: Escape all output in column render methods with esc_html(), esc_attr(), esc_url()"
+  ],
+  "success_criteria": [
+    "Admin page registered with correct capability",
+    "Render callback gates with current_user_can()",
+    "WP_List_Table subclass implements required methods",
+    "prepare_items() sets _column_headers and calls set_pagination_args()",
+    "Bulk delete verifies nonce and capability before writing to DB",
+    "All column output is escaped",
+    "orderby and order query params are sanitized before use in SQL"
+  ]
+}
