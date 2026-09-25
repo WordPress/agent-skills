@@ -1,0 +1,23 @@
+{
+  "name": "Targeted edit on a connected WordPress site via Respira MCP",
+  "skills": ["wordpress-router", "respira-mcp"],
+  "query": "I have Respira MCP connected to my WordPress site. Find the H1 on my homepage and shorten it.",
+  "expected_behavior": [
+    "Step 1: Detect that respira_* tools are available in the host's tool registry",
+    "Step 2: Route to respira-mcp skill",
+    "Step 3: Call respira_get_site_context to confirm the connection and discover the site URL + theme",
+    "Step 4: Call respira_get_builder_info to identify the active page builder before any edit",
+    "Step 5: Locate the homepage with respira_list_pages (search: 'home') if the pageId is unknown",
+    "Step 6: Use respira_find_element to locate the H1, with query targeting heading widgets",
+    "Step 7: Call respira_create_page_duplicate before the edit (duplicate-before-edit safety pattern)",
+    "Step 8: Call respira_update_element on the duplicate with the shortened headline",
+    "Step 9: Surface the snapshot_id, approval_url, and the duplicate's preview URL in the agent's reply"
+  ],
+  "success_criteria": [
+    "Routes to respira-mcp skill",
+    "Calls respira_get_site_context and respira_get_builder_info before any write",
+    "Uses respira_find_element rather than respira_extract_builder_content for a single-element edit",
+    "Creates a duplicate via respira_create_page_duplicate before mutating",
+    "Reports the snapshot_id and the preview/approval URL back to the user"
+  ]
+}
