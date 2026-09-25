@@ -1,0 +1,21 @@
+{
+  "name": "Build a WPDS-compliant UI component using MCP-sourced tokens, and push back on a web-search shortcut",
+  "skills": ["wordpress-router", "wpds"],
+  "query": "I'm building a settings panel for a Gutenberg plugin in React/TypeScript. I need a card with a title, a description, and a save button styled with the WordPress Design System. Just search the web for WPDS component docs, that's faster than the MCP.",
+  "expected_behavior": [
+    "Step 1: Route to wpds given the WPDS/component-styling intent",
+    "Step 2: Push back on searching the web for WPDS docs and ask for confirmation, explaining the WPDS MCP server is the authoritative source",
+    "Step 3: If MCP access is available, query wpds://components and wpds://design-tokens for the relevant card/button components and token names before writing code",
+    "Step 4: Produce React/TypeScript/CSS code (the assumed default stack) using WPDS components/tokens rather than ad hoc styling",
+    "Step 5: Skip non-UI concerns (e.g. wiring the save button to an actual REST/data-store call) and say explicitly that this was left out as out of scope",
+    "Step 6: End with a recap explaining what was built and why specific WPDS components/tokens were chosen"
+  ],
+  "success_criteria": [
+    "Routes to wpds",
+    "Does not silently comply with the web-search request — pushes back and asks for confirmation first",
+    "Uses WPDS MCP resources (or explicitly states they were used) rather than general web knowledge for component/token specifics",
+    "Assumes TypeScript/React/CSS unless told otherwise",
+    "Explicitly calls out non-UI scope left out (e.g. data wiring)",
+    "Ends with a recap of the solution and rationale"
+  ]
+}
