@@ -1,0 +1,24 @@
+{
+  "name": "Build a settings panel with WPDS components and tokens",
+  "skills": ["wordpress-router", "wp-project-triage", "wpds"],
+  "query": "I'm adding a settings panel to our Gutenberg sidebar plugin: a toggle for 'Enable notifications', a select for digest frequency, and a save button. Build the UI so it matches the WordPress Design System, and don't hardcode any colors or spacing.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify the repo kind",
+    "Step 2: Run wp-project-triage to detect the tooling and any lint scripts available",
+    "Step 3: Route to wpds because the request is about building WordPress UI to Design System standards",
+    "Step 4: Read the relevant reference-site documentation through the WPDS MCP server before proposing code",
+    "Step 5: Resolve the component set through wpds://components rather than recalling component names from memory",
+    "Step 6: Resolve spacing and color values through wpds://design-tokens instead of hardcoding literals",
+    "Step 7: Produce working TypeScript/React/CSS snippets, the assumed stack unless the repo indicates otherwise",
+    "Step 8: Run any lint scripts surfaced by triage to validate the proposed output",
+    "Step 9: Close with a recap explaining each decision and stating what was left out as non-UI"
+  ],
+  "success_criteria": [
+    "Routes to the wpds skill",
+    "Consults the WPDS MCP server for component and token information rather than searching the web",
+    "Every color and spacing value references a design token, with no hardcoded literals",
+    "Output includes working code snippets in TypeScript, React, and CSS",
+    "Non-UI concerns such as data fetching and string localization are explicitly excluded, not silently solved",
+    "Recap explains the reasoning behind each component and token choice"
+  ]
+}
