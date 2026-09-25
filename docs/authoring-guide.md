@@ -49,7 +49,7 @@ Then ask the model to output:
 1. `skills/<skill-name>/SKILL.md`
 2. Any `references/*.md` files it mentions
 3. Any `scripts/*` stubs needed for deterministic checks
-4. One scenario markdown file under `eval/scenarios/`
+4. One scenario JSON file (`<skill-name>.json`, with `name`, `skills`, `query`, `expected_behavior`, `success_criteria`) under `eval/scenarios/`
 
 ## Suggested initial domain skills (v1)
 
