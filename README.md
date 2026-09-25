@@ -199,8 +199,10 @@ Quick commands:
 node shared/scripts/scaffold-skill.mjs <skill-name> "<description>"
 
 # Validate skills
-node eval/harness/run.mjs
+node shared/scripts/validate-skills.mjs
 ```
+
+This command validates skill metadata and the project-triage report. It does not execute the scenarios under `eval/scenarios/`; those currently require manual evaluation.
 
 ## Documentation
 
