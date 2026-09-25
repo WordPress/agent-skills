@@ -1,0 +1,20 @@
+{
+  "name": "Choose static for simple presentational block",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-block-development"],
+  "query": "We need a callout block — a colored box with an icon, a heading, and a paragraph. The editor picks the color, icon, and writes the text.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect project structure",
+    "Step 3: Route to wp-block-development skill",
+    "Step 4: Read references/static-vs-dynamic-blocks.md to decide rendering model",
+    "Step 5: Recognize block is simple, presentational, and self-contained (all data from user-entered attributes)",
+    "Step 6: Confirm no higher-priority signals apply",
+    "Step 7: Choose static rendering",
+    "Step 8: Implement save() with useBlockProps.save()"
+  ],
+  "success_criteria": [
+    "Chooses static rendering",
+    "Implements save() function with useBlockProps.save()",
+    "Does not create render.php or render_callback"
+  ]
+}
