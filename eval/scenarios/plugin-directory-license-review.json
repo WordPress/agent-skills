@@ -16,7 +16,7 @@
     "Identifies 'Proprietary' as not GPL-compatible and gives the fix",
     "Correctly accepts MIT-licensed bundled library",
     "Correctly rejects CC-BY-NC (NonCommercial) assets",
-    "Names a concrete valid License header string (e.g. GPL-2.0-or-later) and License URI",
+    "Provides literal License and License URI header values, for example GPL-2.0-or-later and https://www.gnu.org/licenses/gpl-2.0.html; merely saying 'add a matching URI' does not satisfy this criterion",
     "Points the user at references/gpl-compliance.md for the full compatibility table"
   ]
 }
