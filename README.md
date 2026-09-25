@@ -25,6 +25,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-block-development** | Gutenberg blocks: `block.json`, attributes, rendering, deprecations |
 | **wp-block-themes** | Block themes: `theme.json`, templates, patterns, style variations |
 | **wp-plugin-development** | Plugin architecture, hooks, settings API, security |
+| **wp-abuse-and-compromise-response** | Response to a suspected or confirmed compromise: triage, investigation, cleanup, and post-cleanup hardening |
 | **wp-rest-api** | REST API routes/endpoints, schema, auth, and response shaping |
 | **wp-interactivity-api** | Frontend interactivity with `data-wp-*` directives and stores |
 | **wp-abilities-api** | Capability-based permissions and REST API authentication |
