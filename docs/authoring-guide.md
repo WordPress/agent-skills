@@ -24,9 +24,10 @@ This repo is built for **AI-assisted authoring** with **deterministic guardrails
 4. **Add deterministic helpers**
    - If the skill depends on detection (versions, project layout, build system), add a script under `scripts/`.
 5. **Add evaluation scenario(s)**
-   - Add at least 1 prompt-style scenario under `eval/scenarios/` describing expected behavior.
+   - Add at least 1 JSON scenario under `eval/scenarios/` describing expected behavior.
 6. **Validate**
-   - Run `node eval/harness/run.mjs`.
+   - Run `node shared/scripts/validate-skills.mjs` for skill metadata and triage-report checks.
+   - Run the relevant scenarios manually and report the results in the pull request. This repository does not yet include an automated eval runner.
    - Optionally validate frontmatter using `skills-ref validate` (see `docs/upstream-sync.md` for CI guidance).
 
 ## Scaffolding a new skill
@@ -49,7 +50,7 @@ Then ask the model to output:
 1. `skills/<skill-name>/SKILL.md`
 2. Any `references/*.md` files it mentions
 3. Any `scripts/*` stubs needed for deterministic checks
-4. One scenario markdown file under `eval/scenarios/`
+4. One scenario JSON file under `eval/scenarios/`
 
 ## Suggested initial domain skills (v1)
 

@@ -119,7 +119,7 @@ jobs:
           node-version: 20
 
       - name: Run validation
-        run: node eval/harness/run.mjs
+        run: node shared/scripts/validate-skills.mjs
 
       - name: Read update summary
         id: summary
