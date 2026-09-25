@@ -9,6 +9,8 @@ Skills in this repo target:
 - WordPress core **7.0+**
 - PHP **7.4.0+** (minimum supported by WordPress 7.0)
 
+Individual skills may declare a stricter contract when the covered API is newer. For example, `wp-knowledge` targets WordPress **7.0+**, PHP **7.4.0+**, and Gutenberg **23.6+** with the Guidelines experiment active until Knowledge ships in Core.
+
 ## Authoring rules
 
 Skills should:

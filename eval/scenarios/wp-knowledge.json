@@ -1,0 +1,26 @@
+{
+  "name": "Add a plugin-provided Knowledge skill",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-plugin-development", "wp-knowledge"],
+  "query": "My plugin currently stores a transcription prompt in an option. Move it to a WordPress Knowledge skill so the site agent and other clients can discover it, but do not overwrite edits after setup.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router and wp-project-triage to classify the repo and locate the plugin entrypoint",
+    "Step 2: Route to wp-knowledge because the task mentions WordPress Knowledge storage and agent-discoverable skill storage",
+    "Step 3: Confirm that the target runtime exposes wp_knowledge, wp_knowledge_type, wp_knowledge_get_or_create_type_term(), /wp/v2/knowledge, and the needed Knowledge capabilities",
+    "Step 4: Mention that current pre-Core usage requires Gutenberg 23.6+ with the Guidelines experiment active when the feature depends on that runtime",
+    "Step 5: Choose the skill type rather than guideline, memory, or note, registering or verifying the custom type if the runtime does not provide it",
+    "Step 6: Resolve or create the wp_knowledge_type term with wp_knowledge_get_or_create_type_term() and assign by term id",
+    "Step 7: Create or update a wp_knowledge post with stable slug, title, excerpt, content, status, author, and wp_knowledge_type terms",
+    "Step 8: Preserve user edits after setup by using an idempotent seeding strategy such as a plugin-specific seed hash",
+    "Step 9: Keep site-wide publish behavior behind an administrator-controlled setup path or explicit user intent",
+    "Step 10: Verify REST discovery and permission behavior for private/published rows"
+  ],
+  "success_criteria": [
+    "Uses only wp_knowledge/wp_knowledge_type for writes",
+    "Does not introduce an alternate or compatibility backend",
+    "Stores the short discovery text in excerpt and full procedure in content",
+    "Uses wp_knowledge_get_or_create_type_term() instead of duplicating term lookup and locale handling",
+    "Does not clobber user-edited content on later runs",
+    "Respects Knowledge capabilities and per-post capability checks",
+    "Mentions graceful degradation when Knowledge is unavailable"
+  ]
+}
