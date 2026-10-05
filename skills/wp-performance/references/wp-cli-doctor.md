@@ -4,19 +4,17 @@ Use this for quick “production readiness” checks.
 
 ## Install (if missing)
 
-Check `wp cli version`, then choose a released package version compatible with that WP-CLI version.
-For WP-CLI 2.12.x, for example:
+Install the latest compatible stable release:
 
-- `wp package install wp-cli/doctor-command:v2.3.0`
+- `wp package install 'wp-cli/doctor-command:*@stable'`
 
-An unversioned install can select a development branch that requires a newer WP-CLI.
-For other WP-CLI versions, check the release's `composer.json` requirements before installing.
-The `:@stable` constraint selects a stable release but does not guarantee compatibility with an older WP-CLI.
+This lets Composer choose the newest stable release compatible with your WP-CLI and other installed packages.
+Omitting the constraint can select a development branch. Keep the quotes so the shell passes `*` unchanged.
 
 Docs:
 
 - Package installation and authentication: https://developer.wordpress.org/cli/commands/package/install/
-- Example release requirements: https://github.com/wp-cli/doctor-command/blob/v2.3.0/composer.json
+- Composer version constraints: https://getcomposer.org/doc/articles/versions.md
 - Default checks: https://make.wordpress.org/cli/handbook/doctor-default-checks/
 - Customize checks: https://make.wordpress.org/cli/handbook/guides/doctor/doctor-customize-config/
 
