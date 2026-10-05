@@ -6,7 +6,7 @@
     "Step 1: Run wordpress-router to classify repo kind",
     "Step 2: Run wp-project-triage to verify WP-CLI and profiling tools",
     "Step 3: Route to wp-performance skill",
-    "Step 4: Run wp doctor check first for quick diagnostics",
+    "Step 4: Run wp doctor check --all (or named checks) first for quick diagnostics",
     "Step 5: Run wp profile stage --url=/ to profile request stages",
     "Step 6: Identify slowest stage (bootstrap, main_query, template)",
     "Step 7: Run wp profile hook --stage=<slow-stage> to drill down",
@@ -16,7 +16,7 @@
   ],
   "success_criteria": [
     "Routes to wp-performance skill",
-    "Uses wp doctor check first",
+    "Uses wp doctor check --all (or named checks) first, never the bare command",
     "Uses wp profile stage and wp profile hook",
     "Provides backend-only workflow (no browser required)",
     "Mentions Query Monitor as optional with REST/envelope usage"
