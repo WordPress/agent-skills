@@ -118,8 +118,8 @@ function main() {
     report.perfSignals.hasPerformanceLabPlugin = existsFile(path.join(wpContent, "plugins", "performance-lab", "load.php"));
   }
 
-  if (!report.commands.doctor.available) report.notes.push("Tip: install WP-CLI doctor: `wp package install wp-cli/doctor-command`.");
-  if (!report.commands.profile.available) report.notes.push("Tip: install WP-CLI profile: `wp package install wp-cli/profile-command`.");
+  if (!report.commands.doctor.available) report.notes.push("Tip: choose a compatible WP-CLI doctor release; see references/wp-cli-doctor.md in the wp-performance skill.");
+  if (!report.commands.profile.available) report.notes.push("Tip: choose a compatible WP-CLI profile release; see references/wp-cli-profile.md in the wp-performance skill.");
 
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 }
