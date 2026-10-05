@@ -100,7 +100,8 @@ function main() {
   report.commands.profile.available = profileHelp.ok;
   canRun(report, profileHelp);
 
-  const autoloadBytes = runWp(["option", "list", "--autoload=on", "--format=total_bytes"], {
+  // `wp option list --autoload=on` misses options stored as `auto`/`auto-on` (WP 6.6+).
+  const autoloadBytes = runWp(["eval", 'echo array_sum( array_map( "strlen", wp_load_alloptions() ) );'], {
     pathArg: opts.path,
     urlArg: opts.url,
     allowRoot: opts.allowRoot,
