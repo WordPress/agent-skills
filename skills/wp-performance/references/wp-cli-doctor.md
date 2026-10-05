@@ -20,8 +20,12 @@ Docs:
 
 ## Recommended usage
 
-- `wp doctor check`
+- `wp doctor check --all` (run every registered check)
+- `wp doctor check autoload-options-size constant-savequeries-falsy constant-wp-debug-falsy` (perf-focused run)
+- `wp doctor check --all --spotlight` (show only warnings and errors)
 - `wp doctor list` (to see available checks)
+
+`wp doctor check` needs either `--all` or at least one check name; with neither it exits with "Please specify one or more checks, or use --all."
 
 Especially relevant to performance:
 
