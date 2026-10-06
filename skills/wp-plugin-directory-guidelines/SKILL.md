@@ -1,7 +1,7 @@
 ---
 name: wp-plugin-directory-guidelines
-description: "Use when reviewing WordPress plugins for GPL compliance, checking license headers or compatibility, evaluating upsell/freemium/trialware patterns, validating plugin naming or trademark rules, checking plugin slugs, understanding why a plugin was rejected from WordPress.org, or answering any question about the 18 WordPress.org Plugin Directory guidelines — even if the user doesn't mention 'guidelines' explicitly."
-compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+)."
+description: "Use when reviewing WordPress plugins for GPL compliance, checking license headers or compatibility, evaluating upsell/freemium/trialware patterns, validating plugin naming or trademark rules, checking plugin slugs, running Plugin Check (PCP) to validate plugin changes, interpreting its findings, understanding why a plugin was rejected from WordPress.org, or answering questions about the 18 WordPress.org Plugin Directory guidelines."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Automated validation requires a local WordPress environment, WP-CLI, and Plugin Check."
 ---
 
 ## Overview
@@ -18,13 +18,17 @@ Use this skill when you need to:
 - Answer questions about what is or is not allowed on WordPress.org
 - Evaluate premium/upsell flows, license checks, or freemium positioning
 - Review "teaser" or "preview" UI for trialware violations
+- Validate plugin changes with Plugin Check and assess errors or warnings in context
 
 ## Inputs required
 
 - Plugin source code (or specific files to review)
 - Optional: plugin readme and plugin header metadata for naming and license checks
+- For automated validation: target plugin slug/path, local WordPress environment and command runner, available tests, and whether the task authorizes fixes or only review
 
 ## Procedure
+
+Scope the review to the request. Conceptual licensing or naming questions do not require a WordPress installation or a full audit.
 
 1. Check the plugin's license header against the **Valid License Headers** section below.
 2. Walk through the **18 Guidelines** checklist, paying special attention to Guidelines 1, 4, 5, 7, 8, and 17.
@@ -32,6 +36,19 @@ Use this skill when you need to:
 4. For bundled third-party code, verify license compatibility against **GPL-Compatible Licenses (Quick)** below.
 5. Flag matches from **Common GPL Violations (Quick)** below.
 6. For edge cases, consult the detailed references and the [GNU GPL FAQ](https://www.gnu.org/licenses/gpl-faq.html).
+7. For source-code reviews or validation after changes, load [Plugin Check validation](references/plugin-check.md): test, check, assess findings, apply authorized fixes, and retest. It includes commands, reporting requirements, and troubleshooting.
+
+## Verification
+
+- Report evidence for each conclusion using the licensing, naming, or Plugin Check reporting guidance below. Distinguish manual review, executed checks, and proposed next steps.
+
+## Failure modes / debugging
+
+- If automated validation is unavailable, continue manual review and use the prerequisite and coverage fallbacks in [Plugin Check validation](references/plugin-check.md). Never report an unexecuted check as passed.
+
+## Escalation
+
+Use official Plugin Check documentation for tool behavior and the directory guidelines for policy. Surface unresolved policy ambiguity, uncertain findings, and fixes outside the authorized scope for human review.
 
 ## 18-Guideline Review Checklist
 
@@ -45,6 +62,7 @@ Use [gpl-compliance.md](references/gpl-compliance.md) for full license tables, c
 
 - Every licensing-related issue must cite **Guideline 1** and include the file path and exact license string.
 - Confirm compatibility claims against **GPL-Compatible Licenses (Quick)** and escalate ambiguous licenses.
+- When recommending a header correction, provide both literal `License:` and `License URI:` values from the examples below. Link to [gpl-compliance.md](references/gpl-compliance.md) for the compatibility basis; do not merely say to add a matching URI.
 
 ### Failure modes (Licensing)
 
@@ -121,6 +139,8 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 ## Plugin Naming Rules (Guideline 17)
 
 Use [naming-rules.md](references/naming-rules.md) for full trademark lists, slug blocks, and naming examples. Keep this inline checklist for quick screening.
+
+For naming reviews, cite Guideline 17, explain the applicable trademark or blocked-slug rule, and link to the reference. When proposing a replacement, give both name and slug and explicitly verify lowercase, hyphen separation, and the 50-character limit.
 
 ### Naming Checklist (Quick)
 
