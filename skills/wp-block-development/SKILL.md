@@ -33,7 +33,7 @@ Use this skill for block work such as:
    - `node skills/wp-block-development/scripts/list_blocks.mjs`
 3. Identify the block root (directory containing `block.json`) you’re changing.
 
-If this repo is a full site (`wp-content/` present), be explicit about *which* plugin/theme contains the block.
+If this repo is a full site (`wp-content/` present), be explicit about _which_ plugin/theme contains the block.
 
 ### 1) Create a new block (if needed)
 
@@ -43,6 +43,7 @@ If you are creating a new block, prefer scaffolding rather than hand-rolling str
 - If you need Interactivity API from day 1, use the interactive template.
 
 Read:
+
 - `references/creating-new-blocks.md`
 
 After scaffolding:
@@ -55,30 +56,37 @@ After scaffolding:
 WordPress 6.9 enforces `apiVersion: 3` in the block.json schema. Blocks with apiVersion 2 or lower trigger console warnings when `SCRIPT_DEBUG` is enabled.
 
 **Why this matters:**
+
 - WordPress 7.0 will run the post editor in an iframe regardless of block apiVersion.
 - apiVersion 3 ensures your block works correctly inside the iframed editor (style isolation, viewport units, media queries).
 
 **Migration:** Changing from version 2 to 3 is usually as simple as updating the `apiVersion` field in `block.json`. However:
+
 - Test in a local environment with the iframe editor enabled.
 - Ensure any style handles are included in `block.json` (styles missing from the iframe won't apply).
 - Third-party scripts attached to a specific `window` may have scoping issues.
 
 Read:
+
 - `references/block-json.md` (apiVersion and schema details)
 
 ### 3) Pick the right block model
 
 - **Static block** (markup saved into post content): implement `save()`; keep attributes serialization stable.
 - **Dynamic block** (server-rendered): use `render` in `block.json` (or `render_callback` in PHP) and keep `save()` minimal or `null`.
-- **Interactive frontend behavior**:
-  - Prefer `viewScriptModule` for modern module-based view scripts where supported.
-  - If you're working primarily on `data-wp-*` directives or stores, also use `wp-interactivity-api`.
+
+If the block is interactive, load the `wp-interactivity-api` skill.
+
+Read before deciding:
+
+- `references/static-vs-dynamic-blocks.md`
 
 ### 4) Update `block.json` safely
 
 Make changes in the block’s `block.json`, then confirm registration matches metadata.
 
 For field-by-field guidance, read:
+
 - `references/block-json.md`
 
 Common pitfalls:
@@ -96,6 +104,7 @@ Prefer PHP registration using metadata, especially when:
 - you need conditional asset loading
 
 Read and apply:
+
 - `references/registration.md`
 
 ### 6) Implement edit/save/render patterns
@@ -107,6 +116,7 @@ Follow wrapper attribute best practices:
 - Dynamic render (PHP): `get_block_wrapper_attributes()`
 
 Read:
+
 - `references/supports-and-wrappers.md`
 - `references/dynamic-rendering.md` (if dynamic)
 
@@ -118,6 +128,7 @@ If your block is a “container” that nests other blocks, treat Inner Blocks a
 - Keep migrations in mind if you change inner markup.
 
 Read:
+
 - `references/inner-blocks.md`
 
 ### 8) Attributes and serialization
@@ -128,6 +139,7 @@ Before changing attributes:
 - avoid the deprecated `meta` attribute source
 
 Read:
+
 - `references/attributes-and-serialization.md`
 
 ### 9) Migrations and deprecations (avoid "Invalid block")
@@ -138,6 +150,7 @@ If you change saved markup or attributes:
 2. Provide `save` for old versions and an optional `migrate` to normalize attributes.
 
 Read:
+
 - `references/deprecations.md`
 
 ### 10) Tooling and verification commands
@@ -148,6 +161,7 @@ Prefer whatever the repo already uses:
 - `wp-env` (common) → use for local WP + E2E
 
 Read:
+
 - `references/tooling-and-testing.md`
 
 ## Verification
