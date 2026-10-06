@@ -25,6 +25,16 @@ Route by intent even if repo kind is broad (like `wp-site`):
   - Route → `wp-interactivity-api`.
 - **Abilities API / wp_register_ability / wp-abilities/v1 / @wordpress/abilities**
   - Route → `wp-abilities-api`.
+- **Audit a plugin's REST surface and propose Abilities API registrations**
+  - Route → `wp-abilities-audit`.
+- **Verify a plugin's Abilities API registrations against their declared annotations (e.g. readonly-but-writes check)**
+  - Route → `wp-abilities-verify`.
+- **Block patterns / pattern registration / Query Loop layouts / starter pages / template parts as patterns**
+  - Route → `wp-patterns`.
+- **WordPress Design System (WPDS) / design tokens / UI components / @wordpress/components**
+  - Route → `wpds`.
+- **WordPress.org Plugin Directory guidelines / GPL compliance / naming or trademark rules / why a plugin was rejected**
+  - Route → `wp-plugin-directory-guidelines`.
 - **Ambiguous WordPress Playground requests**
   - Route → `wp-playground`, then follow its routing wrapper.
 - **Blueprint JSON / Blueprint schema / Blueprint steps / Blueprint bundles**
@@ -52,7 +62,7 @@ Route by intent even if repo kind is broad (like `wp-site`):
 - **Performance / caching / query profiling / editor slowness**
   - Route → `wp-performance`.
 - **Security / nonces / capabilities / sanitization/escaping / uploads**
-  - Route → `wp-security` (planned).
+  - Route → `wp-plugin-development` (already covers this today); a dedicated `wp-security` split-out is planned but not yet implemented.
 
 ## Step 3: guardrails checklist (always)
 

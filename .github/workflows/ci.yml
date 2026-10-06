@@ -37,13 +37,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install "git+https://github.com/agentskills/agentskills@main#subdirectory=skills-ref"
-          skills-ref validate skills/wordpress-router
-          skills-ref validate skills/wp-project-triage
-          skills-ref validate skills/wp-block-development
-          skills-ref validate skills/wp-block-themes
-          skills-ref validate skills/wp-plugin-development
-          skills-ref validate skills/wp-interactivity-api
-          skills-ref validate skills/wp-abilities-api
-          skills-ref validate skills/wp-wpcli-and-ops
-          skills-ref validate skills/wp-performance
-          skills-ref validate skills/wp-playground
+          for dir in skills/*/; do
+            skills-ref validate "${dir%/}"
+          done
