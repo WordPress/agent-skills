@@ -53,6 +53,8 @@ Route by intent even if repo kind is broad (like `wp-site`):
   - Route → `wp-performance`.
 - **Security / nonces / capabilities / sanitization/escaping / uploads**
   - Route → `wp-security` (planned).
+- **Compromise / hacked / defaced / malware / redirect injection / SEO spam / phishing page / mailer abuse / cryptominer / reinfection**
+  - Route → `wp-abuse-and-compromise-response`.
 
 ## Step 3: guardrails checklist (always)
 

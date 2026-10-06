@@ -1,0 +1,28 @@
+{
+  "name": "Confirmed redirect-injection cleanup",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-abuse-and-compromise-response"],
+  "query": "My WordPress site redirects mobile visitors to a casino site, but works normally for me when I'm logged in. I have SSH access and database access. Help me clean it up.",
+  "expected_behavior": [
+    "Step 1: Route via wordpress-router and triage with wp-project-triage to confirm WP install",
+    "Step 2: Confirm inputs: SSH and DB access available; ask about backup recency",
+    "Step 3: Contain — warn user about the redirect actively harming mobile users; suggest maintenance mode if traffic is significant",
+    "Step 4: Tell user NOT to change credentials yet — investigate first",
+    "Step 5: Classify as redirect injection (mobile-conditional, admin-excluded — classic conditional redirect)",
+    "Step 6: Investigate: grep .htaccess (root + subdirs) for RewriteCond/RewriteRule with external URLs; check wp-config.php for prepended PHP; check active theme functions.php for header() calls; check wp_options for siteurl/home tampering; check for injected JS in posts/options",
+    "Step 7: Recommend backup + DB dump as evidence before cleanup",
+    "Step 8: Clean: reset .htaccess to WP defaults, restore wp-config.php from scratch, reinstall active theme fresh, clean any wp_options or post content with injected content",
+    "Step 9: Check common-injection-points: mu-plugins/, wp_options autoloaded entries, scheduled cron, uploads/.php files",
+    "Step 10: Rotate credentials: WP admin passwords, DB password, secret keys, hosting credentials",
+    "Step 11: Verify: wp core verify-checksums, wp plugin verify-checksums, external scan (Sucuri SiteCheck), test from clean mobile browser session",
+    "Step 12: Harden: 2FA, DISALLOW_FILE_EDIT, deny PHP in uploads, limit login attempts, WAF recommendation"
+  ],
+  "success_criteria": [
+    "Skill routes to wp-abuse-and-compromise-response based on compromise indicators",
+    "AI does NOT rotate credentials before investigation",
+    "AI preserves evidence (snapshot or backup) before destructive cleanup",
+    "AI checks mu-plugins/, wp-config.php prepend/append, and autoloaded wp_options (the commonly-missed persistence points)",
+    "AI verifies cleanup via verify-checksums AND external scanner AND clean-browser test, not just one",
+    "AI recommends post-cleanup hardening that includes 2FA and PHP-execution-denial in uploads",
+    "AI flags escalation criteria (e.g. if site can't be reached clean after one attempt)"
+  ]
+}
