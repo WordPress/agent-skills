@@ -67,6 +67,9 @@ function copyDir({ srcDir, destDir }) {
   const entries = fs.readdirSync(srcDir, { withFileTypes: true });
   for (const ent of entries) {
     if (ent.name === ".DS_Store") continue;
+    // A skill script with npm dependencies installs them next to itself;
+    // the packed skill ships package.json, not the installed tree.
+    if (ent.name === "node_modules" && ent.isDirectory()) continue;
     const src = path.join(srcDir, ent.name);
     const dest = path.join(destDir, ent.name);
 

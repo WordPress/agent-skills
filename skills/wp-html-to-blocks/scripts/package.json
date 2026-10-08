@@ -1,0 +1,19 @@
+{
+  "name": "wp-html-to-blocks-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Converts HTML to WordPress core blocks with rawHandler and validates the result without a WordPress install.",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "test": "node run-fixtures.mjs"
+  },
+  "dependencies": {
+    "@wordpress/block-library": "11.2.0",
+    "@wordpress/blocks": "16.2.0",
+    "jsdom": "29.1.1"
+  }
+}

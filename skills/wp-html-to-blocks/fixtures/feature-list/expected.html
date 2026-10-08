@@ -1,0 +1,57 @@
+<!-- wp:heading {"anchor":"what-converts"} -->
+<h2 id="what-converts" class="wp-block-heading">What converts cleanly</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>These elements map straight to core blocks through <code>rawHandler</code>:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"fontSize":"medium"} -->
+<ul class="wp-block-list has-medium-font-size"><!-- wp:list-item -->
+<li>Headings <code>h1</code> to <code>h6</code></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Paragraphs with <strong>bold</strong>, <em>italic</em> and <a href="/links">links</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Lists, including nested ones<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>unordered</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>ordered, with a start value</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Quotes, code, preformatted text, tables, separators, images and video</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:list {"ordered":true,"start":3} -->
+<ol start="3" class="wp-block-list"><!-- wp:list-item -->
+<li>Third step</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Fourth step</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><!-- wp:paragraph -->
+<p>The output either round-trips cleanly or you learn which block failed and why.</p>
+<!-- /wp:paragraph --><cite>A reviewer</cite></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code>node scripts/html-to-blocks.mjs page.html --out page.blocks.html</code></pre>
+<!-- /wp:code -->

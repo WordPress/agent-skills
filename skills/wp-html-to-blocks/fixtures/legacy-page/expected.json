@@ -1,0 +1,39 @@
+{
+  "mode": "convert",
+  "ok": true,
+  "blocks": {
+    "core/group": 2,
+    "core/heading": 1,
+    "core/paragraph": 3,
+    "core/image": 1,
+    "core/html": 2,
+    "core/list": 1,
+    "core/list-item": 2
+  },
+  "invalid": [],
+  "fallbacks": [
+    {
+      "block": "core/html",
+      "path": "0:core/group > 4:core/html"
+    },
+    {
+      "block": "core/html",
+      "path": "0:core/group > 5:core/html"
+    }
+  ],
+  "roundTripStable": true,
+  "designMapped": 8,
+  "designDropped": [
+    {
+      "element": "div \"Visitors are welcome on Fridays.\"",
+      "property": "text-align",
+      "reason": "core/group has no text alignment; align the headings and paragraphs inside it instead"
+    },
+    {
+      "element": "ul \"Monday to Friday 9 to 5\"",
+      "property": "list-style",
+      "reason": "not part of the mapping; see references/design-mapping.md"
+    }
+  ],
+  "warnings": []
+}

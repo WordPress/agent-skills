@@ -1,0 +1,23 @@
+{
+  "name": "Convert an agent-written hero section to validated block markup",
+  "skills": ["wordpress-router", "wp-html-to-blocks"],
+  "query": "Write a full-width hero for the homepage: dark background from the theme's contrast colour, a small uppercase kicker, a large centered h1, a lead paragraph and two buttons (one filled, one outline). I need it as block markup I can POST to /wp/v2/pages, and it must open in the editor without a recovery prompt.",
+  "expected_behavior": [
+    "Step 1: Route to wp-html-to-blocks and confirm the target (page content via REST) and the theme presets available (colour, font size, spacing slugs)",
+    "Step 2: Write semantic HTML: a section wrapper, p, h1, p, and a buttons wrapper with two links marked data-block=\"core/button\"",
+    "Step 3: Put the design on the elements as inline style using preset custom properties (var(--wp--preset--color--contrast), var(--wp--preset--font-size--xx-large), var(--wp--preset--spacing--70)) and data-block-attrs for align full and the constrained layout",
+    "Step 4: Run node skills/wp-html-to-blocks/scripts/html-to-blocks.mjs on the file with --out and read the report on stderr",
+    "Step 5: Confirm Invalid (0), Fallbacks (0) and that Design dropped is empty; fix the HTML and re-run if not",
+    "Step 6: Insert the markup as a draft through the REST API as raw content, not through the editor's paste path",
+    "Step 7: Tell the user which attributes carry the design and that the markup validated against the pinned @wordpress/blocks version"
+  ],
+  "success_criteria": [
+    "No block comment delimiter is written by hand; the markup comes from the script",
+    "The Group carries backgroundColor, textColor, padding presets, align full and a constrained layout; the heading carries fontSize xx-large and textAlign center; the buttons use backgroundColor/textColor presets and is-style-outline",
+    "The script run is shown with its result line OK and zero invalid blocks",
+    "No core/html block in the output",
+    "Insertion uses REST content.raw or WP-CLI, as a draft",
+    "The summary lists any dropped design declaration explicitly, or states there were none",
+    "The fixture fixtures/hero in the skill is the reference output for this scenario"
+  ]
+}
