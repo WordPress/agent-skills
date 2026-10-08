@@ -1,0 +1,22 @@
+{
+  "mode": "convert",
+  "ok": true,
+  "blocks": {
+    "core/group": 1,
+    "core/columns": 1,
+    "core/column": 2,
+    "core/heading": 1,
+    "core/paragraph": 1,
+    "core/list": 1,
+    "core/list-item": 3,
+    "core/buttons": 1,
+    "core/button": 1,
+    "core/image": 1
+  },
+  "invalid": [],
+  "fallbacks": [],
+  "roundTripStable": true,
+  "designMapped": 9,
+  "designDropped": [],
+  "warnings": []
+}

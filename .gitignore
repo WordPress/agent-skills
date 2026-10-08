@@ -8,3 +8,5 @@ pnpm-debug.log*
 .env
 .env.*
 
+# Skill scripts pin exact dependency versions in package.json; the lockfile is local.
+skills/*/scripts/package-lock.json
