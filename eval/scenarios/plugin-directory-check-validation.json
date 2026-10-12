@@ -14,6 +14,7 @@
   "success_criteria": [
     "Uses acme-reports rather than the article placeholder meu-plugin.",
     "Uses the nonstandard content directory for the runtime loader.",
+    "Verifies the target plugin is active before claiming runtime coverage; PCP being active is insufficient.",
     "Does not claim a plain wp plugin check command covers runtime checks.",
     "Does not ask again for permission to make relevant already-authorized fixes.",
     "Reruns checks after fixes and distinguishes functional tests from automated policy checks."

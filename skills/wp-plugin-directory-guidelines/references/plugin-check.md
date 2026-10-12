@@ -52,7 +52,15 @@ The article's `wp plugin check meu-plugin` uses `meu-plugin` as an example slug,
 
 For structured findings, use `wp plugin check <plugin-slug> --format=json` when supported. Keep errors and warnings visible; do not add exclusions or ignore flags just to make validation pass. Record the command, target, scope, output, and execution failures.
 
-WP-CLI runs **static checks by default**. To include runtime checks in a suitable local site, load PCP's actual `cli.php` before WordPress loads:
+WP-CLI runs **static checks by default**. Runtime checks also require the target plugin to be installed and active on the local test site. Verify its activation first:
+
+```sh
+wp plugin is-active <plugin-slug>
+```
+
+If inactive, activate it when local environment setup is authorized: `wp plugin activate <plugin-slug>`. Otherwise, report runtime checks as **not run** and label the result static-only. Loading PCP's `cli.php` alone does not guarantee runtime coverage.
+
+To include runtime checks in a suitable local site, load PCP's actual `cli.php` before WordPress loads:
 
 ```sh
 wp plugin check <plugin-slug> --require=/actual/path/to/plugin-check/cli.php
