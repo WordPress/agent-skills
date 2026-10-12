@@ -36,7 +36,7 @@ node shared/scripts/scaffold-skill.mjs <skill-name> "<description>"
 
 ### 3. Add Evaluation Scenarios
 
-Every skill needs test scenarios under `eval/scenarios/`. These are simple markdown files describing:
+Every skill needs test scenarios under `eval/scenarios/`. These are JSON files describing:
 - A realistic prompt/task
 - What the AI should do
 - How to verify it worked
@@ -94,7 +94,8 @@ See any existing skill for examples.
 ### Keep It Testable
 
 - Add at least one eval scenario for new skills
-- Run `node eval/harness/run.mjs` before submitting
+- Run `node shared/scripts/validate-skills.mjs` before submitting
+- Exercise relevant scenarios manually and include the results in your pull request; the repository does not yet provide an automated eval runner
 
 ### Keep It Small
 
@@ -107,7 +108,7 @@ See any existing skill for examples.
 1. Fork the repo
 2. Create a branch (`git checkout -b improve-block-dev-skill`)
 3. Make your changes
-4. Run validation: `node eval/harness/run.mjs`
+4. Run structural validation: `node shared/scripts/validate-skills.mjs`
 5. Commit with a clear message
 6. Open a pull request
 7. Request a review from @WordPress/agent-skills-maintainers

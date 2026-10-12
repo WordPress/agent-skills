@@ -37,6 +37,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wpds** | WordPress Design System |
 | **wp-plugin-directory-guidelines** | WordPress Plugin Directory Guidelines |
 | **blueprint** | WordPress Playground Blueprints for declarative environment setup |
+| **wp-env** | Local WordPress development with `@wordpress/env`: setup, configuration, WP-CLI, Xdebug, troubleshooting |
 
 ## How It Works
 
@@ -198,8 +199,10 @@ Quick commands:
 node shared/scripts/scaffold-skill.mjs <skill-name> "<description>"
 
 # Validate skills
-node eval/harness/run.mjs
+node shared/scripts/validate-skills.mjs
 ```
+
+This command validates skill metadata and the project-triage report. It does not execute the scenarios under `eval/scenarios/`; those currently require manual evaluation.
 
 ## Documentation
 

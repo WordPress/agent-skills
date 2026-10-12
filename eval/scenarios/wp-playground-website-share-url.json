@@ -17,6 +17,7 @@
     "Uses blueprint-url for hosted large Blueprints or bundles",
     "Mentions CORS requirements for hosted Blueprint URLs",
     "Includes browser verification",
-    "Does not require a new top-level playground-website skill"
+    "Does not require a new top-level playground-website skill",
+    "Uses website.md setup guidance without loading WebMCP, MCP, or Sites API references for URL construction"
   ]
 }
