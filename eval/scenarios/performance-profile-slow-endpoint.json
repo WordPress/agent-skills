@@ -9,8 +9,8 @@
     "Step 4: Run wp doctor check --all (or named checks) first for quick diagnostics",
     "Step 5: Run wp profile stage --url=/ to profile request stages",
     "Step 6: Identify slowest stage (bootstrap, main_query, template)",
-    "Step 7: Run wp profile hook --stage=<slow-stage> to drill down",
-    "Step 8: Identify slow hooks or callbacks",
+    "Step 7: Run wp profile stage <slow-stage> to drill down into the slowest stage",
+    "Step 8: Run wp profile hook <slow-hook> to identify slow callbacks",
     "Step 9: Optionally use Query Monitor via REST headers (X-QM-* headers)",
     "Step 10: Explain how to use QM envelope for headless inspection"
   ],
@@ -18,6 +18,7 @@
     "Routes to wp-performance skill",
     "Uses wp doctor check --all (or named checks) first, never the bare command",
     "Uses wp profile stage and wp profile hook",
+    "Drills into stages with wp profile stage <slow-stage> and callbacks with wp profile hook <slow-hook>",
     "Provides backend-only workflow (no browser required)",
     "Mentions Query Monitor as optional with REST/envelope usage"
   ]
