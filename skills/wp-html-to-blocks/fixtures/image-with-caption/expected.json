@@ -1,0 +1,14 @@
+{
+  "mode": "convert",
+  "ok": true,
+  "blocks": {
+    "core/image": 1,
+    "core/paragraph": 1
+  },
+  "invalid": [],
+  "fallbacks": [],
+  "roundTripStable": true,
+  "designMapped": 4,
+  "designDropped": [],
+  "warnings": []
+}

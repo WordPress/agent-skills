@@ -33,6 +33,8 @@ Route by intent even if repo kind is broad (like `wp-site`):
   - Route → `wp-playground`, then read `references/cli.md` or `references/debugging.md`.
 - **playground.wordpress.net / Blueprint Editor / share links / browser-only Playground**
   - Route → `wp-playground`, then read `references/website.md`.
+- **HTML to blocks / convert HTML to block markup / rawHandler / invalid block content from generated markup**
+  - Route → `wp-html-to-blocks`.
 - **Blocks / block.json / registerBlockType / attributes / save serialization**
   - Route → `wp-block-development`.
 - **theme.json / Global Styles / templates/*.html / patterns/**

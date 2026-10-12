@@ -1,0 +1,17 @@
+{
+  "mode": "convert",
+  "ok": true,
+  "blocks": {
+    "core/group": 1,
+    "core/paragraph": 2,
+    "core/heading": 1,
+    "core/buttons": 1,
+    "core/button": 2
+  },
+  "invalid": [],
+  "fallbacks": [],
+  "roundTripStable": true,
+  "designMapped": 20,
+  "designDropped": [],
+  "warnings": []
+}

@@ -43,6 +43,7 @@ All v1 skills followed the same process described above. As skills diverge in th
 | [wp-phpstan](../skills/wp-phpstan/SKILL.md) | Yes | Yes | Yes |
 | [wp-playground](../skills/wp-playground/SKILL.md) | Yes | Yes | Yes |
 | [wpds](../skills/wpds/SKILL.md) | Yes | Yes | Yes |
+| [wp-html-to-blocks](../skills/wp-html-to-blocks/SKILL.md) | Yes (Claude Code; design, scope and review by the contributor) | Yes | Yes (script fixtures under `fixtures/`) |
 
 ## Quality Commitment
 

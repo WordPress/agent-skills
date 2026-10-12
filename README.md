@@ -23,6 +23,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wordpress-router** | Classifies WordPress repos and routes to the right workflow |
 | **wp-project-triage** | Detects project type, tooling, and versions automatically |
 | **wp-block-development** | Gutenberg blocks: `block.json`, attributes, rendering, deprecations |
+| **wp-html-to-blocks** | Convert HTML to core blocks with `rawHandler`, keep the design in block attributes, validate by serialize, parse and compare |
 | **wp-block-themes** | Block themes: `theme.json`, templates, patterns, style variations |
 | **wp-plugin-development** | Plugin architecture, hooks, settings API, security |
 | **wp-rest-api** | REST API routes/endpoints, schema, auth, and response shaping |

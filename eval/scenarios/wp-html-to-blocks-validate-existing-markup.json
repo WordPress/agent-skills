@@ -1,0 +1,20 @@
+{
+  "name": "Validate block markup produced by another tool before inserting it",
+  "skills": ["wordpress-router", "wp-html-to-blocks"],
+  "query": "Another script generated this block markup for a pricing page. Some blocks show 'unexpected or invalid content' when I open the page. Find which ones and fix the page.",
+  "expected_behavior": [
+    "Step 1: Route to wp-html-to-blocks; the input contains <!-- wp: delimiters so the script runs in validate mode",
+    "Step 2: Run node skills/wp-html-to-blocks/scripts/html-to-blocks.mjs on the markup and read the Invalid section: block name, path in the tree, the validator message, expected versus actual markup",
+    "Step 3: For each invalid block, explain the mismatch (wrong tag for the heading level, missing generated class, unregistered block name)",
+    "Step 4: Do not patch comment JSON or HTML by hand; regenerate the affected sections from HTML through the converter (for example a pricing table as columns of cards plus a comparison table) and validate again",
+    "Step 5: Report any Migrated through a deprecated save() entries as harmless but note the editor will rewrite them",
+    "Step 6: Deliver markup whose report reads Invalid (0) with a stable round trip"
+  ],
+  "success_criteria": [
+    "Validate mode is recognised and used; no conversion is attempted on block markup",
+    "Every invalid block is named with the validator's reason",
+    "Fixes come from regenerating blocks through the registered save(), not from editing delimiters",
+    "Unregistered block names are reported as such rather than guessed into core blocks",
+    "The final run exits 0 and the fixture fixtures/pricing-table is the reference for a valid pricing section"
+  ]
+}

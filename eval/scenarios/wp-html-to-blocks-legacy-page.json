@@ -1,0 +1,21 @@
+{
+  "name": "Convert a legacy HTML page with inline styles, a form and an iframe",
+  "skills": ["wordpress-router", "wp-html-to-blocks"],
+  "query": "Here is the About page from our old static site (HTML with inline styles, a newsletter form and an embedded map iframe). Turn it into blocks for the new WordPress site and tell me what did not convert.",
+  "expected_behavior": [
+    "Step 1: Route to wp-html-to-blocks; state that site migration concerns (stylesheet rewriting, the form's backend, assets) are out of scope and only the page content is converted",
+    "Step 2: Run the script on the HTML as given, before editing anything, and read the report",
+    "Step 3: Read Design mapped and Design dropped: custom colours and font sizes land as style.color and style.typography values; a text-align on a div is dropped with the reason and moved onto the text blocks",
+    "Step 4: Read Fallbacks: the form and the iframe are core/html; explain the choice for each (keep as Custom HTML, replace with a plugin form block, or replace the iframe with an embeddable URL)",
+    "Step 5: Make the agreed edits to the HTML (not to the block markup) and re-run until the only fallbacks are the chosen ones",
+    "Step 6: Insert as a draft and report the dropped declarations and the remaining Custom HTML blocks to the user"
+  ],
+  "success_criteria": [
+    "The script is run on the original HTML first; nothing is silently dropped",
+    "Each core/html fallback is named with its source element and a decision",
+    "Dropped design is listed with the script's reason, not hidden",
+    "Fixes are made in the source HTML and re-validated; block JSON is never edited by hand",
+    "The whole page is not wrapped in a single core/html",
+    "The fixture fixtures/legacy-page in the skill shows the expected report shape: 12 blocks, 2 fallbacks, 2 dropped declarations"
+  ]
+}
