@@ -1,0 +1,27 @@
+{
+  "name": "Write a getting started guide for a WordPress plugin",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-docs"],
+  "query": "Write a getting started guide for this plugin following WordPress documentation standards",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage script to detect plugin structure",
+    "Step 3: Route to wp-docs based on documentation task",
+    "Step 4: Enter wp-docs write mode for new documentation",
+    "Step 5: Determine document type as user-facing guide",
+    "Step 6: Research plugin source code to understand features and usage",
+    "Step 7: Write guide with sentence case headings",
+    "Step 8: Use second person voice throughout (you/your)",
+    "Step 9: Include verified code examples from actual plugin functionality",
+    "Step 10: Ensure all links and references resolve to valid targets",
+    "Step 11: Self-review the guide against WordPress documentation standards"
+  ],
+  "success_criteria": [
+    "Headings use sentence case (not Title Case)",
+    "Uses second person voice consistently (you/your)",
+    "Code examples are accurate and verified against plugin source",
+    "All links and cross-references resolve to valid targets",
+    "Guide follows a logical progression from installation to usage",
+    "Follows WordPress documentation standards for structure and formatting",
+    "Includes prerequisites and requirements section"
+  ]
+}

@@ -43,6 +43,8 @@ Route by intent even if repo kind is broad (like `wp-site`):
   - Route → `wp-rest-api`.
 - **WP-CLI / wp-cli.yml / commands**
   - Route → `wp-wpcli-and-ops`.
+- **Documentation / PHPDoc / write docs / review docs / documentation standards / inline documentation / @since**
+  - Route → `wp-docs`.
 - **Build tooling / @wordpress/scripts / webpack / Vite / npm scripts**
   - Route → `wp-build-tooling` (planned).
 - **Testing / PHPUnit / wp-env / Playwright**
