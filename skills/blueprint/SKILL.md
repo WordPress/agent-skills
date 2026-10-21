@@ -1,6 +1,6 @@
 ---
 name: blueprint
-description: Use when creating, editing, or reviewing WordPress Playground blueprint JSON files. Triggers on mentions of blueprints, playground configuration, or requests to set up a WordPress demo environment.
+description: Use when the deliverable is WordPress Playground Blueprint JSON or a Blueprint bundle, including creating, editing, reviewing, validating schema keys, choosing steps/resources, and debugging Blueprint files. For only running or sharing a Playground environment, use wp-playground.
 compatibility: "WordPress 7.0+, PHP 7.4.0+. Optionally Playground CLI or a browser"
 ---
 
@@ -31,9 +31,11 @@ All optional. Only documented keys are allowed — the schema rejects unknown pr
 |----------|------|-------|
 | `$schema` | string | Always `"https://playground.wordpress.net/blueprint-schema.json"` |
 | `landingPage` | string | Relative path, e.g. `/wp-admin/` |
+| `description` | string | Deprecated optional top-level description. Prefer `meta.description` for new Blueprints |
 | `meta` | object | `{ title, author, description?, categories? }` — title and author required |
 | `preferredVersions` | object | `{ php, wp }` — both required when present |
 | `features` | object | `{ networking?: boolean, intl?: boolean }` — **only** these two keys, nothing else. Networking defaults to `true` |
+| `phpExtensionBundles` | any | Deprecated/no longer used; the schema leaves the value unconstrained and says to remove it from Blueprints |
 | `extraLibraries` | array | `["wp-cli"]` — auto-included when any `wp-cli` step is present |
 | `constants` | object | Shorthand for `defineWpConfigConsts`. Values: string/boolean/number |
 | `plugins` | array | Shorthand for `installPlugin` steps. Strings = wp.org slugs |
@@ -43,8 +45,8 @@ All optional. Only documented keys are allowed — the schema rejects unknown pr
 
 ### preferredVersions Values
 
-- **php:** Major.minor only (e.g. `"8.3"`, `"7.4"`), or `"latest"`. Patch versions like `"7.4.1"` are invalid. Check the schema for currently supported versions.
-- **wp:** Recent major versions (e.g. `"6.7"`, `"6.8"`), `"latest"`, `"nightly"`, `"beta"`, or a URL to a custom zip. Check the schema for the full list.
+- **php:** Major.minor only: `"7.4"`, `"8.0"`, `"8.1"`, `"8.2"`, `"8.3"`, `"8.4"`, `"8.5"`, or `"latest"`. Patch versions like `"7.4.1"` are invalid. Check the schema for currently supported versions.
+- **wp:** Recent major versions, `"latest"`, `"beta"`, `"nightly"`/`"trunk"`, or a URL to a custom zip. The schema also accepts `false` for PHP-only Playground; do not combine `wp: false` with WordPress-only fields such as `plugins`, `siteOptions`, `login`, or WordPress-only steps.
 
 ### Shorthands vs Steps
 
@@ -388,13 +390,13 @@ dashboard-widget-bundle/
 
 ### Inline Blueprints (quick test, no bundles)
 
-Minify the blueprint JSON (no extra whitespace), prepend `https://playground.wordpress.net/#`, and open the URL in a browser:
+Minify the blueprint JSON (no extra whitespace), encode it once with `encodeURIComponent()`, prepend `https://playground.wordpress.net/#`, and open the URL in a browser:
 
 ```
-https://playground.wordpress.net/#{"$schema":"https://playground.wordpress.net/blueprint-schema.json","preferredVersions":{"php":"8.3","wp":"latest"},"steps":[{"step":"login"}]}
+https://playground.wordpress.net/#%7B%22%24schema%22%3A%22https%3A%2F%2Fplayground.wordpress.net%2Fblueprint-schema.json%22%2C%22preferredVersions%22%3A%7B%22php%22%3A%228.3%22%2C%22wp%22%3A%22latest%22%7D%2C%22steps%22%3A%5B%7B%22step%22%3A%22login%22%7D%5D%7D
 ```
 
-Very large blueprints may exceed browser URL length limits; use the CLI instead.
+Very large blueprints may exceed browser URL length limits; use the CLI or a hosted Blueprint URL instead. For share-link details, use `wp-playground/references/website.md`.
 
 ### Local CLI Testing
 
@@ -412,6 +414,6 @@ npx @wp-playground/cli server --blueprint=./bundle.zip
 npx @wp-playground/cli run-blueprint --blueprint=./my-bundle/ --blueprint-may-read-adjacent-files
 ```
 
-### Testing with the wordpress-playground-server Skill
+### Testing with WordPress Playground
 
-Use the `wordpress-playground-server` skill to start a local Playground instance with `--blueprint /path/to/blueprint.json`, then verify the expected state with Playwright MCP. For directory bundles, pass `--blueprint-may-read-adjacent-files` as an extra argument.
+Use the `wp-playground` skill for local or browser testing. For CLI testing, follow `wp-playground/references/cli.md` with `--blueprint=<path-or-url>`; for directory bundles, pass `--blueprint-may-read-adjacent-files`.

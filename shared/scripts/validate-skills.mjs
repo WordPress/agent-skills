@@ -126,7 +126,7 @@ function main() {
   assert(report?.signals?.paths?.repoRoot, "Triage report missing signals.paths.repoRoot");
   assert(report?.tooling?.php && report?.tooling?.node && report?.tooling?.tests, "Triage report missing tooling blocks");
 
-  process.stdout.write("OK: skills frontmatter and triage report sanity checks passed.\n");
+  process.stdout.write("OK: skill metadata and triage report sanity checks passed.\n");
 }
 
 main();

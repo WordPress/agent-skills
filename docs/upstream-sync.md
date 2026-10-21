@@ -38,7 +38,7 @@ This keeps automation deterministic and reviewable before it starts rewriting sk
 
 ## Validation
 
-- Always run `node eval/harness/run.mjs`.
+- Always run `node shared/scripts/validate-skills.mjs`.
 - Optional: use Agent Skills reference validator:
   - `skills-ref validate skills/<skill-name>`
 
@@ -49,4 +49,3 @@ The automation should prefer canonical sources and avoid scraping where possible
 - WordPress core releases and API endpoints (official WordPress APIs)
 - Gutenberg releases (GitHub releases)
 - WordPress developer docs (used for the WP↔Gutenberg mapping when no API exists)
-

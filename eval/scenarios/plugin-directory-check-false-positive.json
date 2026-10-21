@@ -1,0 +1,20 @@
+{
+  "name": "Assess a possible false positive without suppressing warnings",
+  "skills": [
+    "wp-plugin-directory-guidelines"
+  ],
+  "query": "Plugin Check reports a late-escaping warning at includes/render.php:42. The echoed value comes from a helper said to escape HTML already. Review whether this needs a change; the source and helper are available. Do not assume the helper name proves safety.",
+  "expected_behavior": [
+    "Read the reported code and helper, trace the value and output context, and explain the rule rationale.",
+    "Report the actual code/severity if supplied; do not invent a tool code from the warning description.",
+    "Determine whether escaping matches the output context, describing evidence and any uncertainty.",
+    "Propose the smallest appropriate correction only if justified, including possible behavior changes; otherwise explain the false positive.",
+    "Retain the finding in the review report rather than using ignore flags to obtain a clean result."
+  ],
+  "success_criteria": [
+    "Uses source evidence, not helper naming or warning severity alone.",
+    "Does not blindly double-escape output.",
+    "Does not suppress the warning merely to pass validation.",
+    "Separates a possible false positive from a confirmed one."
+  ]
+}

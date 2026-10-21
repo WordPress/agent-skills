@@ -25,8 +25,14 @@ Route by intent even if repo kind is broad (like `wp-site`):
   - Route → `wp-interactivity-api`.
 - **Abilities API / wp_register_ability / wp-abilities/v1 / @wordpress/abilities**
   - Route → `wp-abilities-api`.
-- **Playground / run-blueprint / build-snapshot / @wp-playground/cli / playground.wordpress.net**
-  - Route → `wp-playground`.
+- **Ambiguous WordPress Playground requests**
+  - Route → `wp-playground`, then follow its routing wrapper.
+- **Blueprint JSON / Blueprint schema / Blueprint steps / Blueprint bundles**
+  - Route → `blueprint`.
+- **@wp-playground/cli / server / run-blueprint / build-snapshot / auto-mount / Xdebug**
+  - Route → `wp-playground`, then read `references/cli.md` or `references/debugging.md`.
+- **playground.wordpress.net / Blueprint Editor / share links / browser-only Playground**
+  - Route → `wp-playground`, then read `references/website.md`.
 - **Blocks / block.json / registerBlockType / attributes / save serialization**
   - Route → `wp-block-development`.
 - **theme.json / Global Styles / templates/*.html / patterns/**
