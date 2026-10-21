@@ -204,6 +204,10 @@ node shared/scripts/validate-skills.mjs
 
 This command validates skill metadata and the project-triage report. It does not execute the scenarios under `eval/scenarios/`; those currently require manual evaluation.
 
+## Maintainers
+
+Maintainers for this repo are [Brandon Payton (@brandonpayton)](https://github.com/brandonpayton), [Bero (@bgrgicak)](https://github.com/bgrgicak), [Jason Adams (@JasonTheAdams)](https://github.com/JasonTheAdams), [Jeffrey Paul (@jeffpaul)](https://github.com/jeffpaul), [Jonathan Bossenger (@jonathanbossenger)](https://github.com/jonathanbossenger), [Mikey Arce (@mikeyarce)](https://github.com/mikeyarce), and [Tammie Lister (@karmatosed)](https://github.com/karmatosed); all can be reached using the [@WordPress/agent-skills-maintainers](https://github.com/orgs/WordPress/teams/agent-skills-maintainers) team.
+
 ## Documentation
 
 - [Authoring Guide](docs/authoring-guide.md) - How to create and improve skills
