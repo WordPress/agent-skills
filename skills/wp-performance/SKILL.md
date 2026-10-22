@@ -61,6 +61,7 @@ If you have WP-CLI access, prefer:
 `wp doctor check` with no check names and no `--all` exits with an error instead of running anything.
 
 It catches common production foot-guns (autoload bloat, SAVEQUERIES/WP_DEBUG, plugin counts, updates).
+On WordPress 6.6+, confirm autoload size with `references/autoload-options.md`: the doctor check can miss options stored as `auto` or `auto-on`.
 
 Read:
 - `references/wp-cli-doctor.md`
