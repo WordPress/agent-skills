@@ -1,0 +1,24 @@
+{
+  "name": "Suspected compromise — confirm or rule out",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-abuse-and-compromise-response"],
+  "query": "I think my WordPress site might be hacked but I'm not sure. Search results show some weird keywords, but the site looks normal to me when I visit it. Can you help me figure out if it's actually compromised?",
+  "expected_behavior": [
+    "Step 1: Route via wordpress-router; confirm WP install",
+    "Step 2: Recognize SEO spam indicator (search results show keywords absent from visible site = cloaking pattern)",
+    "Step 3: Ask user for inputs: access type (admin/SFTP/DB/WP-CLI), backup recency, hosting environment",
+    "Step 4: Direct user to verify cloaking: search Google for site:domain.com with pharma/casino/loan keywords; fetch site as Googlebot; view source for hidden divs/links",
+    "Step 5: If cloaking confirmed: classify as SEO spam injection, proceed with investigation",
+    "Step 6: If cloaking NOT confirmed but symptoms persist: run cheap checks anyway (verify-checksums, list admin users, list cron, scan uploads for .php) since SEO spam is one of the most-missed categories",
+    "Step 7: For SEO spam specifically: check theme footer.php/header.php/functions.php, wp_options for hidden links, wp_posts for injected script tags",
+    "Step 8: Reference common-injection-points for less-obvious spots: mu-plugins, autoloaded options, drop-ins",
+    "Step 9: If still nothing found: recommend external malware scanner (Sucuri SiteCheck) for second opinion before declaring clean"
+  ],
+  "success_criteria": [
+    "AI recognizes the cloaking pattern (visible site clean, search results dirty)",
+    "AI does NOT immediately declare 'looks fine' based on owner view alone",
+    "AI checks Googlebot-perspective view of the site",
+    "AI runs verify-checksums and cheap inspection commands even before confirming compromise",
+    "AI flags both confirmation paths (yes-compromised → cleanup; no-still-suspicious → external scanner)",
+    "AI doesn't recommend credential rotation or hardening until compromise is confirmed and cleaned"
+  ]
+}

@@ -35,6 +35,7 @@ All v1 skills followed the same process described above. As skills diverge in th
 | [wp-block-development](../skills/wp-block-development/SKILL.md) | Yes | Yes | Yes |
 | [wp-block-themes](../skills/wp-block-themes/SKILL.md) | Yes | Yes | Yes |
 | [wp-plugin-development](../skills/wp-plugin-development/SKILL.md) | Yes | Yes | Yes |
+| [wp-abuse-and-compromise-response](../skills/wp-abuse-and-compromise-response/SKILL.md) | Yes (Claude Opus 4.7) | Yes (community contributor with hosting-provider abuse-response background) | Pending |
 | [wp-rest-api](../skills/wp-rest-api/SKILL.md) | Yes | Yes | Yes |
 | [wp-interactivity-api](../skills/wp-interactivity-api/SKILL.md) | Yes | Yes | Yes |
 | [wp-abilities-api](../skills/wp-abilities-api/SKILL.md) | Yes | Yes | Yes |
