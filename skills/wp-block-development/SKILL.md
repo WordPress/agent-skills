@@ -55,7 +55,10 @@ After scaffolding:
 WordPress 6.9 enforces `apiVersion: 3` in the block.json schema. Blocks with apiVersion 2 or lower trigger console warnings when `SCRIPT_DEBUG` is enabled.
 
 **Why this matters:**
-- WordPress 7.0 will run the post editor in an iframe regardless of block apiVersion.
+- In WordPress 7.0 core, the post editor uses an iframe only when every block
+  inserted in the post uses `apiVersion` 3 or higher. A lower-version block
+  causes the editor to remove the iframe for compatibility.
+- Starting in WordPress 7.1, the post editor is always iframed.
 - apiVersion 3 ensures your block works correctly inside the iframed editor (style isolation, viewport units, media queries).
 
 **Migration:** Changing from version 2 to 3 is usually as simple as updating the `apiVersion` field in `block.json`. However:
