@@ -1,0 +1,23 @@
+<h2 id="what-converts">What converts cleanly</h2>
+<p>These elements map straight to core blocks through <code>rawHandler</code>:</p>
+<ul style="font-size: var(--wp--preset--font-size--medium)">
+  <li>Headings <code>h1</code> to <code>h6</code></li>
+  <li>Paragraphs with <strong>bold</strong>, <em>italic</em> and <a href="/links">links</a></li>
+  <li>Lists, including nested ones
+    <ul>
+      <li>unordered</li>
+      <li>ordered, with a start value</li>
+    </ul>
+  </li>
+  <li>Quotes, code, preformatted text, tables, separators, images and video</li>
+</ul>
+<ol start="3">
+  <li>Third step</li>
+  <li>Fourth step</li>
+</ol>
+<blockquote>
+  <p>The output either round-trips cleanly or you learn which block failed and why.</p>
+  <cite>A reviewer</cite>
+</blockquote>
+<hr>
+<pre><code>node scripts/html-to-blocks.mjs page.html --out page.blocks.html</code></pre>
