@@ -18,7 +18,8 @@ Key concepts and entrypoints for the WordPress Abilities API:
 // 1. Register category first
 add_action( 'wp_abilities_api_categories_init', function() {
     wp_register_ability_category( 'my-plugin', [
-        'label' => __( 'My Plugin', 'my-plugin' ),
+        'label'       => __( 'My Plugin', 'my-plugin' ),
+        'description' => __( 'Abilities provided by My Plugin.', 'my-plugin' ),
     ] );
 } );
 
