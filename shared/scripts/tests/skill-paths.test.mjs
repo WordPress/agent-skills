@@ -88,7 +88,8 @@ function instructionFiles(root) {
 }
 
 before(() => {
-  temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), "wp skill paths "));
+  // macOS temp roots can be symlinks; process.cwd() reports their physical path.
+  temporaryRoot = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "wp skill paths ")));
   projectRoot = path.join(temporaryRoot, "deep", "nested", "WordPress plugin");
   buildRoot = path.join(temporaryRoot, "built skillpacks");
   fs.mkdirSync(path.join(projectRoot, "src"), { recursive: true });
