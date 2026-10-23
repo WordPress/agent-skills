@@ -25,12 +25,17 @@ Use this skill for block work such as:
 
 ## Procedure
 
+Replace `<wp-project-triage-dir>` and `<wp-block-development-dir>` below with the absolute
+directories containing the corresponding skills’ `SKILL.md` files (load those skills if needed).
+Keep the target project’s root as the working directory and retain the quotes around script paths.
+`references/` paths are relative to this skill’s directory.
+
 ### 0) Triage and locate blocks
 
 1. Run triage:
-   - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+   - `node "<wp-project-triage-dir>/scripts/detect_wp_project.mjs"`
 2. List blocks (deterministic scan):
-   - `node skills/wp-block-development/scripts/list_blocks.mjs`
+   - `node "<wp-block-development-dir>/scripts/list_blocks.mjs"`
 3. Identify the block root (directory containing `block.json`) you’re changing.
 
 If this repo is a full site (`wp-content/` present), be explicit about *which* plugin/theme contains the block.
