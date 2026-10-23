@@ -10,6 +10,19 @@ This repo is built for **AI-assisted authoring** with **deterministic guardrails
 - Keep file references 1 hop from `SKILL.md` (avoid deep chains).
 - Include a `compatibility:` frontmatter line matching `docs/compatibility-policy.md`.
 
+## Helper and reference paths
+
+Skills run inside the user's project, independently of where the skills are installed.
+In helper commands, use a quoted `"<skill-name-dir>/scripts/helper.mjs"` path and tell
+the agent to resolve the placeholder to the absolute directory containing that
+named skill's `SKILL.md`. Resolve cross-skill helpers from the named skill's own
+installation location. Keep the target project's root as the working directory
+so helpers inspect the project. Use skill-relative `references/...` paths for
+reference files and state that base in the skill instructions.
+
+Run `node --test shared/scripts/tests/*.test.mjs` to check instruction paths and
+exercise helpers in isolated project and global installations.
+
 ## Workflow: draft → harden → ship
 
 1. **Route first**

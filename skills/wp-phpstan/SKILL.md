@@ -23,9 +23,13 @@ Use this skill when working on PHPStan in a WordPress codebase, for example:
 
 ## Procedure
 
+Replace `<wp-phpstan-dir>` below with the absolute directory containing that skill’s `SKILL.md` file
+(load that skill if needed). Keep the target project’s root as the working directory and retain the
+quotes around script paths. `references/` paths are relative to this skill’s directory.
+
 ### 0) Discover PHPStan entrypoints (deterministic)
 1. Inspect PHPStan setup (config, baseline, scripts):
-   - `node skills/wp-phpstan/scripts/phpstan_inspect.mjs`
+   - `node "<wp-phpstan-dir>/scripts/phpstan_inspect.mjs"`
 
 Prefer the repo’s existing `composer` script (e.g. `composer run phpstan`) when present.
 
