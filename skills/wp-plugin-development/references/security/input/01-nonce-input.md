@@ -14,7 +14,7 @@ None.
 
 ## Code
 
-Shows: unslash and sanitize the nonce before `wp_verify_nonce()` and stop the request when it fails, or let `check_admin_referer()` / `check_ajax_referer()` read and verify it.
+Shows: verify the nonce, check `manage_options`, and stop before the protected write on either failure. The separate admin and AJAX handler examples use the corresponding nonce helper before the capability check and write.
 
 ```php
 /*
@@ -27,17 +27,35 @@ Shows: unslash and sanitize the nonce before `wp_verify_nonce()` and stop the re
 wp_verify_nonce( $_POST['_wpnonce'], 'myplugin_save' );
 update_option( 'myplugin_color', sanitize_text_field( wp_unslash( $_POST['color'] ?? '' ) ) );
 
-// Safe: unslash and sanitize the nonce, then stop the request if it fails.
+// Safe: verify the nonce and capability before the protected write.
 $nonce = sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) );
 if ( ! wp_verify_nonce( $nonce, 'myplugin_save' ) ) {
 	wp_die( esc_html__( 'Invalid request.', 'myplugin' ), '', array( 'response' => 403 ) );
 }
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You are not allowed to do this.', 'myplugin' ), '', array( 'response' => 403 ) );
+}
 update_option( 'myplugin_color', sanitize_text_field( wp_unslash( $_POST['color'] ?? '' ) ) );
+```
 
-// Also safe, and simpler: these functions read and verify the request nonce
-// themselves, and stop on failure with their default settings.
+Admin form and `admin-post.php` handler:
+
+```php
 check_admin_referer( 'myplugin_save' );      // Admin forms and admin-post.php.
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You are not allowed to do this.', 'myplugin' ), '', array( 'response' => 403 ) );
+}
+update_option( 'myplugin_color', sanitize_text_field( wp_unslash( $_POST['color'] ?? '' ) ) );
+```
+
+`admin-ajax.php` handler:
+
+```php
 check_ajax_referer( 'myplugin_save' );       // admin-ajax.php handlers.
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_send_json_error( null, 403 );
+}
+update_option( 'myplugin_color', sanitize_text_field( wp_unslash( $_POST['color'] ?? '' ) ) );
 ```
 
 ## Attack methodology
