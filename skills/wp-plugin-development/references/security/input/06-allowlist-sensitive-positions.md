@@ -6,6 +6,7 @@
 
 **Required**
 
+- Verify a request nonce before a protected write or callback dispatch. A valid nonce does not replace the allowlist or capability check.
 - A callback allowlist controls which code can be selected; it does not authorize the request. Check `current_user_can()` for the action and target before dispatching it.
 - Understand that `sanitize_key()` or `sanitize_text_field()` makes a value well-formed; it does not make it safe to *choose* which option, table, file, callback, or capability the code acts on. For those, use an allowlist.
 - Treat input as unsafe in sensitive positions even after sanitization. A fixed allowlist, strict comparison (`in_array( $v, $allowed, true )`), or hardcoded map must decide:
@@ -18,7 +19,7 @@
 
 ## Code
 
-Shows: a sanitized request value must not choose an option name or callback; a fixed map decides, and authorization is checked separately.
+Shows: verify the nonce, use fixed maps for request-selected targets, and check capability before protected writes or callback dispatch.
 
 ```php
 /*
@@ -31,6 +32,7 @@ $name = sanitize_key( wp_unslash( $_POST['option'] ?? '' ) );
 update_option( $name, sanitize_text_field( wp_unslash( $_POST['value'] ?? '' ) ) );
 
 // Safe: the request can only pick from a fixed map.
+check_admin_referer( 'myplugin_update_setting' );
 $options = array(
 	'color'  => 'myplugin_color',
 	'layout' => 'myplugin_layout',
@@ -58,6 +60,7 @@ call_user_func( $task, $post_id );
  * Safe: the request can only pick a callback the plugin owns. The same map
  * pattern applies to class names before new $class and to hook names.
  */
+check_admin_referer( 'myplugin_run_task' );
 $tasks   = array(
 	'export'  => array(
 		'callback'   => 'myplugin_export_post',
