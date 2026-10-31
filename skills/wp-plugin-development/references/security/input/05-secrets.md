@@ -15,19 +15,18 @@
 
 ## Code
 
-Shows: unslash a webhook signature without sanitizing it, compare it with `hash_equals()`, and log nothing secret.
+Shows: sanitizing an opaque token can change it; unslash and validate a webhook signature without logging secrets.
 
 ```php
 /*
- * Unsafe: sanitize_text_field() can change the signature before it is
- * compared, !== does not compare in constant time, and the secret and the
- * signature are written to the log.
+ * Unsafe: sanitize_text_field() changes an opaque token such as
+ * `api_<scope>_key` to `api__key`; !== does not compare in constant time, and
+ * the token is written to the log.
  */
-$signature = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_MYPLUGIN_SIGNATURE'] ?? '' ) );
-$secret    = get_option( 'myplugin_webhook_secret' );
-$expected  = hash_hmac( 'sha256', file_get_contents( 'php://input' ), $secret );
-error_log( 'Webhook secret: ' . $secret . ' signature: ' . $signature );
-if ( $expected !== $signature ) {
+$token        = sanitize_text_field( wp_unslash( $_POST['api_token'] ?? '' ) );
+$stored_token = get_option( 'myplugin_api_token', '' );
+error_log( 'API token: ' . $token );
+if ( $stored_token !== $token ) {
 	wp_send_json_error( null, 401 );
 }
 
