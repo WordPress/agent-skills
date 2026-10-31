@@ -62,3 +62,4 @@ Security bulletins:
 - OWASP A09:2021, Security Logging and Monitoring Failures
 
 - **Logged secret → readable log → forged requests.** The handler writes the webhook secret to `wp-content/debug.log`, which is often reachable from the web. The attacker downloads the log, signs their own payloads with the secret, and the plugin accepts them (for example marking an order as paid). Fix: never log or echo secrets, and compare with `hash_equals()`.
+- **Logged API token → replayed credential → unauthorized API access.** The handler logs the submitted API token. If an external API accepts that token for authentication, anyone who obtains the log can replay it and act with the token's privileges. Fix: never log or echo a token; compare it only for its intended purpose.
