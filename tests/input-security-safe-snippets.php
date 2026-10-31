@@ -409,11 +409,6 @@ function run_case( $case ) {
 	echo 'PASS (stub simulation): ' . $case . "\n";
 }
 
-if ( isset( $argv[1] ) && '--child' === $argv[1] ) {
-	run_case( $argv[2] ?? '' );
-	exit( 0 );
-}
-
 function run_cases( $case_names ) {
 	foreach ( $case_names as $case ) {
 		$stdout_file = tempnam( sys_get_temp_dir(), 'input-security-stdout-' );
@@ -467,8 +462,31 @@ function run_cases( $case_names ) {
 	}
 }
 
-if ( isset( $argv[1] ) && '--case' === $argv[1] ) {
-	$case = $argv[2] ?? '';
+if ( isset( $argv[1] ) && '--child' === $argv[1] ) {
+	if ( 3 !== count( $argv ) ) {
+		fail( '--child requires exactly one case name.' );
+	}
+	$case = $argv[2];
+	if ( ! isset( cases()[ $case ] ) ) {
+		fail( 'Unknown test case: ' . $case );
+	}
+	run_case( $case );
+	exit( 0 );
+}
+
+if ( 1 === count( $argv ) ) {
+	run_cases( array_keys( cases() ) );
+	exit( 0 );
+}
+
+if ( '--case' === $argv[1] ) {
+	if ( 2 === count( $argv ) ) {
+		fail( '--case requires exactly one case name.' );
+	}
+	if ( 3 !== count( $argv ) ) {
+		fail( '--case accepts exactly one case name.' );
+	}
+	$case = $argv[2];
 	if ( ! isset( cases()[ $case ] ) ) {
 		fail( 'Unknown test case: ' . $case );
 	}
@@ -476,6 +494,18 @@ if ( isset( $argv[1] ) && '--case' === $argv[1] ) {
 	exit( 0 );
 }
 
-run_cases( array_keys( cases() ) );
+if ( 2 !== count( $argv ) ) {
+	fail( 'Expected no arguments, one case name, or --case <name>.' );
+}
+
+if ( 0 === strpos( $argv[1], '-' ) ) {
+	fail( 'Unknown option: ' . $argv[1] );
+}
+
+if ( ! isset( cases()[ $argv[1] ] ) ) {
+	fail( 'Unknown test case: ' . $argv[1] );
+}
+
+run_cases( array( $argv[1] ) );
 
 }
