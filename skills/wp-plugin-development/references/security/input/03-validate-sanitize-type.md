@@ -15,7 +15,7 @@ None.
 | Single-line text | `sanitize_text_field()` | Check length if it matters. |
 | Multi-line text | `sanitize_textarea_field()` | Keeps line breaks. |
 | Email | `sanitize_email()` | Validate the sanitized result with `is_email()`; `sanitize_email()` may return `''` for invalid input. |
-| URL | `esc_url_raw( $url, array( 'http', 'https' ) )` | Returns `''` when the scheme is not allowed; reject `''`. |
+| URL | `esc_url_raw( $url, array( 'http', 'https' ) )` | Sanitizes a URL for storage; reject `''`. A nonempty result is not proof of an absolute URL or permitted host, and is not an SSRF defense. Redirect and network-request uses need context-appropriate validation based on the application's requirements. |
 | Key or internal slug | `sanitize_key()` | Lowercase letters, digits, `-` and `_` only. |
 | Post slug | `sanitize_title()` | |
 | File name | `sanitize_file_name()` | Not a path check; see `06-allowlist-sensitive-positions.md`. |
@@ -29,7 +29,7 @@ None.
 
 ## Code
 
-Shows: sanitize a URL for its type and validate the result before storing it.
+Shows: reject non-string URL input, sanitize a string for storage, and reject an empty result. This does not decide which URL forms or hosts the application should accept.
 
 ```php
 /*
@@ -39,13 +39,19 @@ Shows: sanitize a URL for its type and validate the result before storing it.
 $link = sanitize_text_field( wp_unslash( $_POST['link'] ?? '' ) );
 update_option( 'myplugin_link', $link );
 
-// Safe: sanitize as a URL with allowed schemes, then reject an empty result.
-$link = esc_url_raw( wp_unslash( $_POST['link'] ?? '' ), array( 'http', 'https' ) );
+// Safe: reject a non-string value before URL sanitation.
+$raw_link = wp_unslash( $_POST['link'] ?? '' );
+if ( ! is_string( $raw_link ) ) {
+	wp_send_json_error( array( 'message' => __( 'Enter a valid URL.', 'myplugin' ) ), 400 );
+}
+$link = esc_url_raw( $raw_link, array( 'http', 'https' ) );
 if ( '' === $link ) {
 	wp_send_json_error( array( 'message' => __( 'Enter a valid URL.', 'myplugin' ) ), 400 );
 }
 update_option( 'myplugin_link', $link );
 ```
+
+`esc_url_raw()` is a storage sanitizer, not a complete URL policy. Decide which URL forms and hosts fit the application separately for stored links, redirects, or network requests; a nonempty sanitized value alone does not establish an allowed absolute host or prevent SSRF.
 
 ## Attack methodology
 
