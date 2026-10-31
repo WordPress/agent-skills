@@ -3,10 +3,10 @@
 **Prohibited**
 
 - Never treat sanitization as authorization.
-- A callback allowlist controls which code can be selected; it does not authorize the request. Check `current_user_can()` for the action and target before dispatching it.
 
 **Required**
 
+- A callback allowlist controls which code can be selected; it does not authorize the request. Check `current_user_can()` for the action and target before dispatching it.
 - Understand that `sanitize_key()` or `sanitize_text_field()` makes a value well-formed; it does not make it safe to *choose* which option, table, file, callback, or capability the code acts on. For those, use an allowlist.
 - Treat input as unsafe in sensitive positions even after sanitization. A fixed allowlist, strict comparison (`in_array( $v, $allowed, true )`), or hardcoded map must decide:
   - option, meta, transient, table, column, or capability names;
