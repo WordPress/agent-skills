@@ -72,6 +72,7 @@ Arbitrary option update
 
 Security bulletins:
 - CWE-915, Improperly Controlled Modification of Dynamically-Determined Object Attributes
+- OWASP A08:2021, Software and Data Integrity Failures (CWE-915's mapped category)
 - CWE-862, Missing Authorization
 - OWASP A01:2021, Broken Access Control
 
