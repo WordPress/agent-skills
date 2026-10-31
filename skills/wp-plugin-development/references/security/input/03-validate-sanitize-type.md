@@ -29,7 +29,7 @@ None.
 
 ## Code
 
-Shows: reject non-string URL input, sanitize a string for storage, and reject an empty result. This does not decide which URL forms or hosts the application should accept.
+Shows: in a browser/admin POST handler, verify the request nonce and capability before writing; reject non-string URL input, sanitize a string for storage, and reject an empty result. This does not decide which URL forms or hosts the application should accept.
 
 ```php
 /*
@@ -39,7 +39,13 @@ Shows: reject non-string URL input, sanitize a string for storage, and reject an
 $link = sanitize_text_field( wp_unslash( $_POST['link'] ?? '' ) );
 update_option( 'myplugin_link', $link );
 
-// Safe: reject a non-string value before URL sanitation.
+// Safe: browser/admin POST handler.
+check_admin_referer( 'myplugin_save_link' );
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_send_json_error( null, 403 );
+}
+
+// Reject a non-string value before URL sanitation.
 $raw_link = wp_unslash( $_POST['link'] ?? '' );
 if ( ! is_string( $raw_link ) ) {
 	wp_send_json_error( array( 'message' => __( 'Enter a valid URL.', 'myplugin' ) ), 400 );

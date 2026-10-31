@@ -12,7 +12,7 @@ None.
 
 ## Code
 
-Shows: read only the keys the handler expects, unslash each one, and sanitize it for its type, instead of storing or looping over the whole request array.
+Shows: in a browser/admin POST handler, verify the request nonce and capability before writing; read only the keys the handler expects, unslash each one, and sanitize it for its type, instead of storing or looping over the whole request array.
 
 ```php
 /*
@@ -21,7 +21,13 @@ Shows: read only the keys the handler expects, unslash each one, and sanitize it
  */
 update_option( 'myplugin_settings', $_POST );
 
-// Safe: read the keys the form owns, unslash each one, sanitize it for its type.
+// Safe: browser/admin POST handler.
+check_admin_referer( 'myplugin_save_settings' );
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_send_json_error( null, 403 );
+}
+
+// Read the keys the form owns, unslash each one, and sanitize it for its type.
 $color = wp_unslash( $_POST['color'] ?? '' );
 if ( ! is_string( $color ) ) {
 	wp_send_json_error( null, 400 );
@@ -37,6 +43,8 @@ $settings = array(
 );
 update_option( 'myplugin_settings', $settings );
 ```
+
+`absint()` converts the submitted `columns` value; it does not validate an application-specific allowed range or count.
 
 ## Attack methodology
 
