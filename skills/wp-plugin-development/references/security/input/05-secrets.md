@@ -1,0 +1,51 @@
+# Input: Secrets Are Not Sanitized
+
+**Prohibited**
+
+- Running passwords, signatures, tokens, API keys, or other secrets through `sanitize_text_field()` or any sanitizer that can change them.
+- Echoing or logging a secret, including in error messages, debug output, and `error_log()`.
+
+**Required**
+
+- Do not run passwords, signatures, tokens, or secrets through sanitizers that change them (`sanitize_text_field()` strips characters).
+- Unslash them, use them only for their purpose (hash, compare with `hash_equals()`, send in a header), and never echo or log them.
+- To check a secret, validate without changing it (`is_string()`, a length check, or `ctype_xdigit()` for a hex signature) and reject on failure. Fail closed when the stored secret is empty.
+
+**Exceptions:** None.
+
+## Code
+
+Shows: unslash a webhook signature without sanitizing it, compare it with `hash_equals()`, and log nothing secret.
+
+```php
+/*
+ * Unsafe: sanitize_text_field() can change the signature before it is
+ * compared, !== does not compare in constant time, and the secret and the
+ * signature are written to the log.
+ */
+$signature = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_MYPLUGIN_SIGNATURE'] ?? '' ) );
+$secret    = get_option( 'myplugin_webhook_secret' );
+$expected  = hash_hmac( 'sha256', file_get_contents( 'php://input' ), $secret );
+error_log( 'Webhook secret: ' . $secret . ' signature: ' . $signature );
+if ( $expected !== $signature ) {
+	wp_send_json_error( null, 401 );
+}
+
+// Safe: unslash only, check the type, fail closed, compare in constant time, log nothing.
+$signature = isset( $_SERVER['HTTP_X_MYPLUGIN_SIGNATURE'] ) ? wp_unslash( $_SERVER['HTTP_X_MYPLUGIN_SIGNATURE'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Secret: compared with hash_equals() only, never stored or printed.
+$secret    = (string) get_option( 'myplugin_webhook_secret', '' );
+$expected  = hash_hmac( 'sha256', file_get_contents( 'php://input' ), $secret );
+if ( '' === $secret || ! is_string( $signature ) || ! hash_equals( $expected, $signature ) ) {
+	wp_send_json_error( null, 401 );
+}
+```
+
+## Attack methodology
+
+Sensitive information disclosure through logs
+
+Security bulletins:
+- CWE-532, Insertion of Sensitive Information into Log File
+- OWASP A09:2021, Security Logging and Monitoring Failures
+
+- **Logged secret → readable log → forged requests.** The handler writes the webhook secret to `wp-content/debug.log`, which is often reachable from the web. The attacker downloads the log, signs their own payloads with the secret, and the plugin accepts them (for example marking an order as paid). Fix: never log or echo secrets, and compare with `hash_equals()`.
