@@ -8,7 +8,7 @@
 **Required**
 
 - Do not run passwords, signatures, tokens, or secrets through sanitizers that change them (`sanitize_text_field()` strips characters).
-- Unslash them, use them only for their purpose (hash, compare with `hash_equals()`, send in a header), and never echo or log them.
+- Unslash them and use them only for their purpose (hash, compare with `hash_equals()`, or send in a header).
 - To check a secret, validate without changing it (`is_string()`, a length check, or `ctype_xdigit()` for a hex signature) and reject on failure. Fail closed when the stored secret is empty.
 
 **Exceptions:** None.
