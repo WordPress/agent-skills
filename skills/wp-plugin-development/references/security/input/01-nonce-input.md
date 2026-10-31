@@ -2,7 +2,7 @@
 
 **Prohibited**
 
-- None specific to this directive.
+None.
 
 **Required**
 
