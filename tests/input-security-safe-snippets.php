@@ -409,30 +409,103 @@ function run_case( $case ) {
 	echo 'PASS (stub simulation): ' . $case . "\n";
 }
 
-if ( isset( $argv[1] ) ) {
-	run_case( $argv[1] );
+function run_cases( $case_names ) {
+	foreach ( $case_names as $case ) {
+		$stdout_file = tempnam( sys_get_temp_dir(), 'input-security-stdout-' );
+		$stderr_file = tempnam( sys_get_temp_dir(), 'input-security-stderr-' );
+		if ( false === $stdout_file || false === $stderr_file ) {
+			if ( false !== $stdout_file ) {
+				unlink( $stdout_file );
+			}
+			if ( false !== $stderr_file ) {
+				unlink( $stderr_file );
+			}
+			fail( 'Case ' . $case . ' could not create child output capture files.' );
+		}
+
+		$process = proc_open(
+			array( PHP_BINARY, __FILE__, '--child', $case ),
+			array(
+				0 => array( 'pipe', 'r' ),
+				1 => array( 'file', $stdout_file, 'w' ),
+				2 => array( 'file', $stderr_file, 'w' ),
+			),
+			$pipes
+		);
+		if ( ! is_resource( $process ) ) {
+			unlink( $stdout_file );
+			unlink( $stderr_file );
+			fail( 'Could not start isolated test process for ' . $case );
+		}
+		fclose( $pipes[0] );
+		$status = proc_close( $process );
+		$output = file_get_contents( $stdout_file );
+		$error  = file_get_contents( $stderr_file );
+		unlink( $stdout_file );
+		unlink( $stderr_file );
+
+		$expected_output = 'PASS (stub simulation): ' . $case . "\n";
+		if ( 0 !== $status || $expected_output !== $output || '' !== $error ) {
+			$failure = array( 'Case ' . $case . ' failed' );
+			if ( 0 !== $status ) {
+				$failure[] = 'child exit status ' . $status;
+			}
+			if ( $expected_output !== $output ) {
+				$failure[] = 'unexpected stdout';
+			}
+			if ( '' !== $error ) {
+				$failure[] = 'stderr was nonempty';
+			}
+			fail( implode( '; ', $failure ) . ' (captured streams omitted).' );
+		}
+		echo $expected_output;
+	}
+}
+
+if ( isset( $argv[1] ) && '--child' === $argv[1] ) {
+	if ( 3 !== count( $argv ) ) {
+		fail( '--child requires exactly one case name.' );
+	}
+	$case = $argv[2];
+	if ( ! isset( cases()[ $case ] ) ) {
+		fail( 'Unknown test case: ' . $case );
+	}
+	run_case( $case );
 	exit( 0 );
 }
 
-foreach ( array_keys( cases() ) as $case ) {
-	$process = proc_open(
-		array( PHP_BINARY, __FILE__, $case ),
-		array( 0 => array( 'pipe', 'r' ), 1 => array( 'pipe', 'w' ), 2 => array( 'pipe', 'w' ) ),
-		$pipes
-	);
-	if ( ! is_resource( $process ) ) {
-		fail( 'Could not start isolated test process for ' . $case );
-	}
-	fclose( $pipes[0] );
-	$output = stream_get_contents( $pipes[1] );
-	$error  = stream_get_contents( $pipes[2] );
-	fclose( $pipes[1] );
-	fclose( $pipes[2] );
-	$status = proc_close( $process );
-	echo $output;
-	if ( 0 !== $status ) {
-		fail( trim( $error ) ?: 'Test failed: ' . $case );
-	}
+if ( 1 === count( $argv ) ) {
+	run_cases( array_keys( cases() ) );
+	exit( 0 );
 }
+
+if ( '--case' === $argv[1] ) {
+	if ( 2 === count( $argv ) ) {
+		fail( '--case requires exactly one case name.' );
+	}
+	if ( 3 !== count( $argv ) ) {
+		fail( '--case accepts exactly one case name.' );
+	}
+	$case = $argv[2];
+	if ( ! isset( cases()[ $case ] ) ) {
+		fail( 'Unknown test case: ' . $case );
+	}
+	run_cases( array( $case ) );
+	exit( 0 );
+}
+
+if ( 2 !== count( $argv ) ) {
+	fail( 'Expected no arguments, one case name, or --case <name>.' );
+}
+
+if ( 0 === strpos( $argv[1], '-' ) ) {
+	fail( 'Unknown option: ' . $argv[1] );
+}
+
+if ( ! isset( cases()[ $argv[1] ] ) ) {
+	fail( 'Unknown test case: ' . $argv[1] );
+}
+
+run_cases( array( $argv[1] ) );
 
 }
