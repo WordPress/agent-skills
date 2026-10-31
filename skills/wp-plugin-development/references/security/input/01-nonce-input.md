@@ -78,4 +78,4 @@ Security bulletins:
 - CWE-285, Improper Authorization
 - OWASP A01:2021, Broken Access Control
 
-- **Valid nonce, no capability check → low-privilege write.** A nonce proves a request came from a form the site issued, not that the user may use it. If a subscriber's page contains the nonce, they can replay it against a privileged action. Fix: pair the nonce with `current_user_can()`.
+- **Valid nonce, no capability check → low-privilege write.** A nonce demonstrates possession of a valid token; it does not prove request origin or that the user may perform the action. WordPress says to assume nonces can be compromised and not to rely on them for authentication, authorization, or access control. If a subscriber obtains the nonce, they can replay it against a privileged action. Fix: pair the nonce with `current_user_can()`.
