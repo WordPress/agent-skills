@@ -9,7 +9,7 @@
 
 - Do not run passwords, signatures, tokens, or secrets through sanitizers that change them (`sanitize_text_field()` strips characters).
 - Unslash them and use them only for their purpose (hash, compare with `hash_equals()`, or send in a header).
-- To check a secret, validate without changing it (`is_string()`, a length check, or `ctype_xdigit()` for a hex signature) and reject on failure. Fail closed when the stored secret is empty.
+- To check a secret, validate without changing it (`is_string()`, a length check, or `ctype_xdigit()` for a hex signature) and reject on failure. Fail closed when the stored secret is empty or not a string.
 
 **Exceptions:** None.
 
@@ -31,11 +31,25 @@ if ( $expected !== $signature ) {
 	wp_send_json_error( null, 401 );
 }
 
-// Safe: unslash only, check the type, fail closed, compare in constant time, log nothing.
-$signature = isset( $_SERVER['HTTP_X_MYPLUGIN_SIGNATURE'] ) ? wp_unslash( $_SERVER['HTTP_X_MYPLUGIN_SIGNATURE'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Secret: compared with hash_equals() only, never stored or printed.
-$secret    = (string) get_option( 'myplugin_webhook_secret', '' );
-$expected  = hash_hmac( 'sha256', file_get_contents( 'php://input' ), $secret );
-if ( '' === $secret || ! is_string( $signature ) || ! hash_equals( $expected, $signature ) ) {
+// Safe: unslash only, check types and format, fail closed, compare in constant time, log nothing.
+// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Secret: compared with hash_equals() only, never stored or printed.
+$signature = isset( $_SERVER['HTTP_X_MYPLUGIN_SIGNATURE'] ) ? wp_unslash( $_SERVER['HTTP_X_MYPLUGIN_SIGNATURE'] ) : '';
+$secret    = get_option( 'myplugin_webhook_secret', '' );
+if (
+	! is_string( $secret )
+	|| '' === $secret
+	|| ! is_string( $signature )
+	|| 64 !== strlen( $signature )
+	|| ! ctype_xdigit( $signature )
+) {
+	wp_send_json_error( null, 401 );
+}
+$payload = file_get_contents( 'php://input' );
+if ( false === $payload ) {
+	wp_send_json_error( null, 401 );
+}
+$expected = hash_hmac( 'sha256', $payload, $secret );
+if ( ! hash_equals( $expected, $signature ) ) {
 	wp_send_json_error( null, 401 );
 }
 ```
