@@ -95,10 +95,12 @@ function myplugin_preview_post( $post_id ) {
 Arbitrary option update
 
 Security bulletins:
-- CWE-915, Improperly Controlled Modification of Dynamically-Determined Object Attributes
-- OWASP A08:2021, Software and Data Integrity Failures (CWE-915's mapped category)
+- [CWE-15](https://cwe.mitre.org/data/definitions/15.html), External Control of System or Configuration Setting
+- [OWASP A05:2021](https://github.com/OWASP/Top10/blob/3a31f35346c3f4e90f350395124382fa53af2afe/2021/docs/en/A05_2021-Security_Misconfiguration.md), Security Misconfiguration (lists CWE-15)
 - CWE-862, Missing Authorization
 - OWASP A01:2021, Broken Access Control
+
+This example lets one request value select a system configuration option, so CWE-15 fits; it is not the multi-field mass-assignment case described by [CWE-915](https://cwe.mitre.org/data/definitions/915.html) in directive 02. The missing authorization classification is separate.
 
 - **Attacker-chosen option name → privilege escalation → site takeover.** The attacker finds a handler that passes a request value to `update_option()`, then sends two requests: 1. `option=users_can_register&value=1` opens public registration. 2. `option=default_role&value=administrator` makes every new account an administrator. They register an account and log in as an administrator, then install a plugin or edit plugin files to run code. Sanitization doesn't help, because `sanitize_key()` accepts `default_role` as a well-formed name. If the handler is also missing a capability check, a logged-out visitor can run the whole chain. Fix: authorize the request *and* map the request value to a fixed list of option names.
 - **Attacker-chosen option name → persistent redirect or injected content.** Even without escalation, the attacker can overwrite `siteurl` or `home` to take the site offline, or overwrite an option the theme prints, which gives them stored XSS. Fix: the same fixed map, plus escaping at output.
