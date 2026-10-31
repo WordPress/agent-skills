@@ -7,6 +7,8 @@ None.
 **Required**
 
 - Sanitize a nonce before passing it to `wp_verify_nonce()`: `sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) )`. `check_admin_referer()` and `check_ajax_referer()` read the request themselves.
+- Stop the request before protected work when `wp_verify_nonce()` returns `false`; a valid nonce does not replace a capability check.
+- `check_admin_referer( $action )` defaults to `_wpnonce` and stops on failure. `check_ajax_referer( $action )` defaults to `_ajax_nonce`, then `_wpnonce`, and stops by default (`$stop = true`); when `$stop` is `false`, check its return value and stop explicitly.
 
 **Exceptions:** None.
 
@@ -33,7 +35,7 @@ if ( ! wp_verify_nonce( $nonce, 'myplugin_save' ) ) {
 update_option( 'myplugin_color', sanitize_text_field( wp_unslash( $_POST['color'] ?? '' ) ) );
 
 // Also safe, and simpler: these functions read and verify the request nonce
-// themselves, and stop the request on failure, so there is nothing to sanitize.
+// themselves, and stop on failure with their default settings.
 check_admin_referer( 'myplugin_save' );      // Admin forms and admin-post.php.
 check_ajax_referer( 'myplugin_save' );       // admin-ajax.php handlers.
 ```
