@@ -38,13 +38,18 @@ $title = $wpdb->get_var(
 
 ## Attack methodology
 
-SQL injection; insecure direct object reference (IDOR)
+### SQL injection
 
 Security bulletins:
 - CWE-89, Improper Neutralization of Special Elements used in an SQL Command (SQL Injection)
-- CWE-639, Authorization Bypass Through User-Controlled Key
 - OWASP A03:2021, Injection
-- OWASP A01:2021, Broken Access Control
 
 - **Uncast ID → SQL injection → credential disclosure.** The ID is sanitized as text and interpolated into the query, so `1 UNION SELECT user_pass FROM wp_users` returns a password hash where the title should be. The injection comes from the interpolation; a `%d` placeholder alone would have stopped it. Fix: `absint()`, reject `0`, and `%d` in `$wpdb->prepare()`.
+
+### Insecure direct object reference (IDOR)
+
+Security bulletins:
+- CWE-639, Authorization Bypass Through User-Controlled Key
+- OWASP A01:2021, Broken Access Control
+
 - **Cast ID, no capability check → insecure direct object reference.** The ID is a clean integer, but the attacker changes it to the ID of a private or draft post, or another user's row, and the handler returns it. Casting does not stop this. Fix: check the object-level capability (`read_post` for posts, a plugin capability or owner comparison for custom tables).
