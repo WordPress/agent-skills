@@ -3,6 +3,7 @@
 **Prohibited**
 
 - Never treat sanitization as authorization.
+- A callback allowlist controls which code can be selected; it does not authorize the request. Check `current_user_can()` for the action and target before dispatching it.
 
 **Required**
 
@@ -17,7 +18,7 @@
 
 ## Code
 
-Shows: a sanitized request value must not choose an option name or a callback; a fixed map decides.
+Shows: a sanitized request value must not choose an option name or callback; a fixed map decides, and authorization is checked separately.
 
 ```php
 /*
@@ -38,6 +39,9 @@ $key = sanitize_key( wp_unslash( $_POST['setting'] ?? '' ) );
 if ( ! isset( $options[ $key ] ) ) {
 	wp_send_json_error( null, 400 );
 }
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_send_json_error( null, 403 );
+}
 update_option( $options[ $key ], sanitize_text_field( wp_unslash( $_POST['value'] ?? '' ) ) );
 ```
 
@@ -55,15 +59,32 @@ call_user_func( $task, $post_id );
  * pattern applies to class names before new $class and to hook names.
  */
 $tasks   = array(
-	'export'  => 'myplugin_export_post',
-	'preview' => 'myplugin_preview_post',
+	'export'  => array(
+		'callback'   => 'myplugin_export_post',
+		'capability' => 'edit_post',
+	),
+	'preview' => array(
+		'callback'   => 'myplugin_preview_post',
+		'capability' => 'read_post',
+	),
 );
 $task    = sanitize_key( wp_unslash( $_POST['task'] ?? '' ) );
 $post_id = absint( wp_unslash( $_POST['post_id'] ?? 0 ) );
 if ( ! isset( $tasks[ $task ] ) ) {
 	wp_send_json_error( null, 400 );
 }
-call_user_func( $tasks[ $task ], $post_id );
+if ( ! current_user_can( $tasks[ $task ]['capability'], $post_id ) ) {
+	wp_send_json_error( null, 403 );
+}
+call_user_func( $tasks[ $task ]['callback'], $post_id );
+
+function myplugin_export_post( $post_id ) {
+	return get_post( $post_id );
+}
+
+function myplugin_preview_post( $post_id ) {
+	return get_post( $post_id );
+}
 ```
 
 ## Attack methodology
