@@ -16,6 +16,13 @@ function check_admin_referer( $action ) {
 	}
 }
 
+function check_ajax_referer( $action ) {
+	$GLOBALS['events'][] = 'check_ajax_referer';
+	if ( ! $GLOBALS['nonce_valid'] ) {
+		throw new RequestStopped( '', 403 );
+	}
+}
+
 function current_user_can( ...$args ) {
 	$GLOBALS['events'][] = array( 'capability', $args );
 	return $GLOBALS['capability_allowed'];
@@ -133,38 +140,39 @@ function documented_snippet( $markdown, $marker ) {
 }
 
 function cases() {
-	return array(
-		'nonce-invalid'             => array( '01-nonce-input.md', '// Safe: verify the nonce and capability before the protected write.' ),
-		'nonce-denied'              => array( '01-nonce-input.md', '// Safe: verify the nonce and capability before the protected write.' ),
-		'nonce-valid'               => array( '01-nonce-input.md', '// Safe: verify the nonce and capability before the protected write.' ),
-		'callback-denied'           => array( '06-allowlist-sensitive-positions.md', ' * Safe: the request can only pick a callback the plugin owns.' ),
-		'callback-valid'            => array( '06-allowlist-sensitive-positions.md', ' * Safe: the request can only pick a callback the plugin owns.' ),
-		'callback-unmapped'         => array( '06-allowlist-sensitive-positions.md', ' * Safe: the request can only pick a callback the plugin owns.' ),
-		'color-array'               => array( '02-explicit-keys.md', '// Safe: browser/admin POST handler.' ),
-		'color-invalid'             => array( '02-explicit-keys.md', '// Safe: browser/admin POST handler.' ),
-		'color-valid'               => array( '02-explicit-keys.md', '// Safe: browser/admin POST handler.' ),
-		'url-array'                 => array( '03-validate-sanitize-type.md', '// Safe: browser/admin POST handler.' ),
-		'url-empty-result'          => array( '03-validate-sanitize-type.md', '// Safe: browser/admin POST handler.' ),
-		'url-valid'                 => array( '03-validate-sanitize-type.md', '// Safe: browser/admin POST handler.' ),
-		'webhook-empty-secret'      => array( '05-secrets.md', '// Safe: unslash only, check types and format, fail closed, compare in constant time, log nothing.' ),
-		'webhook-non-string-secret' => array( '05-secrets.md', '// Safe: unslash only, check types and format, fail closed, compare in constant time, log nothing.' ),
-		'webhook-malformed-signature' => array( '05-secrets.md', '// Safe: unslash only, check types and format, fail closed, compare in constant time, log nothing.' ),
-		'webhook-altered-signature' => array( '05-secrets.md', '// Safe: unslash only, check types and format, fail closed, compare in constant time, log nothing.' ),
-		'webhook-unreadable-body'    => array( '05-secrets.md', '// Safe: unslash only, check types and format, fail closed, compare in constant time, log nothing.' ),
-		'webhook-valid'              => array( '05-secrets.md', '// Safe: unslash only, check types and format, fail closed, compare in constant time, log nothing.' ),
-	);
+	$cases = array();
+
+	foreach ( array( 'nonce-invalid', 'nonce-denied', 'nonce-valid' ) as $case ) {
+		$cases[ $case ] = array( '01-nonce-input.md', '// Safe: verify the nonce and capability before the protected write.', 'nonce-valid.php', false );
+	}
+	foreach ( array( 'admin-helper-invalid', 'admin-helper-denied', 'admin-helper-valid' ) as $case ) {
+		$cases[ $case ] = array( '01-nonce-input.md', "check_admin_referer( 'myplugin_save' );", 'admin-helper.php', false );
+	}
+	foreach ( array( 'ajax-helper-invalid', 'ajax-helper-denied', 'ajax-helper-valid' ) as $case ) {
+		$cases[ $case ] = array( '01-nonce-input.md', "check_ajax_referer( 'myplugin_save' );", 'ajax-helper.php', false );
+	}
+	foreach ( array( 'settings-nonce-invalid', 'settings-capability-denied', 'settings-valid', 'color-array', 'color-invalid', 'color-empty', 'color-valid' ) as $case ) {
+		$cases[ $case ] = array( '02-explicit-keys.md', '// Safe: browser/admin POST handler.', 'settings.php', false );
+	}
+	foreach ( array( 'url-nonce-invalid', 'url-capability-denied', 'url-array', 'url-empty-result', 'url-valid' ) as $case ) {
+		$cases[ $case ] = array( '03-validate-sanitize-type.md', '// Safe: browser/admin POST handler.', 'url-valid.php', false );
+	}
+	foreach ( array( 'option-nonce-invalid', 'option-capability-denied', 'option-valid' ) as $case ) {
+		$cases[ $case ] = array( '06-allowlist-sensitive-positions.md', '// Safe: the request can only pick from a fixed map.', 'option.php', false );
+	}
+	foreach ( array( 'callback-nonce-invalid', 'callback-denied', 'callback-valid', 'callback-unmapped' ) as $case ) {
+		$cases[ $case ] = array( '06-allowlist-sensitive-positions.md', ' * Safe: the request can only pick a callback the plugin owns.', 'callback-valid.php', false );
+	}
+	foreach ( array( 'webhook-empty-secret', 'webhook-non-string-secret', 'webhook-malformed-signature', 'webhook-signature-array', 'webhook-altered-signature', 'webhook-unreadable-body', 'webhook-valid' ) as $case ) {
+		$cases[ $case ] = array( '05-secrets.md', '// Safe: unslash only, check types and format, fail closed, compare in constant time, log nothing.', 'webhook-valid.php', true );
+	}
+
+	return $cases;
 }
 
 function run_case( $case ) {
 	$cases = cases();
 	check( isset( $cases[ $case ] ), 'Unknown test case: ' . $case );
-	$fixture_group = 0 === strpos( $case, 'url-' ) ? 'url' : substr( $case, 0, strpos( $case, '-' ) );
-	if ( 'webhook' === $fixture_group ) {
-		$fixture_group = 'webhook';
-	} elseif ( 'nonce' === $fixture_group ) {
-		$fixture_group = 'nonce';
-	}
-
 	$GLOBALS['events']                 = array();
 	$GLOBALS['writes']                 = array();
 	$GLOBALS['dispatches']             = array();
@@ -183,42 +191,56 @@ function run_case( $case ) {
 	$status                             = 0;
 
 	$input_root   = dirname( __DIR__ ) . '/skills/wp-plugin-development/references/security/input/';
-	$fixture_name = $fixture_group . '-valid';
-	$test_fixture = __DIR__ . '/fixtures/' . $fixture_name . '.php';
 	$fixture_info = $cases[ $case ];
+	$test_fixture = __DIR__ . '/fixtures/' . $fixture_info[2];
 	$document     = \file_get_contents( $input_root . $fixture_info[0] );
 	$fixture      = \file_get_contents( $test_fixture );
 	check( false !== $document && false !== $fixture, 'Could not read documentation or test fixture.' );
 
-	$expected_prefix = 'webhook' === $fixture_group
+	$expected_prefix = $fixture_info[3]
 		? "<?php\nnamespace InputSecuritySnippetTest;\n"
 		: "<?php\n";
-	check( str_starts_with( $fixture, $expected_prefix ), 'Fixture namespace prefix changed.' );
+	check( 0 === strpos( $fixture, $expected_prefix ), 'Fixture namespace prefix changed.' );
 	$fixture_code = substr( $fixture, strlen( $expected_prefix ) );
 	$snippet      = documented_snippet( $document, $fixture_info[1] );
 	check( trim( $fixture_code ) === trim( $snippet ), 'Fixture no longer matches the documented safe snippet.' );
 
 	switch ( $case ) {
 		case 'nonce-invalid':
+		case 'admin-helper-invalid':
+		case 'ajax-helper-invalid':
+		case 'settings-nonce-invalid':
+		case 'url-nonce-invalid':
+		case 'option-nonce-invalid':
+		case 'callback-nonce-invalid':
 			$GLOBALS['nonce_valid'] = false;
 			$_POST                  = array( 'color' => '#abc' );
 			break;
 		case 'nonce-denied':
-			$GLOBALS['capability_allowed'] = false;
-			$_POST                         = array( 'color' => '#abc' );
-			break;
-		case 'nonce-valid':
-			$_POST = array( 'color' => '#abc' );
-			break;
+		case 'admin-helper-denied':
+		case 'ajax-helper-denied':
+		case 'settings-capability-denied':
+		case 'url-capability-denied':
+		case 'option-capability-denied':
 		case 'callback-denied':
 			$GLOBALS['capability_allowed'] = false;
-			$_POST                         = array( 'task' => 'export', 'post_id' => '25' );
+			$_POST                         = array(
+				'color'   => '#abc',
+				'link'    => 'https://example.test/path',
+				'setting' => 'color',
+				'value'   => '#abc',
+				'task'    => 'export',
+				'post_id' => '25',
+			);
 			break;
-		case 'callback-valid':
-			$_POST = array( 'task' => 'export', 'post_id' => '25' );
+		case 'nonce-valid':
+		case 'admin-helper-valid':
+		case 'ajax-helper-valid':
+			$_POST = array( 'color' => '#abc' );
 			break;
-		case 'callback-unmapped':
-			$_POST = array( 'task' => 'wp_delete_post', 'post_id' => '25' );
+		case 'settings-valid':
+		case 'color-valid':
+			$_POST = array( 'color' => '#aabbcc', 'columns' => '2', 'title' => 'Title' );
 			break;
 		case 'color-array':
 			$_POST = array( 'color' => array( '#abc' ), 'columns' => '2', 'title' => 'Title' );
@@ -226,8 +248,8 @@ function run_case( $case ) {
 		case 'color-invalid':
 			$_POST = array( 'color' => 'not-a-color', 'columns' => '2', 'title' => 'Title' );
 			break;
-		case 'color-valid':
-			$_POST = array( 'color' => '#aabbcc', 'columns' => '2', 'title' => 'Title' );
+		case 'color-empty':
+			$_POST = array( 'color' => '', 'columns' => '2', 'title' => 'Title' );
 			break;
 		case 'url-array':
 			$_POST = array( 'link' => array( 'https://example.test/' ) );
@@ -238,8 +260,18 @@ function run_case( $case ) {
 			$GLOBALS['url_sanitizer_result'] = '';
 			break;
 		case 'url-valid':
+		case 'url-capability-denied':
 			$_POST = array( 'link' => 'https://example.test/path' );
 			$GLOBALS['url_sanitizer_result'] = 'https://example.test/path';
+			break;
+		case 'option-valid':
+			$_POST = array( 'setting' => 'color', 'value' => '#abc' );
+			break;
+		case 'callback-valid':
+			$_POST = array( 'task' => 'export', 'post_id' => '25' );
+			break;
+		case 'callback-unmapped':
+			$_POST = array( 'task' => 'wp_delete_post', 'post_id' => '25' );
 			break;
 		case 'webhook-empty-secret':
 			$GLOBALS['stored_options']['myplugin_webhook_secret'] = '';
@@ -252,6 +284,10 @@ function run_case( $case ) {
 		case 'webhook-malformed-signature':
 			$GLOBALS['stored_options']['myplugin_webhook_secret'] = 'test-secret';
 			$_SERVER['HTTP_X_MYPLUGIN_SIGNATURE']                 = str_repeat( 'z', 64 );
+			break;
+		case 'webhook-signature-array':
+			$GLOBALS['stored_options']['myplugin_webhook_secret'] = 'test-secret';
+			$_SERVER['HTTP_X_MYPLUGIN_SIGNATURE']                 = array( str_repeat( 'a', 64 ) );
 			break;
 		case 'webhook-altered-signature':
 			$GLOBALS['stored_options']['myplugin_webhook_secret'] = 'test-secret';
@@ -269,25 +305,54 @@ function run_case( $case ) {
 			break;
 	}
 
+	ob_start();
 	try {
 		require $test_fixture;
 	} catch ( RequestStopped $exception ) {
 		$stopped = true;
 		$status  = $exception->getCode();
 	}
+	$snippet_output = ob_get_clean();
 
 	switch ( $case ) {
 		case 'nonce-invalid':
+		case 'admin-helper-invalid':
+		case 'ajax-helper-invalid':
 			check( $stopped && 403 === $status && empty( $GLOBALS['writes'] ), 'Invalid nonce did not stop the write.' );
-			check( array( 'verify_nonce' ) === $GLOBALS['events'], 'Capability/write ran after nonce failure.' );
+			check( 1 === count( $GLOBALS['events'] ) && is_string( $GLOBALS['events'][0] ), 'Capability/write ran after nonce failure.' );
 			break;
 		case 'nonce-denied':
+		case 'admin-helper-denied':
+		case 'ajax-helper-denied':
 			check( $stopped && 403 === $status && empty( $GLOBALS['writes'] ), 'Denied capability did not stop the write.' );
-			check( array( 'verify_nonce', array( 'capability', array( 'manage_options' ) ) ) === $GLOBALS['events'], 'Write was not gated by nonce and capability.' );
+			check( 2 === count( $GLOBALS['events'] ) && is_array( $GLOBALS['events'][1] ) && 'manage_options' === $GLOBALS['events'][1][1][0], 'Write was not gated by nonce and capability.' );
 			break;
 		case 'nonce-valid':
+		case 'admin-helper-valid':
+		case 'ajax-helper-valid':
 			check( ! $stopped && 1 === count( $GLOBALS['writes'] ), 'Authorized nonce path did not write.' );
-			check( array( 'verify_nonce', array( 'capability', array( 'manage_options' ) ), 'write' ) === $GLOBALS['events'], 'Write occurred before required checks.' );
+			check( 'write' === end( $GLOBALS['events'] ), 'Write occurred before required checks.' );
+			break;
+		case 'settings-nonce-invalid':
+		case 'url-nonce-invalid':
+		case 'option-nonce-invalid':
+		case 'callback-nonce-invalid':
+			check( $stopped && 403 === $status && empty( $GLOBALS['writes'] ) && empty( $GLOBALS['dispatches'] ), 'Invalid nonce did not stop protected work.' );
+			check( array( 'check_admin_referer' ) === $GLOBALS['events'], 'Capability, write, or dispatch ran after nonce failure.' );
+			break;
+		case 'settings-capability-denied':
+		case 'url-capability-denied':
+		case 'option-capability-denied':
+			check( $stopped && 403 === $status && empty( $GLOBALS['writes'] ), 'Denied option-write capability did not stop the write.' );
+			check( 'write' !== end( $GLOBALS['events'] ), 'Option write ran after capability denial.' );
+			break;
+		case 'url-valid':
+		case 'option-valid':
+			check( ! $stopped && 1 === count( $GLOBALS['writes'] ), 'Authorized option-write path did not write.' );
+			check( 'write' === end( $GLOBALS['events'] ), 'Option write occurred before required checks.' );
+			if ( 'url-valid' === $case ) {
+				check( 'https://example.test/path' === $GLOBALS['writes'][0][1], 'Written URL differs from the accepted sanitizer result.' );
+			}
 			break;
 		case 'callback-denied':
 			check( $stopped && 403 === $status && empty( $GLOBALS['dispatches'] ), 'Denied callback capability still dispatched.' );
@@ -307,7 +372,11 @@ function run_case( $case ) {
 		case 'color-invalid':
 			check( $stopped && 400 === $status && empty( $GLOBALS['writes'] ), 'Invalid color sanitizer result was stored.' );
 			break;
+		case 'color-empty':
+			check( $stopped && 400 === $status && empty( $GLOBALS['writes'] ), 'Empty required color was stored.' );
+			break;
 		case 'color-valid':
+		case 'settings-valid':
 			check( ! $stopped && 1 === count( $GLOBALS['writes'] ), 'Valid color did not reach the authorized write.' );
 			check( '#aabbcc' === $GLOBALS['writes'][0][1]['color'], 'Written color differs from the accepted color.' );
 			break;
@@ -318,13 +387,10 @@ function run_case( $case ) {
 		case 'url-empty-result':
 			check( $stopped && 400 === $status && empty( $GLOBALS['writes'] ), 'Empty URL sanitizer result was stored.' );
 			break;
-		case 'url-valid':
-			check( ! $stopped && 1 === count( $GLOBALS['writes'] ), 'Valid URL did not reach the authorized write.' );
-			check( 'https://example.test/path' === $GLOBALS['writes'][0][1], 'Written URL differs from the accepted sanitizer result.' );
-			break;
 		case 'webhook-empty-secret':
 		case 'webhook-non-string-secret':
 		case 'webhook-malformed-signature':
+		case 'webhook-signature-array':
 			check( $stopped && 401 === $status && 0 === $GLOBALS['body_reads'], 'Invalid secret/signature was not rejected before reading the body.' );
 			break;
 		case 'webhook-unreadable-body':
@@ -338,6 +404,7 @@ function run_case( $case ) {
 			break;
 	}
 
+	check( '' === $snippet_output, 'Safe snippet unexpectedly emitted output.' );
 	check( empty( $GLOBALS['logged_messages'] ), 'Safe snippet logged secret material.' );
 	echo 'PASS (stub simulation): ' . $case . "\n";
 }

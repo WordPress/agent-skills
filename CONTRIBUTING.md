@@ -96,6 +96,7 @@ See any existing skill for examples.
 - Add at least one eval scenario for new skills
 - Run `node shared/scripts/validate-skills.mjs` before submitting
 - Exercise relevant scenarios manually and include the results in your pull request; the repository does not yet provide an automated eval runner
+- Run `php -l tests/input-security-safe-snippets.php && php tests/input-security-safe-snippets.php` for the focused input-security regression simulations. These execute the documented safe PHP excerpts against stubs and check fixture/source parity; they are not WordPress integration tests. Use an available PHP runtime and report its version; PHP 7.4+ is supported, but local availability may vary.
 
 ### Keep It Small
 
