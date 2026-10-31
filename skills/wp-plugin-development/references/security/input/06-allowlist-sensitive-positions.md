@@ -6,7 +6,7 @@
 
 **Required**
 
-- Verify a request nonce before a protected write or callback dispatch. A valid nonce does not replace the allowlist or capability check.
+- For applicable browser-originated state-changing requests authenticated by cookies, verify the request nonce before a protected write or callback dispatch. A WordPress nonce is a CSRF control, not authentication, and does not replace the allowlist or capability check. Internal hooks, WP-CLI/cron, HMAC-authenticated webhooks, and REST requests using non-cookie authentication need transport-appropriate authentication and authorization rather than a universal nonce requirement.
 - A callback allowlist controls which code can be selected; it does not authorize the request. Check `current_user_can()` for the action and target before dispatching it.
 - Understand that `sanitize_key()` or `sanitize_text_field()` makes a value well-formed; it does not make it safe to *choose* which option, table, file, callback, or capability the code acts on. For those, use an allowlist.
 - Treat input as unsafe in sensitive positions even after sanitization. A fixed allowlist, strict comparison (`in_array( $v, $allowed, true )`), or hardcoded map must decide:
