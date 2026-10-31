@@ -57,7 +57,7 @@ Evaluate the plugin against the defined rules and requirements.
 - [ ] Browser/admin option-write scenarios explicitly require nonce and appropriate capability checks before writes; invalid checks stop without writing.
 - [ ] Type-focused scenarios describe the handler behavior to evaluate, including input types and sanitizer-result handling, rather than requiring edits to named source excerpts.
 - [ ] Record scenario execution separately from JSON shape validation; list model, configuration, runtime/style checks, actual outcomes, and gaps.
-- [ ] Do not treat casting alone as input validation or authorization for numeric IDs. Define the accepted format and range at the application boundary, and test relevant boundary cases, including malformed types, zero, negative values, valid values, and integer-range overflow.
+- [ ] Do not treat casting alone as input validation or authorization for numeric IDs. Define the accepted format and range at the application boundary, and test relevant boundary cases, including malformed and array-valued inputs, zero, negative values, valid values, and integer-range overflow.
 
 ### Baseline
 

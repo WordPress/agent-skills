@@ -8,7 +8,7 @@ Work through the sections that apply to the change:
 - [ ] Input is read by explicit key, unslashed, validated, and sanitized for its type.
 - [ ] Browser/admin option writes verify the request nonce and appropriate capability before `update_option()`; failed checks stop without writing.
 - [ ] Type-specific input checks reject wrong types and invalid sanitizer results before storing values.
-- [ ] Do not treat casting alone as validation or authorization for numeric IDs; define the accepted format/range at the application boundary and test relevant type and range boundaries.
+- [ ] Do not treat casting alone as validation or authorization for numeric IDs; document the application's accepted input policy and test malformed, array-valued, zero, negative, valid, and range-boundary inputs as applicable.
 - [ ] Request values that select names, paths, callbacks, capabilities, or targets go through a fixed allowlist or map.
 - [ ] Output is escaped late, including shortcode, dynamic block, and filter callback output.
 - [???] SQL uses `$wpdb->prepare()` for values and allowlisted identifiers.
