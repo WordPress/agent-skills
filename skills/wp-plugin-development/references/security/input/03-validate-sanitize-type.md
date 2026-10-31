@@ -14,15 +14,15 @@ None.
 | Numeric ID or count | `absint()` | Reject `0`; check range. IDs: see `04-cast-ids.md`. |
 | Single-line text | `sanitize_text_field()` | Check length if it matters. |
 | Multi-line text | `sanitize_textarea_field()` | Keeps line breaks. |
-| Email | `sanitize_email()` | `is_email()` returns `false` when invalid. |
+| Email | `sanitize_email()` | Validate the sanitized result with `is_email()`; `sanitize_email()` may return `''` for invalid input. |
 | URL | `esc_url_raw( $url, array( 'http', 'https' ) )` | Returns `''` when the scheme is not allowed; reject `''`. |
 | Key or internal slug | `sanitize_key()` | Lowercase letters, digits, `-` and `_` only. |
 | Post slug | `sanitize_title()` | |
 | File name | `sanitize_file_name()` | Not a path check; see `06-allowlist-sensitive-positions.md`. |
-| Hex color | `sanitize_hex_color()` | Returns `null` when invalid. |
+| Hex color | `sanitize_hex_color()` | Returns `''` for empty input and `null` for invalid input; reject either when a color is required. Available since WordPress 3.4.0. |
 | HTML allowed | `wp_kses_post()`, or `wp_kses()` with an allowed-tags array | |
-| Boolean | `rest_sanitize_boolean()` or `filter_var( $v, FILTER_VALIDATE_BOOLEAN )` | Avoid a bare `(bool)` cast: `(bool) 'false'` is `true`. |
-| Array of strings | `array_map( 'sanitize_text_field', $values )` | Check `is_array()` first; use `map_deep()` for nested arrays. |
+| Boolean | `rest_sanitize_boolean()` or `filter_var( $v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE )` | `rest_sanitize_boolean()` coerces any non-empty unknown string to `true`; it is not validation. For strict validation, check the input type and reject a `null` result. Avoid a bare `(bool)` cast: `(bool) 'false'` is `true`. `rest_sanitize_boolean()` is available since WordPress 4.7.0. |
+| Array of strings | `array_map( 'sanitize_text_field', $values )` | Check `is_array()` and that every element is a string before mapping. For nested arrays, validate the expected shape before using `map_deep()` (available since WordPress 4.4.0). |
 | One of fixed choices | Not a sanitizer job | Allowlist; see `06-allowlist-sensitive-positions.md`. |
 
 **Exceptions:** None.

@@ -1,0 +1,20 @@
+{
+  "name": "Validate WordPress input types and sanitizer results",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-plugin-development"],
+  "query": "This plugin stores a submitted color, boolean flag, and list of text values. The code sanitizes them but does not check input types or sanitizer return values. Fix it so empty/invalid colors, unrecognized booleans, and non-string array elements are rejected.",
+  "expected_behavior": [
+    "Step 1: Identify the explicit request keys and unslash each value",
+    "Step 2: Check the color value is a string before calling sanitize_hex_color()",
+    "Step 3: Reject both the empty-string and null sanitizer results when a color is required",
+    "Step 4: Distinguish REST boolean coercion from strict validation; use FILTER_NULL_ON_FAILURE and reject null for strict input",
+    "Step 5: Check the submitted list is an array and every element is a string before array_map()",
+    "Step 6: Validate expected nested-array shape before using map_deep()"
+  ],
+  "success_criteria": [
+    "No array/object reaches a string-only sanitizer",
+    "Empty and malformed colors are rejected instead of stored",
+    "Invalid boolean text is not silently treated as true",
+    "Non-string array entries are rejected before sanitization",
+    "Sanitizer return values are checked according to each function's contract"
+  ]
+}

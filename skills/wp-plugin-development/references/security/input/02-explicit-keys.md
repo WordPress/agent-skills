@@ -22,8 +22,16 @@ Shows: read only the keys the handler expects, unslash each one, and sanitize it
 update_option( 'myplugin_settings', $_POST );
 
 // Safe: read the keys the form owns, unslash each one, sanitize it for its type.
+$color = wp_unslash( $_POST['color'] ?? '' );
+if ( ! is_string( $color ) ) {
+	wp_send_json_error( null, 400 );
+}
+$color = sanitize_hex_color( $color );
+if ( '' === $color || null === $color ) {
+	wp_send_json_error( null, 400 );
+}
 $settings = array(
-	'color'   => sanitize_hex_color( wp_unslash( $_POST['color'] ?? '' ) ),
+	'color'   => $color,
 	'columns' => absint( wp_unslash( $_POST['columns'] ?? 0 ) ),
 	'title'   => sanitize_text_field( wp_unslash( $_POST['title'] ?? '' ) ),
 );
