@@ -52,6 +52,13 @@ Run the skillset against models in the real world, using the same parameters.
 
 Evaluate the plugin against the defined rules and requirements.
 
+### Input-Focused Evaluation
+
+- [ ] Browser/admin option-write scenarios explicitly require nonce and appropriate capability checks before writes; invalid checks stop without writing.
+- [ ] Type-focused scenarios describe the handler behavior to evaluate, including input types and sanitizer-result handling, rather than requiring edits to named source excerpts.
+- [ ] Record scenario execution separately from JSON shape validation; list model, configuration, runtime/style checks, actual outcomes, and gaps.
+- [ ] D-ID remains unresolved. Revisit the pre-existing claim below that a cast makes an ID well-formed rather than treating it as validated policy. After D-ID approval, cover malformed, array, zero, negative, valid, and integer-range-overflow inputs without expanding this task to other ID sources.
+
 ### Baseline
 
 The agent skill must pass evaluations on all listed models to be considered compliant.
