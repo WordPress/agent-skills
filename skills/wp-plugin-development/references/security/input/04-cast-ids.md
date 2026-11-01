@@ -16,7 +16,7 @@
 
 ## Code
 
-Shows: convert the ID with `absint()`, reject `0`, check the object-level capability, and pass the ID through `%d`.
+Shows: convert the ID with `absint()`, return 400 when it converts to `0`, return 403 when the object-level capability check fails, and pass the ID through `%d`.
 
 ```php
 /*
@@ -28,9 +28,12 @@ Shows: convert the ID with `absint()`, reject `0`, check the object-level capabi
 $post_id = sanitize_text_field( wp_unslash( $_POST['post_id'] ?? '' ) );
 $title   = $wpdb->get_var( "SELECT post_title FROM {$wpdb->posts} WHERE ID = $post_id" );
 
-// Safe: absint() converts the ID, 0 is rejected, the capability is checked, and %d prepares it.
+// Safe: reject an ID that converts to 0 before checking the user's capability.
 $post_id = absint( wp_unslash( $_POST['post_id'] ?? '' ) );
-if ( ! $post_id || ! current_user_can( 'read_post', $post_id ) ) {
+if ( ! $post_id ) {
+	wp_send_json_error( null, 400 );
+}
+if ( ! current_user_can( 'read_post', $post_id ) ) {
 	wp_send_json_error( null, 403 );
 }
 $title = $wpdb->get_var(
