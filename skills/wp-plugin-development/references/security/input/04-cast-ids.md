@@ -2,19 +2,21 @@
 
 **Prohibited**
 
-- Treating a cast as authorization. `absint()` makes an ID well-formed; it does not mean the current user may act on that object.
+- Treating a cast as authorization. `absint()` converts an ID to a non-negative integer; it does not mean the current user may act on that object.
+- Treating `absint()` as format validation. It converts malformed input instead of rejecting it.
 
 **Required**
 
-- Cast numeric IDs to positive integers with `absint()` before use, and reject `0`. A cast makes the value well-formed; it does not authorize access to that object, so check the matching capability (for example `current_user_can( 'read_post', $post_id )`) before acting on it, and use `%d` in `$wpdb->prepare()` for SQL.
+- Convert numeric IDs with `absint()` before use, and reject `0`. Conversion does not authorize access to that object, so check the matching capability (for example `current_user_can( 'read_post', $post_id )`) before acting on it, and use `%d` in `$wpdb->prepare()` for SQL.
 - `read_post`, `edit_post`, and `delete_post` apply to posts only. For a row in a plugin's custom table, the object-level check is a plugin capability or an owner comparison (for example the row's owner ID against `get_current_user_id()`).
-- `%d` in `$wpdb->prepare()` already casts to an integer, so it blocks injection on its own. `absint()` adds a guaranteed non-negative integer (non-numeric input becomes `0`), and the `0` check rejects missing or invalid IDs before any query runs. Casting is the integer case of `03-validate-sanitize-type.md`.
+- `absint()` is coercion, not validation: it returns `abs( (int) $value )`. It converts `'5abc'` and `'-5'` to `5`, `'1e3'` to `1000`, a non-empty array such as `post_id[]=5` to `1`, and an integer string above `PHP_INT_MAX` to `PHP_INT_MAX`. The `0` check rejects any input that converts to `0` (for example a missing or empty value, `'abc'`, `'0'`, `'0.5'`, or an empty array), not every malformed ID. Run the capability check on the converted ID, because that is the object the code acts on.
+- `%d` in `$wpdb->prepare()` already casts to an integer, so it blocks injection on its own. `absint()` makes the value a non-negative integer, and the `0` check rejects any ID that converts to `0` before any query runs. Casting is the integer case of `03-validate-sanitize-type.md`.
 
 **Exceptions:** None.
 
 ## Code
 
-Shows: cast the ID with `absint()`, reject `0`, check the object-level capability, and pass the ID through `%d`.
+Shows: convert the ID with `absint()`, return 400 when it converts to `0`, return 403 when the object-level capability check fails, and pass the ID through `%d`.
 
 ```php
 /*
@@ -26,9 +28,12 @@ Shows: cast the ID with `absint()`, reject `0`, check the object-level capabilit
 $post_id = sanitize_text_field( wp_unslash( $_POST['post_id'] ?? '' ) );
 $title   = $wpdb->get_var( "SELECT post_title FROM {$wpdb->posts} WHERE ID = $post_id" );
 
-// Safe: positive integer, 0 rejected, object-level capability checked, value prepared.
+// Safe: reject an ID that converts to 0 before checking the user's capability.
 $post_id = absint( wp_unslash( $_POST['post_id'] ?? '' ) );
-if ( ! $post_id || ! current_user_can( 'read_post', $post_id ) ) {
+if ( ! $post_id ) {
+	wp_send_json_error( null, 400 );
+}
+if ( ! current_user_can( 'read_post', $post_id ) ) {
 	wp_send_json_error( null, 403 );
 }
 $title = $wpdb->get_var(
