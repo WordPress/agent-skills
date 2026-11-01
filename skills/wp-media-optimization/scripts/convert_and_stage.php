@@ -528,6 +528,7 @@ WP_CLI::log( 'Backup archive: ' . $backup_path . ' (' . count( $replaced_origina
 /* ------------------------------------------------------------------ */
 
 global $wpdb;
+$all_affected_posts = array();
 
 foreach ( $staged as $id => $plan ) {
 	$meta   = $plan['meta'];
@@ -584,7 +585,8 @@ foreach ( $staged as $id => $plan ) {
 		$new_content = strtr( $p->post_content, $url_map );
 		if ( $new_content !== $p->post_content ) {
 			$wpdb->update( $wpdb->posts, array( 'post_content' => $new_content ), array( 'ID' => $p->ID ) );
-			$affected_posts[] = (int) $p->ID;
+			$affected_posts[]     = (int) $p->ID;
+			$all_affected_posts[] = (int) $p->ID;
 		}
 	}
 
@@ -641,6 +643,32 @@ if ( function_exists( 'rocket_clean_domain' ) ) {
 // LiteSpeed Cache purge
 if ( defined( 'LSCWP_V' ) && do_action( 'litespeed_purge_all' ) ) {
 	WP_CLI::log( '  [CACHE] LiteSpeed Cache limpo com sucesso.' );
+}
+
+// ------------------------------------------------------------------
+// Silent Reindex Notification (Sitemap & Search Engine Ping)
+// ------------------------------------------------------------------
+// Subtly signals search crawlers to re-evaluate optimized page LCP
+// without mutating post dates or triggering RSS/reader notifications.
+if ( ! empty( $all_affected_posts ) && function_exists( 'wp_remote_get' ) ) {
+	$sitemap_url = home_url( '/wp-sitemap.xml' );
+
+	// Detect custom sitemap endpoints (Yoast / Rank Math / All in One)
+	if ( defined( 'RANK_MATH_VERSION' ) || defined( 'WPSEO_VERSION' ) || defined( 'AIOSEO_VERSION' ) ) {
+		$sitemap_url = home_url( '/sitemap_index.xml' );
+	}
+
+	$ping_urls = array(
+		'Google' => 'https://www.google.com/ping?sitemap=' . rawurlencode( $sitemap_url ),
+		'Bing'   => 'https://www.bing.com/ping?sitemap=' . rawurlencode( $sitemap_url ),
+	);
+
+	foreach ( $ping_urls as $engine => $ping_endpoint ) {
+		$res = wp_remote_get( $ping_endpoint, array( 'timeout' => 5 ) );
+		if ( ! is_wp_error( $res ) ) {
+			WP_CLI::log( "  [SEO] Notificação silenciosa enviada ao {$engine} para reindexação de LCP." );
+		}
+	}
 }
 
 WP_CLI::success( sprintf(

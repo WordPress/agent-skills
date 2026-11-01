@@ -113,6 +113,9 @@ Para cada arquivo qualificado até o ponto de corte:
    - **Opção B (Retenção Programada de 48h - Recomendada):** Manter os originais em quarentena (`/uploads/_legacy_quarantine/`) e agendar via WP-Cron ou crontab do sistema a deleção dos originais após 48 horas de teste em produção.
    - **Opção C (Rollback Imediato):** Caso seja detectado qualquer problema visual ou de compatibilidade, rodar o script com `--action=rollback`, que restaura as referências de banco do `rollback.json` e recoloca os arquivos originais.
    - **Opção D (Deleção Imediata):** Expurgo imediato dos originais se o usuário confirmar que possui backup full externo.
+4. **Sinalização Silenciosa de SEO (Sitemap & Search Engine Ping):**
+   - Ao concluir as alterações com sucesso, notifica discretamente os endpoints de Sitemap do Google e Bing via requisição HTTP assíncrona.
+   - **Zero Mutação de Datas:** Preserva integralmente `post_date` e `post_modified`, chamando os rastreadores para auditar o novo LCP sem disparar notificações em agregadores RSS ou poluir o feed de leitores.
 
 ---
 
