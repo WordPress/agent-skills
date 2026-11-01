@@ -9,7 +9,7 @@
 **Required**
 
 - Validate and sanitize input before storing it, displaying it, or passing it to a function whose behavior you don't control (hooks, third-party APIs).
-- Choose the sanitizer for the data type, then validate the result. Sanitizing makes a value well-formed. Validation decides whether it is acceptable (right format, range, or length), and rejects it if not.
+- Choose the sanitizer for the data type, then validate the result. Sanitizing makes a value well-formed. Validation decides whether it is acceptable; reject the request if it is not.
 
 | Data type | Sanitize | Validate / note |
 | --- | --- | --- |
