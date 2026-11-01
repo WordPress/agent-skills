@@ -2,7 +2,9 @@
 
 **Prohibited**
 
-- None specific to this directive.
+- Never store, display, or pass along a request value that has not been sanitized for its data type.
+- Don't reuse one generic sanitizer (such as `sanitize_text_field()`) for every field; a value sanitized as the wrong type is not safe.
+- Sanitizing is not validating: don't treat a sanitized value as acceptable without checking its format, range, or length.
 
 **Required**
 
