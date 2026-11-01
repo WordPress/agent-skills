@@ -110,5 +110,8 @@ Unsafe reflection
 Security bulletins:
 - CWE-470, Use of Externally-Controlled Input to Select Classes or Code ('Unsafe Reflection')
 - OWASP A03:2021, Injection
+- CWE-862, Missing Authorization
+- OWASP A01:2021, Broken Access Control
 
 - **Request-chosen callback → arbitrary function call.** The attacker sends `task=wp_delete_post` with any post ID, and the handler calls a core function the plugin never meant to expose. Fix: a hardcoded map from request values to callbacks the plugin owns, plus a capability check.
+- **Valid allowlist key, no capability check → unauthorized use of a plugin callback.** The map blocks `wp_delete_post`, but a logged-in low-privilege user (for example a subscriber) can still send a key the map does accept, such as `task=export`, and run a callback they should not be allowed to run. The allowlist controls which code can be selected; it does not authorize the request. Fix: give each map entry its own required capability and call `current_user_can()` with the target before dispatching.
