@@ -14,8 +14,8 @@
 | Data type | Sanitize | Validate / note |
 | --- | --- | --- |
 | Numeric ID or count | `absint()` | Reject `0`; check range. IDs: see `04-cast-ids.md`. |
-| Single-line text | `sanitize_text_field()` | Check length if it matters. |
-| Multi-line text | `sanitize_textarea_field()` | Keeps line breaks. |
+| Single-line text | `sanitize_text_field()` | Returns `''` when nothing is left after stripping tags and whitespace; reject `''` for a required field, and check length. |
+| Multi-line text | `sanitize_textarea_field()` | Keeps line breaks; returns `''` when nothing is left; reject `''` for a required field. |
 | Email | `sanitize_email()` | `is_email()` returns `false` when invalid; reject on `false`. |
 | URL | `esc_url_raw( $url, array( 'http', 'https' ) )` | Returns `''` when the scheme is not allowed; reject `''`. |
 | Key or internal slug | `sanitize_key()` | Lowercase letters, digits, `-` and `_` only. |
