@@ -2,7 +2,9 @@
 
 **Prohibited**
 
-None.
+- Never store, display, or pass along a request value that has not been sanitized for its data type.
+- Don't reuse one generic sanitizer (such as `sanitize_text_field()`) for every field; a value sanitized as the wrong type is not safe.
+- Sanitizing is not validating: don't treat a sanitized value as acceptable without checking its format, range, or length.
 
 **Required**
 
@@ -12,17 +14,17 @@ None.
 | Data type | Sanitize | Validate / note |
 | --- | --- | --- |
 | Numeric ID or count | `absint()` | Reject `0`; check range. IDs: see `04-cast-ids.md`. |
-| Single-line text | `sanitize_text_field()` | Check length if it matters. |
-| Multi-line text | `sanitize_textarea_field()` | Keeps line breaks. |
-| Email | `sanitize_email()` | Validate the sanitized result with `is_email()`; `sanitize_email()` may return `''` for invalid input. |
+| Single-line text | `sanitize_text_field()` | Returns `''` when nothing is left after stripping tags and whitespace; reject `''` for a required field, and check length. |
+| Multi-line text | `sanitize_textarea_field()` | Keeps line breaks; returns `''` when nothing is left; reject `''` for a required field. |
+| Email | `sanitize_email()` | Validate the sanitized result with `is_email()`; `sanitize_email()` may return `''` for invalid; reject on `false` input. |
 | URL | `esc_url_raw( $url, array( 'http', 'https' ) )` | Sanitizes a URL for storage; reject `''`. A nonempty result is not proof of an absolute URL or permitted host, and is not an SSRF defense. Redirect and network-request uses need context-appropriate validation based on the application's requirements. |
 | Key or internal slug | `sanitize_key()` | Lowercase letters, digits, `-` and `_` only. |
-| Post slug | `sanitize_title()` | |
+| Post slug | `sanitize_title()` | Returns `''` when nothing remains after sanitizing; reject `''` or pass a `$fallback_title`. |
 | File name | `sanitize_file_name()` | Not a path check; see `06-allowlist-sensitive-positions.md`. |
-| Hex color | `sanitize_hex_color()` | Returns `''` for empty input and `null` for invalid input; reject either when a color is required. Available since WordPress 3.4.0. |
-| HTML allowed | `wp_kses_post()`, or `wp_kses()` with an allowed-tags array | |
-| Boolean | `rest_sanitize_boolean()` or `filter_var( $v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE )` | `rest_sanitize_boolean()` coerces any non-empty unknown string to `true`; it is not validation. For strict validation, check the input type and reject a `null` result. Avoid a bare `(bool)` cast: `(bool) 'false'` is `true`. `rest_sanitize_boolean()` is available since WordPress 4.7.0. |
-| Array of strings | `array_map( 'sanitize_text_field', $values )` | Check `is_array()` and that every element is a string before mapping. For nested arrays, validate the expected shape before using `map_deep()` (available since WordPress 4.4.0). |
+| Hex color | `sanitize_hex_color()` | Returns `null` when invalid; reject `null`. |
+| HTML allowed | `wp_kses_post()`, or `wp_kses()` with an allowed-tags array | `wp_kses_post()` allows broad post-content tags; use `wp_kses()` with a minimal allowlist for narrow fields. |
+| Boolean | `rest_sanitize_boolean()` or `filter_var( $v, FILTER_VALIDATE_BOOLEAN )` | Coerces, never rejects: `rest_sanitize_boolean()` maps anything but `'false'`/`'0'` to `true`. To fail closed on an unrecognized value, validate with `filter_var( $v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE )` and reject `null`. Avoid a bare `(bool)` cast: `(bool) 'false'` is `true`. |
+| Array of strings | `array_map( 'sanitize_text_field', $values )` | Check `is_array()` first; use `map_deep()` for nested arrays. |
 | One of fixed choices | Not a sanitizer job | Allowlist; see `06-allowlist-sensitive-positions.md`. |
 
 **Exceptions:** None.
