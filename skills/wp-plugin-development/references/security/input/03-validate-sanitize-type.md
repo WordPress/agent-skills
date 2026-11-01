@@ -17,7 +17,7 @@
 | Email | `sanitize_email()` | `is_email()` returns `false` when invalid. |
 | URL | `esc_url_raw( $url, array( 'http', 'https' ) )` | Returns `''` when the scheme is not allowed; reject `''`. |
 | Key or internal slug | `sanitize_key()` | Lowercase letters, digits, `-` and `_` only. |
-| Post slug | `sanitize_title()` | |
+| Post slug | `sanitize_title()` | Returns `''` when nothing remains after sanitizing; reject `''` or pass a `$fallback_title`. |
 | File name | `sanitize_file_name()` | Not a path check; see `06-allowlist-sensitive-positions.md`. |
 | Hex color | `sanitize_hex_color()` | Returns `null` when invalid. |
 | HTML allowed | `wp_kses_post()`, or `wp_kses()` with an allowed-tags array | |
