@@ -20,7 +20,7 @@
 | Post slug | `sanitize_title()` | Returns `''` when nothing remains after sanitizing; reject `''` or pass a `$fallback_title`. |
 | File name | `sanitize_file_name()` | Not a path check; see `06-allowlist-sensitive-positions.md`. |
 | Hex color | `sanitize_hex_color()` | Returns `null` when invalid. |
-| HTML allowed | `wp_kses_post()`, or `wp_kses()` with an allowed-tags array | |
+| HTML allowed | `wp_kses_post()`, or `wp_kses()` with an allowed-tags array | `wp_kses_post()` allows broad post-content tags; use `wp_kses()` with a minimal allowlist for narrow fields. |
 | Boolean | `rest_sanitize_boolean()` or `filter_var( $v, FILTER_VALIDATE_BOOLEAN )` | Avoid a bare `(bool)` cast: `(bool) 'false'` is `true`. |
 | Array of strings | `array_map( 'sanitize_text_field', $values )` | Check `is_array()` first; use `map_deep()` for nested arrays. |
 | One of fixed choices | Not a sanitizer job | Allowlist; see `06-allowlist-sensitive-positions.md`. |
