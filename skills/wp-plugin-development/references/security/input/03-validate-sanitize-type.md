@@ -16,12 +16,12 @@
 | Numeric ID or count | `absint()` | Reject `0`; check range. IDs: see `04-cast-ids.md`. |
 | Single-line text | `sanitize_text_field()` | Check length if it matters. |
 | Multi-line text | `sanitize_textarea_field()` | Keeps line breaks. |
-| Email | `sanitize_email()` | `is_email()` returns `false` when invalid. |
+| Email | `sanitize_email()` | `is_email()` returns `false` when invalid; reject on `false`. |
 | URL | `esc_url_raw( $url, array( 'http', 'https' ) )` | Returns `''` when the scheme is not allowed; reject `''`. |
 | Key or internal slug | `sanitize_key()` | Lowercase letters, digits, `-` and `_` only. |
 | Post slug | `sanitize_title()` | Returns `''` when nothing remains after sanitizing; reject `''` or pass a `$fallback_title`. |
 | File name | `sanitize_file_name()` | Not a path check; see `06-allowlist-sensitive-positions.md`. |
-| Hex color | `sanitize_hex_color()` | Returns `null` when invalid. |
+| Hex color | `sanitize_hex_color()` | Returns `null` when invalid; reject `null`. |
 | HTML allowed | `wp_kses_post()`, or `wp_kses()` with an allowed-tags array | `wp_kses_post()` allows broad post-content tags; use `wp_kses()` with a minimal allowlist for narrow fields. |
 | Boolean | `rest_sanitize_boolean()` or `filter_var( $v, FILTER_VALIDATE_BOOLEAN )` | Avoid a bare `(bool)` cast: `(bool) 'false'` is `true`. |
 | Array of strings | `array_map( 'sanitize_text_field', $values )` | Check `is_array()` first; use `map_deep()` for nested arrays. |
