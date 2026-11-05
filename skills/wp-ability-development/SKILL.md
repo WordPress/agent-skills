@@ -66,7 +66,17 @@ Prefer `{object}-{action}` within the namespace so related abilities sort togeth
 - Group a list ability’s filters in one input object such as `where`. Describe how the filters combine so callers know whether all conditions must match, any can match, or another rule applies.
 - Prefer partial updates for ordinary edits. Require the target and accept the fields the caller wants to change. For example, a title edit can send the post ID and new title. The caller can make the edit without sending back a copy of the body that may be stale.
 
-  Apply only the supplied fields and define how to clear a value when clearing is supported. For nested values, say whether supplied fields edit individual members or replace the value as a unit. Require a complete value when replacement is the intended operation. Judge idempotency by the effects of repeating the call, including any side effects.
+  Apply only the supplied fields and define how to clear a value when clearing is supported. For nested values, say whether supplied fields edit individual members or replace the value as a unit. Require a complete value when replacement is the intended operation.
+
+### Describe side effects with annotations
+
+Set `readonly`, `destructive`, and `idempotent` in `meta.annotations` for each ability. Base the values on what happens during execution, including effects from hooks and services it calls.
+
+- `readonly: true` means execution leaves its environment unchanged.
+- `destructive: true` means execution may remove or overwrite existing state. Use `destructive: false` when any writes are purely additive.
+- `idempotent: true` means repeating the call with the same input has no additional effect. For example, a title update that sends a notification every time has an additional effect even when the title already matches.
+
+For help checking these claims against the implementation, see [wp-abilities-verify](../wp-abilities-verify/SKILL.md).
 
 ### Enforce permissions during execution
 
