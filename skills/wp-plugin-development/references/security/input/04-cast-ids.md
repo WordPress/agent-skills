@@ -2,15 +2,15 @@
 
 **Prohibited**
 
-- Treating a cast as authorization. `absint()` converts an ID to a non-negative integer; it does not mean the current user may act on that object.
+- Treating a cast as authorization. `absint()` normally converts an ID to a non-negative integer, but an input that casts to `PHP_INT_MIN` yields a float; it does not mean the current user may act on that object.
 - Treating `absint()` as format validation. It converts malformed input instead of rejecting it.
 
 **Required**
 
 - Convert numeric IDs with `absint()` before use, and reject `0`. Conversion does not authorize access to that object, so check the matching capability (for example `current_user_can( 'read_post', $post_id )`) before acting on it, and use `%d` in `$wpdb->prepare()` for SQL.
 - `read_post`, `edit_post`, and `delete_post` apply to posts only. For a row in a plugin's custom table, the object-level check is a plugin capability or an owner comparison (for example the row's owner ID against `get_current_user_id()`).
-- `absint()` is coercion, not validation: it returns `abs( (int) $value )`. It converts `'5abc'` and `'-5'` to `5`, `'1e3'` to `1000`, a non-empty array such as `post_id[]=5` to `1`, and an integer string above `PHP_INT_MAX` to `PHP_INT_MAX`. The `0` check rejects any input that converts to `0` (for example a missing or empty value, `'abc'`, `'0'`, `'0.5'`, or an empty array), not every malformed ID. Run the capability check on the converted ID, because that is the object the code acts on.
-- `%d` in `$wpdb->prepare()` already casts to an integer, so it blocks injection on its own. `absint()` makes the value a non-negative integer, and the `0` check rejects any ID that converts to `0` before any query runs. Casting is the integer case of `03-validate-sanitize-type.md`.
+- `absint()` is coercion, not validation: it returns `abs( (int) $value )`. It converts `'5abc'` and `'-5'` to `5`, `'1e3'` to `1000`, a non-empty array such as `post_id[]=5` to `1`, and an integer string above `PHP_INT_MAX` to `PHP_INT_MAX`. An input that casts to `PHP_INT_MIN` is an exception: `abs()` returns a float above `PHP_INT_MAX`, not an integer, and the `0` check accepts it. The `0` check rejects any input that converts to `0` (for example a missing or empty value, `'abc'`, `'0'`, `'0.5'`, or an empty array), not every malformed ID. Run the capability check on the converted ID, because that is the object the code acts on.
+- `%d` in `$wpdb->prepare()` already casts to an integer, so it blocks injection on its own. `absint()` normally makes the value a non-negative integer, except when the cast produces `PHP_INT_MIN`, whose absolute value is a float; the `0` check rejects any ID that converts to `0` before a query runs, but does not reject this boundary case. Casting is the integer case of `03-validate-sanitize-type.md`.
 
 **Exceptions:** None.
 
