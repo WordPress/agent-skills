@@ -69,12 +69,16 @@ See:
 
 ### 4) Security baseline (always)
 
-Before shipping:
+Before shipping, work through the checklist in `references/security.md` for every area the change touches. Baseline:
 
-- Validate/sanitize input early; escape output late.
-- Use nonces to prevent CSRF *and* capability checks for authorization.
+- Validate/sanitize input early; escape output late (including shortcode, dynamic block, and filter output).
+- Use nonces to prevent CSRF *and* capability checks for authorization; give every REST route and ability a real `permission_callback` (`__return_true` only for intentionally public routes).
 - Avoid directly trusting `$_POST` / `$_GET`; use `wp_unslash()` and specific keys.
+- Sanitization is not allowlisting: request values that select option/meta/table names, file paths, callbacks, or capabilities must match a fixed allowlist.
 - Use `$wpdb->prepare()` for SQL; avoid building SQL with string concatenation.
+- No arbitrary code execution, executable uploads, or file writes outside a plugin directory in uploads; never `unserialize()` untrusted data.
+- Assess findings as chains: a missing capability check plus unescaped output plus a file write is a site takeover, not three minor issues.
+- Document external services in the readme; don't change other plugins, themes, or updates silently.
 
 See:
 - `references/security.md`
@@ -103,6 +107,7 @@ See:
   - settings not registered, wrong option group, missing capability, nonce failure
 - Security regressions:
   - nonce present but missing capability checks; or sanitized input not escaped on output
+  - sanitized request value used as an option/table name, path, or callback without an allowlist
 
 See:
 - `references/debugging.md`

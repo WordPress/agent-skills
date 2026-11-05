@@ -1,0 +1,26 @@
+{
+  "name": "Replace untrusted unserialize and assess the chain",
+  "skills": [
+    "wordpress-router",
+    "wp-project-triage",
+    "wp-plugin-development"
+  ],
+  "query": "A security report says our wishlist cookie handling allows PHP object injection. Fix it.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-plugin-development skill",
+    "Step 4: Read references/security.md",
+    "Step 5: Identify unserialize()/maybe_unserialize() on cookie data as PHP object injection",
+    "Step 6: Replace serialize/unserialize with wp_json_encode()/json_decode() and validate the decoded structure",
+    "Step 7: Search the plugin for magic methods (__wakeup, __destruct, __toString) with side effects and explain how they could chain with the injection",
+    "Step 8: Remove those side effects, or make the class refuse unserialization",
+    "Step 9: Search for other unserialize()/maybe_unserialize() calls on untrusted data"
+  ],
+  "success_criteria": [
+    "No unserialize()/maybe_unserialize() on cookie or request data remains",
+    "Decoded wishlist data is validated (expected types, allowed keys)",
+    "Magic methods with dangerous side effects are found and fixed, not only the reported line",
+    "The response describes the chained impact, not only the single finding"
+  ]
+}

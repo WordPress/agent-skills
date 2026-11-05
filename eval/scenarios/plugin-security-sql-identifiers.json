@@ -1,0 +1,26 @@
+{
+  "name": "Sortable admin list with prepared SQL and allowlisted identifiers",
+  "skills": [
+    "wordpress-router",
+    "wp-project-triage",
+    "wp-plugin-development"
+  ],
+  "query": "Our admin list of custom-table items needs sorting by any column and a bulk delete action.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-plugin-development skill",
+    "Step 4: Read references/security.md",
+    "Step 5: Restrict orderby to a fixed allowlist of columns and order to ASC/DESC",
+    "Step 6: Pass the table name and allowlisted column through %i in $wpdb->prepare()",
+    "Step 7: Build one %d placeholder per selected id and return early on an empty list",
+    "Step 8: Use $wpdb, not mysqli or PDO",
+    "Step 9: Gate the bulk delete with a nonce and a capability check"
+  ],
+  "success_criteria": [
+    "No request value is interpolated into SQL",
+    "orderby is allowlisted even though the user asked for 'any column'",
+    "IN list uses one placeholder per id; empty selection does not run a query",
+    "Bulk delete is protected by nonce and capability checks"
+  ]
+}

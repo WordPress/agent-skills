@@ -1,0 +1,26 @@
+{
+  "name": "Restricted upload sent to a documented third-party service",
+  "skills": [
+    "wordpress-router",
+    "wp-project-triage",
+    "wp-plugin-development"
+  ],
+  "query": "Let admins import contacts from a CSV on the settings page and sync them to ExampleCRM (https://api.example.com). Also allow SVG uploads for our logo block.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-plugin-development skill",
+    "Step 4: Read references/security.md",
+    "Step 5: Handle the CSV with wp_handle_upload() and a mimes allowlist, not move_uploaded_file()",
+    "Step 6: Store the file under a plugin-specific directory in uploads, gated by a nonce and a capability check",
+    "Step 7: Do not add SVG to upload_mimes unless files are sanitized server-side by a maintained sanitizer; otherwise explain the risk and ask",
+    "Step 8: Never add executable types or use ALLOW_UNFILTERED_UPLOADS",
+    "Step 9: Document ExampleCRM in the readme: what it is, what it is used for, what data is sent and when, with Terms of Service and Privacy Policy links"
+  ],
+  "success_criteria": [
+    "Uses wp_handle_upload() with a mimes allowlist",
+    "SVG is either refused/flagged or sanitized server-side; no executable types are allowed",
+    "The upload is stored outside the plugin directory",
+    "The readme documents the external service with the required details"
+  ]
+}

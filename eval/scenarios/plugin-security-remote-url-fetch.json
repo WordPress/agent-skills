@@ -1,0 +1,24 @@
+{
+  "name": "Fetch an admin-supplied URL without SSRF or disabled TLS",
+  "skills": [
+    "wordpress-router",
+    "wp-project-triage",
+    "wp-plugin-development"
+  ],
+  "query": "Show the latest titles from a feed URL the admin enters in settings. On my local site the request fails with an SSL certificate error; make it work there too.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-plugin-development skill",
+    "Step 4: Read references/security.md",
+    "Step 5: Fetch with wp_safe_remote_get(), since the URL comes from settings",
+    "Step 6: Do not set 'sslverify' => false in plugin code, even for local development; explain that the certificate error is an environment issue to fix outside the plugin",
+    "Step 7: Escape feed titles on output",
+    "Step 8: Gate the setting with a nonce and a capability check"
+  ],
+  "success_criteria": [
+    "Uses wp_safe_remote_get() (or wp_safe_remote_request())",
+    "sslverify is not disabled anywhere in the plugin, including behind a debug or environment flag",
+    "Remote content is escaped before output"
+  ]
+}

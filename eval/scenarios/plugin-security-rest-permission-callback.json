@@ -1,0 +1,27 @@
+{
+  "name": "REST endpoint with an object-level permission check",
+  "skills": [
+    "wordpress-router",
+    "wp-project-triage",
+    "wp-plugin-development",
+    "wp-rest-api"
+  ],
+  "query": "Add a REST endpoint that lets editors reset a post's view counter from the block editor.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-plugin-development for security and wp-rest-api for route registration",
+    "Step 4: Read references/security.md",
+    "Step 5: Register the route on rest_api_init with a permission_callback",
+    "Step 6: Check the object-level capability current_user_can( 'edit_post', $id ), not a generic capability",
+    "Step 7: Do not use __return_true, is_user_logged_in(), or is_admin() as the permission check",
+    "Step 8: Validate the id argument with args (type, validate_callback) before any write",
+    "Step 9: Rely on core's wp_rest cookie nonce (X-WP-Nonce / apiFetch) for CSRF protection"
+  ],
+  "success_criteria": [
+    "permission_callback checks edit_post for the requested post",
+    "No __return_true, is_user_logged_in(), or is_admin() used as authorization",
+    "The id argument is validated as a positive integer",
+    "The meta update happens only after the permission check passes"
+  ]
+}

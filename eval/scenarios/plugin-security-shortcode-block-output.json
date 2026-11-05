@@ -1,0 +1,26 @@
+{
+  "name": "Escape shortcode and dynamic block output",
+  "skills": [
+    "wordpress-router",
+    "wp-project-triage",
+    "wp-plugin-development",
+    "wp-block-development"
+  ],
+  "query": "Add a [myplugin_profile name=\"\" url=\"\" color=\"\"] shortcode and a matching dynamic block that show a profile card with a link.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-plugin-development for security and wp-block-development for the dynamic block",
+    "Step 4: Read references/security.md",
+    "Step 5: Normalize shortcode attributes with shortcode_atts()",
+    "Step 6: Treat shortcode and block attributes as untrusted, since contributors can set them",
+    "Step 7: Escape per context: esc_html() for text, esc_url() for the link, esc_attr() for attributes",
+    "Step 8: Return markup from the shortcode instead of echoing it",
+    "Step 9: Escape attribute values in render.php the same way"
+  ],
+  "success_criteria": [
+    "Every attribute is escaped for its output context in both the shortcode and render.php",
+    "The color value cannot inject markup or CSS beyond its allowed format (validated or escaped)",
+    "The shortcode returns its output"
+  ]
+}

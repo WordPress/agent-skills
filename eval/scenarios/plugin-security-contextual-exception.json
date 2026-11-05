@@ -1,0 +1,29 @@
+{
+  "name": "Apply a documented exception only when the feature requires it",
+  "skills": [
+    "wordpress-router",
+    "wp-project-triage",
+    "wp-plugin-development"
+  ],
+  "query": "Our caching plugin needs a page-cache drop-in. Add the code that installs advanced-cache.php.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-plugin-development skill",
+    "Step 4: Read references/security.md",
+    "Step 5: Identify the drop-in exception for file writes",
+    "Step 6: Apply the exception only because the user's feature explicitly requires the drop-in",
+    "Step 7: Write the drop-in only on an explicit administrator action, with a nonce and a capability check",
+    "Step 8: Remove the drop-in when the feature is turned off or the plugin is deactivated",
+    "Step 9: Do not edit wp-config.php silently to set WP_CACHE; tell the administrator what to add, or do it only on an explicit, documented action",
+    "Step 10: Document the exception and its reason in code, and tell the user it was used"
+  ],
+  "success_criteria": [
+    "The drop-in is not written silently on activation or page load",
+    "Nonce and capability checks gate installation",
+    "The drop-in is removed on disable/deactivation",
+    "wp-config.php is not modified without an explicit administrator action",
+    "The response names the exception used and why it applies",
+    "No other file-write exceptions are applied"
+  ]
+}

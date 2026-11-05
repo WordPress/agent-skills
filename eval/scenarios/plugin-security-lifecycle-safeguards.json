@@ -1,0 +1,25 @@
+{
+  "name": "Refuse silent plugin changes and global sessions",
+  "skills": [
+    "wordpress-router",
+    "wp-project-triage",
+    "wp-plugin-development"
+  ],
+  "query": "Large imports time out, the setup wizard loses its state between steps, and users forget to activate our companion plugin. Fix all three.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-plugin-development skill",
+    "Step 4: Read references/security.md",
+    "Step 5: Scope memory and time limits to the import operation (wp_raise_memory_limit()), not plugin load",
+    "Step 6: Do not call session_start() globally; keep wizard state in user meta or transients, or scope a session to that request and close it",
+    "Step 7: Do not silently activate the companion plugin; declare the dependency or offer an explicit, capability-checked admin action",
+    "Step 8: Explain to the user which approaches were avoided and why"
+  ],
+  "success_criteria": [
+    "No global ini_set/set_time_limit/memory changes at load time",
+    "No session_start() on init or other global hooks",
+    "No activate_plugin() call without an explicit administrator action",
+    "The response explains the safer alternatives used"
+  ]
+}

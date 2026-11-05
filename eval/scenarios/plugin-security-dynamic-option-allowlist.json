@@ -1,0 +1,29 @@
+{
+  "name": "Settings AJAX handler restricts option names to an allowlist",
+  "skills": [
+    "wordpress-router",
+    "wp-project-triage",
+    "wp-plugin-development"
+  ],
+  "query": "Our settings AJAX handler calls update_option( $_POST['option'], $_POST['value'] ). Make it secure but keep it generic.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect plugin structure",
+    "Step 3: Route to wp-plugin-development skill",
+    "Step 4: Read references/security.md",
+    "Step 5: Verify the nonce and stop the request on failure (check_ajax_referer, or check the return value)",
+    "Step 6: Add a capability check with current_user_can()",
+    "Step 7: Map the requested key to a fixed list of plugin option names instead of passing it to update_option()",
+    "Step 8: Sanitize each value for its setting's type",
+    "Step 9: Keep the handler generic: a new setting only needs a new entry in the map",
+    "Step 10: Explain that sanitize_key() alone would still let a request change core options such as default_role"
+  ],
+  "success_criteria": [
+    "Option names come from a fixed map or allowlist, not from the request",
+    "Adding a setting requires only a map entry, not removing the allowlist",
+    "Nonce failure stops the request (fail closed)",
+    "Capability check is present",
+    "Values are sanitized per setting",
+    "The response explains why sanitizing the option name is not enough"
+  ]
+}
