@@ -5,7 +5,8 @@
   "expected_behavior": [
     "Step 1: Identify the explicit request keys and unslash each value",
     "Step 1a: In the browser/admin POST examples in directives 02 and 03, verify the request nonce and manage_options capability before update_option()",
-    "Step 1b: Stop without writing on invalid nonce or denied capability; allow the write only when both checks pass",
+    "Step 1b: For each directive 02 and 03 handler, simulate an invalid nonce, a valid nonce with denied manage_options capability, and an authorized request",
+    "Step 1c: Assert that neither failure path calls update_option() and that the authorized path calls it exactly once in each handler",
     "Step 2: Check the color value is a string before calling sanitize_hex_color()",
     "Step 3: Reject both the empty-string and null sanitizer results when a color is required",
     "Step 4: Distinguish REST boolean coercion from strict validation; use FILTER_NULL_ON_FAILURE and reject null for strict input",
@@ -23,7 +24,7 @@
     "Sanitizer return values are checked according to each function's contract",
     "Array-valued URL input is rejected before esc_url_raw()",
     "Both directive 02 and 03 browser/admin POST excerpts check nonce and capability before writes",
-    "Invalid nonce and denied capability do not write; authorized paths reach their writes",
+    "For both directive 02 and 03 independently, invalid nonce and denied capability do not write; the authorized path writes exactly once",
     "Column-count conversion is not described as complete application-specific validation"
   ]
 }
