@@ -16,7 +16,7 @@
 | Numeric ID or count | `absint()` | Reject `0`; check range. IDs: see `04-cast-ids.md`. |
 | Single-line text | `sanitize_text_field()` | Returns `''` when nothing is left after stripping tags and whitespace; reject `''` for a required field, and check length. |
 | Multi-line text | `sanitize_textarea_field()` | Keeps line breaks; returns `''` when nothing is left; reject `''` for a required field. |
-| Email | `sanitize_email()` | Validate the sanitized result with `is_email()`; `sanitize_email()` may return `''` for invalid; reject on `false` input. |
+| Email | `sanitize_email()` | Validate the sanitized result with `is_email()`; `sanitize_email()` may return `''` for invalid input. Reject when `is_email( $sanitized_email )` returns `false`, including when the sanitized value is `''`. |
 | URL | `esc_url_raw( $url, array( 'http', 'https' ) )` | Sanitizes a URL for storage; reject `''`. A nonempty result is not proof of an absolute URL or permitted host, and is not an SSRF defense. Redirect and network-request uses need context-appropriate validation based on the application's requirements. |
 | Key or internal slug | `sanitize_key()` | Lowercase letters, digits, `-` and `_` only. Returns `''` when nothing valid remains or the input is not a scalar; reject `''`. It lowercases and strips rather than rejects, so for an exact match also reject when the result differs from the lowercased raw value, or use an allowlist when the keys come from a known set (`06-allowlist-sensitive-positions.md`). |
 | Post slug | `sanitize_title()` | Returns `''` when nothing remains after sanitizing; reject `''` or pass a `$fallback_title`. |
