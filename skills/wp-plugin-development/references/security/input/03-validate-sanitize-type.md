@@ -21,10 +21,10 @@
 | Key or internal slug | `sanitize_key()` | Lowercase letters, digits, `-` and `_` only. |
 | Post slug | `sanitize_title()` | Returns `''` when nothing remains after sanitizing; reject `''` or pass a `$fallback_title`. |
 | File name | `sanitize_file_name()` | Not a path check; see `06-allowlist-sensitive-positions.md`. |
-| Hex color | `sanitize_hex_color()` | Returns `null` when invalid; reject `null`. |
+| Hex color | `sanitize_hex_color()` | Returns `''` for empty input and `null` for invalid input; reject `null`, and reject `''` when a color is required. Available since WordPress 3.4.0. |
 | HTML allowed | `wp_kses_post()`, or `wp_kses()` with an allowed-tags array | `wp_kses_post()` allows broad post-content tags; use `wp_kses()` with a minimal allowlist for narrow fields. |
-| Boolean | `rest_sanitize_boolean()` or `filter_var( $v, FILTER_VALIDATE_BOOLEAN )` | Coerces, never rejects: `rest_sanitize_boolean()` maps anything but `'false'`/`'0'` to `true`. To fail closed on an unrecognized value, validate with `filter_var( $v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE )` and reject `null`. Avoid a bare `(bool)` cast: `(bool) 'false'` is `true`. |
-| Array of strings | `array_map( 'sanitize_text_field', $values )` | Check `is_array()` first; use `map_deep()` for nested arrays. |
+| Boolean | `rest_sanitize_boolean()` or `filter_var( $v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE )` | Coerces, never rejects, so it is not validation: `rest_sanitize_boolean()` turns the strings `'false'` and `'0'` (any case) into `false` and casts everything else with `(bool)`, so any other non-empty string such as `'maybe'` is `true`. To fail closed on an unrecognized value, check the input type, validate with `filter_var()` and `FILTER_NULL_ON_FAILURE`, and reject `null`. Avoid a bare `(bool)` cast: `(bool) 'false'` is `true`. `rest_sanitize_boolean()` is available since WordPress 4.7.0. |
+| Array of strings | `array_map( 'sanitize_text_field', $values )` | Check `is_array()` first and reject a non-array; reject an empty array for a required field. Check that every element is a string before mapping and reject the input if not: `sanitize_text_field()` returns `''` for an array or object element and casts other scalars to strings, with no error. For nested arrays, validate the expected shape before using `map_deep()`, which sanitizes the leaves of any shape and rejects nothing (available since WordPress 4.4.0). |
 | One of fixed choices | Not a sanitizer job | Allowlist; see `06-allowlist-sensitive-positions.md`. |
 
 **Exceptions:** None.
