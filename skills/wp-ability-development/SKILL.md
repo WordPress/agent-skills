@@ -54,7 +54,7 @@ Choose a stable result type and structure for every successful call. A collectio
 
 ### Model errors and empty results
 
-- Return `WP_Error` when the requested operation fails. Keep error codes and the shape of their data stable so callers can handle failures programmatically. Document the codes callers can act on, and use messages to explain what happened.
+- Return `WP_Error` when the requested operation fails. Keep error codes and the shape of their data stable so callers can handle failures programmatically. Document the codes callers can act on. MCP clients receive only the message, not the code or data, so write each message to say what went wrong and what the caller can do next.
 - Treat expected empty results as successful calls. A query with no matches returns its usual collection shape with an empty array of items. Choose empty values that match their declared types and describe what they mean.
 - When the main operation can succeed with an incomplete result, define an `errors` array alongside the result in the output schema. Give each entry a stable code and a message, with a path to the affected field or recovery data where useful. For example, an ability can return the saved order with an `errors` entry pointing to an unavailable inventory count. Return an empty `errors` array on full success.
 
