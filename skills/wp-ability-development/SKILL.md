@@ -56,6 +56,8 @@ Choose a stable result type and structure for every successful call. A collectio
 
 - Return `WP_Error` when the requested operation fails. Keep error codes and the shape of their data stable so callers can handle failures programmatically. Document the codes callers can act on. MCP clients receive only the message, not the code or data, so write each message to say what went wrong and what the caller can do next.
 - Treat expected empty results as successful calls. A query with no matches returns its usual collection shape with an empty array of items. Choose empty values that match their declared types and describe what they mean.
+- Check for errors from the data source before returning an empty result. Return `WP_Error` if a required database query, remote request, or other read fails. A caller may treat an empty collection as a reason to create a record, which can lead to a duplicate if the read failed.
+- When a write fails partway, describe what changed and what you could not confirm. Include that information in the error message so the caller can check the outcome before retrying. Say that nothing changed only when you can establish that.
 - When the main operation can succeed with an incomplete result, define an `errors` array alongside the result in the output schema. Give each entry a stable code and a message, with a path to the affected field or recovery data where useful. For example, an ability can return the saved order with an `errors` entry pointing to an unavailable inventory count. Return an empty `errors` array on full success.
 
 ### Keep CRUD abilities consistent
@@ -83,6 +85,8 @@ For help checking these claims against the implementation, see [wp-abilities-ver
 Use the permission callback for a preflight check that callers can run without executing the ability. Enforce authorization during execution before reading protected data or making changes. Share the authorization rules where both paths check the same thing.
 
 Some checks depend on what the ability finds at runtime. For example, a query’s preflight can establish whether the caller may request a collection. During execution, check which of the matching records and fields the caller may see before returning them.
+
+REST and MCP can expose permission error messages to callers. Keep protected data out of the message and any returned error details. When a record’s existence is sensitive, give the same response for missing and inaccessible records.
 
 ## Verification
 
