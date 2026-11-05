@@ -10,16 +10,17 @@ compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+)."
 
 Use this skill when deciding what a WordPress ability accepts, returns, or does. For registration, exposure, and client usage, see [wp-abilities-api](../wp-abilities-api/SKILL.md).
 
-## Inputs required
+## Context to gather
 
-- The task the caller wants to perform and the information they can supply.
-- The existing ability and related object schemas, when available. For changes to a published ability, identify the callers that rely on its contract.
+Identify who will call the ability, what they want to do, what information they already have, and what they need back. For example, a caller opening a note from a permalink may have its slug, while an editor loading a saved draft may already have its ID. The information available to each caller helps you choose the inputs the ability should support.
+
+For an existing ability, read its schemas and callbacks to see what it accepts, returns, and changes. Check related abilities for shared object shapes and terminology. If the ability is published, look at its documentation, tests, and known call sites to identify what callers already rely on before changing the contract.
 
 ## Procedure
 
 ### Start with the caller’s task
 
-Describe the request in the caller’s words. Use that vocabulary in the ability’s name, field descriptions, and result, then map those concepts to the implementation.
+Describe the request in the caller’s words. Use that vocabulary in the ability’s name, field descriptions, and result, then map those concepts to the implementation. In field descriptions, explain what each field controls and, where it matters, what omission means. A caller should be able to choose the ability and form a request from its name, description, and schemas.
 
 For example, “Find published posts by this author” suggests `where.status` and `where.author`. The callback can translate those fields into WordPress query arguments.
 
@@ -27,7 +28,7 @@ For example, “Find published posts by this author” suggests `where.status` a
 
 - Ask for what the caller needs to supply. Accept a reference when the ability can look up the rest. For example, take a product ID and quantity and calculate the price from stored data.
 - Add a field when it serves a clear caller need. Each extra option adds combinations to validate and support.
-- Start strict. Set `additionalProperties: false` on objects with a defined set of fields, including nested objects. Use types, allowed values, and bounds that match what the ability can handle. Broaden what it accepts when a use case calls for it, preserving the meaning of existing requests.
+- Start strict. Set `additionalProperties: false` on objects with a defined set of fields, including nested objects. Use types, allowed values, and bounds that match what the ability can handle. For example, rejecting a misspelled filter gives the caller a chance to correct the request before it matches a broader set of records. Broaden what the ability accepts when a use case calls for it, preserving the meaning of existing requests.
 
 ### Give related fields their own types
 
@@ -41,21 +42,21 @@ For example, if a lookup supports both ID and slug, its `selector` object can us
 
 ### Give each ability one predictable success shape
 
-Choose a stable result type and structure for every successful call. A collection query returns a collection whether zero, one, or many records match. Avoid top-level output unions such as a `oneOf` between a single record and a collection. Check that the intended clients support the schema features you use.
+Choose a stable result type and structure for every successful call. A collection query returns a collection whether zero, one, or many records match, so the caller can iterate over the results in every case. A top-level `oneOf` that alternates between a single record and a collection makes callers check the shape before they can use it. Check that the intended clients support the schema features you use.
 
 ### Return what the caller needs
 
 - Give callers enough detail to use the result directly. For example, an order summary can include product names alongside their IDs when the caller needs to display them.
-- Return useful values the ability already computed. For example, a checkout ability can include the discounts and taxes it used to calculate the total.
+- Return useful values the ability already computed. For example, a checkout ability can include the discounts and taxes it used to calculate the total. The caller can show the actual breakdown without having to reproduce the pricing rules.
 - Report what a write changed. Return the relevant saved state and describe side effects the caller needs to know about, such as whether placing an order also created a customer account.
-- Require fields that define a successful result. Use `null` for supporting values that can be unavailable, and explain what it means. Specify separately when a field may be omitted.
+- Require fields that define a successful result. Use `null` for supporting values that can be unavailable, and explain what it means. Specify separately when a field may be omitted. For example, an order result can require the order ID and return `null` for the receipt URL while the receipt is being prepared.
 - Keep the response focused. Include details the caller may see and can use. Weigh the cost of fetching, computing, and returning extra data against the work it saves the caller.
 
 ### Model errors and empty results
 
 - Return `WP_Error` when the requested operation fails. Keep error codes and the shape of their data stable so callers can handle failures programmatically. Document the codes callers can act on, and use messages to explain what happened.
 - Treat expected empty results as successful calls. A query with no matches returns its usual collection shape with an empty array of items. Choose empty values that match their declared types and describe what they mean.
-- When the main operation can succeed with an incomplete result, define an `errors` array alongside the result in the output schema. Give each entry a stable code and a message, with a path to the affected field or recovery data where useful. Return an empty `errors` array on full success.
+- When the main operation can succeed with an incomplete result, define an `errors` array alongside the result in the output schema. Give each entry a stable code and a message, with a path to the affected field or recovery data where useful. For example, an ability can return the saved order with an `errors` entry pointing to an unavailable inventory count. Return an empty `errors` array on full success.
 
 ### Keep CRUD abilities consistent
 
@@ -63,16 +64,20 @@ Prefer `{object}-{action}` within the namespace so related abilities sort togeth
 
 - Use the same names, types, meanings, and nesting for shared fields across the family, including writable fields in `create` and `update`. For example, if `post-query` and `post-get` both expose raw content, use `content.raw` in both results.
 - Group a list ability’s filters in one input object such as `where`. Describe how the filters combine so callers know whether all conditions must match, any can match, or another rule applies.
-- Prefer partial updates for ordinary edits. Require the target and accept the fields the caller wants to change. Apply only the supplied fields and define how to clear a value when clearing is supported. For nested values, say whether supplied fields edit individual members or replace the value as a unit. Require a complete value when replacement is the intended operation. Judge idempotency by the effects of repeating the call.
+- Prefer partial updates for ordinary edits. Require the target and accept the fields the caller wants to change. For example, a title edit can send the post ID and new title. The caller can make the edit without sending back a copy of the body that may be stale.
+
+  Apply only the supplied fields and define how to clear a value when clearing is supported. For nested values, say whether supplied fields edit individual members or replace the value as a unit. Require a complete value when replacement is the intended operation. Judge idempotency by the effects of repeating the call, including any side effects.
 
 ### Enforce permissions during execution
 
-Use the permission callback for a preflight check that callers can run without executing the ability. Enforce authorization during execution before reading protected data or making changes. Share the authorization rules where both paths check the same thing, and check the specific resources and fields as they are resolved.
+Use the permission callback for a preflight check that callers can run without executing the ability. Enforce authorization during execution before reading protected data or making changes. Share the authorization rules where both paths check the same thing.
+
+Some checks depend on what the ability finds at runtime. For example, a query’s preflight can establish whether the caller may request a collection. During execution, check which of the matching records and fields the caller may see before returning them.
 
 ## Verification
 
 - Exercise the normal invocation path with a representative request, invalid input, and denied access where applicable. Check the returned shape against the schema.
-- For queries, check zero, one, and multiple matches. For partial updates, try a single-field change and verify how omission and explicit clearing behave.
+- For queries, check zero, one, and multiple matches. For partial updates, try a single-field change and check the stored values as well as the response. Verify how omission and explicit clearing behave.
 - For changes to a published ability, check representative calls that rely on its existing contract. In a review, tie each finding to a caller-visible consequence and a concrete correction.
 
 ## Failure modes / debugging
