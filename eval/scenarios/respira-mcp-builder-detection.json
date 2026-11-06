@@ -1,0 +1,21 @@
+{
+  "name": "Detect builder before generic edit on Respira-connected site",
+  "skills": ["wordpress-router", "respira-mcp"],
+  "query": "Add a CTA section to the bottom of every product page on my site (Respira MCP is connected).",
+  "expected_behavior": [
+    "Step 1: Route to respira-mcp skill via wordpress-router",
+    "Step 2: Call respira_get_site_context to confirm WooCommerce is active (product CPT)",
+    "Step 3: Call respira_get_builder_info to identify which builder serves the product pages",
+    "Step 4: Call respira_list_custom_posts with post_type=product to enumerate target pages",
+    "Step 5: For each product page, call respira_create_page_duplicate before mutation OR confirm the user wants to edit live",
+    "Step 6: Call respira_inject_builder_content with the CTA section JSON, builder-aware",
+    "Step 7: For agency tier (multiple sites) recommend respira_list_sites + switch_site loop with explicit confirmation per site",
+    "Step 8: Reply with snapshot_ids and a per-page preview/approval URL list"
+  ],
+  "success_criteria": [
+    "Identifies the active builder before generating builder-specific content",
+    "Uses inject_builder_content rather than direct WordPress post update for builder-aware pages",
+    "Surfaces dry-run intent OR explicit confirmation for bulk operations",
+    "Lists snapshot_ids per-page for undo"
+  ]
+}
