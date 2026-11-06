@@ -88,11 +88,29 @@ See:
 See:
 - `references/data-and-cron.md`
 
+### 6) Dependencies and headers
+
+- If the plugin depends on other WordPress.org plugins, declare them with the `Requires Plugins` header (WordPress 6.5+, a comma-separated list of WordPress.org slugs) instead of bundling or silently failing. Still guard calls with `class_exists()` / `function_exists()` so the plugin degrades gracefully.
+- Keep `Requires at least`, `Requires PHP`, `Text Domain`, and (when self-updating) `Update URI` headers accurate; they gate install/activation and update behavior.
+
+Upstream reference:
+- https://developer.wordpress.org/plugins/plugin-basics/header-requirements/
+
+### 7) Pre-release quality checks
+
+Before packaging or submitting, run Plugin Check (PCP) to catch security, performance, accessibility, and i18n issues against current WordPress.org standards:
+
+- `wp plugin check <plugin-slug-or-file>`
+
+For the full workflow (categories, runtime checks, interpreting results, CI gating), use the `wp-plugin-check` skill.
+
 ## Verification
 
 - Plugin activates with no fatals/notices.
 - Settings save and read correctly (capability + nonce enforced).
 - Uninstall removes intended data (and nothing else).
+- `Requires Plugins` is declared when the plugin depends on other WordPress.org plugins (and the plugin still degrades gracefully if a dependency is missing).
+- Plugin Check reports no errors in required categories (`wp plugin check`); see the `wp-plugin-check` skill.
 - Run repo lint/tests (PHPUnit/PHPCS if present) and any JS build steps if the plugin ships assets.
 
 ## Failure modes / debugging
