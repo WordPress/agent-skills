@@ -82,6 +82,13 @@ Resources tell Playground where to find files. Used by `installPlugin`, `install
 - When using a branch or tag name for `ref`, you **must** set `refType` (`"branch"` | `"tag"` | `"commit"` | `"refname"`). Without it, only `"HEAD"` resolves reliably.
 - `path` selects a subdirectory (defaults to repo root).
 
+**CORS matters for any `url` resource fetched in the browser.** A **direct**
+`github.com/OWNER/REPO/archive/<ref>.zip` is not usable in a hosted demo: GitHub serves archive
+zips with `Access-Control-Allow-Origin: https://render.githubusercontent.com` (a fixed origin),
+so a client-side fetch from `playground.wordpress.net` is CORS-blocked. CORS-permissive sources
+that work: `wordpress-playground-cors-proxy.net/?<url>` (the official proxy),
+`raw.githubusercontent.com` (single files), `downloads.wordpress.org`, and `wordpress.org/plugins`.
+
 ### literal:directory — Inline File Trees
 
 ```json
@@ -269,6 +276,32 @@ Then activate it with a separate step:
 }
 ```
 
+`git:directory` ships the raw repo tree — fine for a no-build plugin. It is not the right tool
+for a **build-required** plugin (compiled JS/CSS, Composer autoload), which would ship un-built
+source. In that case, install a `.zip` via `resource:"url"` instead:
+
+### Installing a GitHub-hosted zip in the browser (hosted demos & PR previews)
+
+**Track a branch (bleeding edge) — GitHub source archive via the CORS proxy:**
+
+```json
+{
+  "step": "installPlugin",
+  "pluginData": {
+    "resource": "url",
+    "url": "https://wordpress-playground-cors-proxy.net/?https://github.com/user/repo/archive/refs/heads/main.zip"
+  },
+  "options": { "activate": true, "targetFolderName": "my-plugin" }
+}
+```
+
+The source archive extracts to a `repo-main/` folder containing the whole repo; `targetFolderName`
+renames it to a clean plugin dir. For a **build-required** plugin (compiles JS/CSS, Composer
+autoload) the raw source archive ships un-built code — install a CI-built zip instead.
+
+**Pin to a released version (stable demo):** `wordpress.org/plugins` slug if published, else a
+CI-built **release asset** — `.../releases/latest/download/PLUGIN.zip` via the proxy.
+
 ## Common Mistakes
 
 | Mistake | Correct |
@@ -279,7 +312,8 @@ Then activate it with a separate step:
 | Path separators in `files` keys | Use nested objects for subdirectories |
 | `runPHP` without `wp-load.php` | Always `require '/wordpress/wp-load.php';` for WP functions |
 | Invented top-level keys | Only documented keys work — schema rejects unknown properties |
-| Inventing proxy URLs for GitHub | Use `git:directory` resource type |
+| Inventing proxy URLs for GitHub | Use `git:directory`, or a `.zip` `url` via the official `wordpress-playground-cors-proxy.net/?<url>` |
+| Direct `github.com/.../archive/<ref>.zip` as a `url` | CORS-blocked — wrap it in `wordpress-playground-cors-proxy.net/?<url>` |
 | Omitting `refType` with branch/tag `ref` | Required — only `"HEAD"` works without it |
 | Resource references in `literal:directory` `files` values | Values must be plain strings (content) or objects (subdirectories) — never resource refs |
 | `features.debug` or other invented feature keys | `features` only supports `networking` and `intl` — use `constants: { "WP_DEBUG": true }` for debug mode |
