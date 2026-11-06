@@ -1,0 +1,24 @@
+{
+  "name": "Reinfection within days of previous cleanup",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-abuse-and-compromise-response"],
+  "query": "I cleaned my WordPress site last week — restored from backup, updated everything, changed all passwords. Three days later the same spam links are back. What did I miss?",
+  "expected_behavior": [
+    "Step 1: Recognize this as a reinfection scenario — backdoor was missed during prior cleanup, not a new compromise",
+    "Step 2: Direct user to the persistence-mechanism catalog: mu-plugins/, wp-config.php prepend/append, autoloaded wp_options, scheduled cron events, drop-ins, plugin directories with WP-flavored names, web shells with non-standard extensions",
+    "Step 3: Question whether the backup itself was compromised — if compromise predates the backup, restoring from it re-introduces the malware",
+    "Step 4: Question whether the attacker has alternate access (SSH key in ~/.ssh/authorized_keys, host control-panel SSO, secondary admin account that was not caught)",
+    "Step 5: Recommend specific deep checks: ls -la wp-content/mu-plugins/, diff wp-config.php against a reconstructed-from-scratch version, query wp_options autoload entries for eval/base64/gzinflate, list cron events",
+    "Step 6: Consider shared-hosting neighbor compromise if everything else checks out — escalate to host",
+    "Step 7: For reinfection cases specifically: recommend doing manual cleanup path (b in skill) rather than relying on backup restore, because the backup is suspect",
+    "Step 8: Recommend external scanner as a second opinion (Sucuri, Wordfence) to catch heuristic patterns missed by manual review"
+  ],
+  "success_criteria": [
+    "AI does NOT recommend repeating the exact same cleanup that just failed",
+    "AI focuses on persistence mechanisms (mu-plugins, autoload options, prepended wp-config.php) over surface symptoms",
+    "AI questions the backup's integrity and suggests manual cleanup alternative",
+    "AI considers host-level or shared-hosting causes",
+    "AI recommends external scanning as a cross-check",
+    "AI does NOT suggest just changing passwords again as a solution",
+    "AI explicitly flags escalation to host if reinfection persists after thorough manual cleanup"
+  ]
+}
