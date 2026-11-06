@@ -26,10 +26,15 @@ Use this skill when you need to:
 
 ## Procedure
 
+Replace `<wp-project-triage-dir>` below with the absolute directory containing that skill’s
+`SKILL.md` file (load that skill if needed). Keep the target project’s root as the working directory
+and retain the quotes around script paths. `references/` paths are relative to this skill’s
+directory.
+
 ### 0) Triage and locate REST usage
 
 1. Run triage:
-   - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+   - `node "<wp-project-triage-dir>/scripts/detect_wp_project.mjs"`
 2. Search for existing REST usage:
    - `register_rest_route`
    - `WP_REST_Controller`

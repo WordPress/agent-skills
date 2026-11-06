@@ -4,7 +4,7 @@
   "query": "Add a new attribute to an existing block and make sure existing content doesn't become 'Invalid block'.",
   "expected_behavior": [
     "Step 1: Run wordpress-router to classify repo kind and tooling",
-    "Step 2: Run wp-project-triage script: node skills/wp-project-triage/scripts/detect_wp_project.mjs",
+    "Step 2: Run wp-project-triage script: resolve the installed wp-project-triage skill directory, then run its scripts/detect_wp_project.mjs by quoted absolute path while keeping the target project root as cwd",
     "Step 3: Route to wp-block-development based on block.json presence",
     "Step 4: Inspect current block.json, edit.js, and save.js to understand serialization",
     "Step 5: Identify if the new attribute affects saved markup",

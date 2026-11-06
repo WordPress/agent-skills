@@ -28,6 +28,11 @@ Use this skill when the task involves WordPress operational work via WP-CLI, inc
 
 ## Procedure
 
+Replace `<wp-wpcli-and-ops-dir>` below with the absolute directory containing that skill’s
+`SKILL.md` file (load that skill if needed). Keep the target project’s root as the working directory
+and retain the quotes around script paths. `references/` paths are relative to this skill’s
+directory.
+
 ### 0) Guardrails: confirm environment and blast radius
 
 WP-CLI commands can be destructive. Before running anything that writes:
@@ -43,7 +48,7 @@ Read:
 
 Run the inspector:
 
-- `node skills/wp-wpcli-and-ops/scripts/wpcli_inspect.mjs --path=<path> [--url=<url>]`
+- `node "<wp-wpcli-and-ops-dir>/scripts/wpcli_inspect.mjs" --path="<path>" [--url="<url>"]`
 
 If WP-CLI isn’t available, fall back to installing it via the project’s documented tooling (Composer, container, or system package), or ask for the expected execution environment.
 

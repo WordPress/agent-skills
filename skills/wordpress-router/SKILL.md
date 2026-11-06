@@ -21,15 +21,20 @@ Use this skill at the start of most WordPress tasks to:
 
 ## Procedure
 
+Replace `<wp-project-triage-dir>` below with the absolute directory containing that skill’s
+`SKILL.md` file (load that skill if needed). Keep the target project’s root as the working directory
+and retain the quotes around script paths. `references/` paths are relative to this skill’s
+directory.
+
 1. Run the project triage script:
-   - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+   - `node "<wp-project-triage-dir>/scripts/detect_wp_project.mjs"`
 2. Read the triage output and classify:
    - primary project kind(s),
    - tooling available (PHP/Composer, Node, @wordpress/scripts),
    - tests present (PHPUnit, Playwright, wp-env),
    - any version hints.
 3. Route to domain workflows based on user intent + repo kind:
-   - For the decision tree, read: `skills/wordpress-router/references/decision-tree.md`.
+   - For the decision tree, read: `references/decision-tree.md`.
 4. Apply guardrails before making changes:
    - Confirm any version constraints if unclear.
    - Prefer the repo’s existing tooling and conventions for builds/tests.

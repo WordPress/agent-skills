@@ -24,12 +24,17 @@ Use this skill for block theme work such as:
 
 ## Procedure
 
+Replace `<wp-project-triage-dir>` and `<wp-block-themes-dir>` below with the absolute directories
+containing the corresponding skills’ `SKILL.md` files (load those skills if needed). Keep the target
+project’s root as the working directory and retain the quotes around script paths. `references/`
+paths are relative to this skill’s directory.
+
 ### 0) Triage and locate block theme roots
 
 1. Run triage:
-   - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+   - `node "<wp-project-triage-dir>/scripts/detect_wp_project.mjs"`
 2. Detect theme roots + key folders:
-   - `node skills/wp-block-themes/scripts/detect_block_themes.mjs`
+   - `node "<wp-block-themes-dir>/scripts/detect_block_themes.mjs"`
 
 If multiple themes exist, pick one and scope all changes to that theme root.
 

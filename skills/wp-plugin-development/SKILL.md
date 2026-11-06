@@ -25,12 +25,17 @@ Use this skill for plugin work such as:
 
 ## Procedure
 
+Replace `<wp-project-triage-dir>` and `<wp-plugin-development-dir>` below with the absolute
+directories containing the corresponding skills’ `SKILL.md` files (load those skills if needed).
+Keep the target project’s root as the working directory and retain the quotes around script paths.
+`references/` paths are relative to this skill’s directory.
+
 ### 0) Triage and locate plugin entrypoints
 
 1. Run triage:
-   - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+   - `node "<wp-project-triage-dir>/scripts/detect_wp_project.mjs"`
 2. Detect plugin headers (deterministic scan):
-   - `node skills/wp-plugin-development/scripts/detect_plugins.mjs`
+   - `node "<wp-plugin-development-dir>/scripts/detect_plugins.mjs"`
 
 If this is a full site repo, pick the specific plugin under `wp-content/plugins/` or `mu-plugins/` before changing code.
 
