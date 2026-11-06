@@ -1,0 +1,21 @@
+{
+  "name": "Choose static for block needing content portability",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-block-development"],
+  "query": "We're building a documentation site on WordPress but plan to migrate to a static site generator next year. Create a 'note' block for inline tips and warnings in our docs.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify repo kind",
+    "Step 2: Run wp-project-triage to detect project structure",
+    "Step 3: Route to wp-block-development skill",
+    "Step 4: Read references/static-vs-dynamic-blocks.md to decide rendering model",
+    "Step 5: Recognize content portability is critical (planned migration to non-WordPress system)",
+    "Step 6: Confirm no higher-priority signals (no external data, no evolving markup, no interactivity, no template parts, no server-side needs)",
+    "Step 7: Choose static rendering so HTML is self-contained in the database",
+    "Step 8: Implement save() with useBlockProps.save()"
+  ],
+  "success_criteria": [
+    "Chooses static rendering",
+    "Implements save() function with useBlockProps.save()",
+    "Does not create render.php or render_callback",
+    "Content is stored as self-contained HTML in post_content"
+  ]
+}
