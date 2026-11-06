@@ -26,3 +26,5 @@ Especially relevant to performance:
 - `constant-savequeries-falsy` / `constant-wp-debug-falsy` (avoid perf-costly debug flags in prod)
 - cron checks (count/duplicates)
 
+On WordPress 6.6+, `autoload-options-size` can undercount options stored as `auto` or `auto-on`. Confirm the total with the `wp_load_alloptions()` command in `autoload-options.md`.
+
