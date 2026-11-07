@@ -15,6 +15,7 @@ Utilize quando:
 - O Largest Contentful Paint (LCP) ou o PageSpeed Insights acusam imagens pesadas não servidas em formatos de última geração.
 - Deseja-se aplicar o princípio de Pareto (80/20): otimizar apenas as mídias acima de um ponto de corte de tamanho (ex: > 250 KB ou Top 100 mais pesadas) sem precisar reprocessar cegamente todo o acervo histórico.
 - Requer-se garantia absoluta de preservação de transparência alfa (PNGs), integridade de metadados de SEO (Alt Text, Title, Caption, Description) e plano de rollback reversível (ou quarentena de 48h).
+- O site utiliza construtores de blocos modernos (Kadence Blocks, Spectra, Elementor, Gutenberg Core) que exigem **preservação estrita da identidade de ID dos anexos (In-Place Mutation)** para não quebrar estilos compilados, classes de proporção (`kb-image*`) e grades responsivas.
 
 ---
 
@@ -78,22 +79,25 @@ Para cada arquivo qualificado até o ponto de corte:
 
 ---
 
-### Fase 4: Clonagem de Metadados de SEO & Substituição de Referências
+### Fase 4: Mutação In-Place, Clonagem de Metadados & Preservação de Block Builders
 
-1. **Clonagem e Preservação de Metadados de SEO:**
+1. **Preservação Compulsória de Identidade de Anexos (In-Place Mutation):**
+   - O `ID` do anexo no banco de dados **nunca é recriado ou alterado**.
+   - Construtores de blocos modernos (Kadence Blocks, Spectra, GenerateBlocks) amarram regras CSS, aspect-ratio e classes (`kb-image{post_id}_{uniqueID}`) diretamente ao `ID` do anexo. A mutação *in-place* garante compatibilidade visual universal sem quebrar layouts de páginas ou galerias.
+2. **Clonagem e Preservação de Metadados de SEO:**
    - O registro do anexo original (`post_type = 'attachment'`) preserva integralmente:
      - `post_title` (Título da Imagem)
      - `post_excerpt` (Legenda / Caption)
      - `post_content` (Descrição)
      - Metadado `_wp_attachment_image_alt` (Texto Alternativo / Alt Text essencial para SEO)
-2. **Atualização dos Metadados do Anexo:**
+3. **Atualização Atômica dos Metadados do Anexo:**
    - Atualizar `_wp_attached_file` para apontar para o novo arquivo `.webp`.
    - Atualizar `post_mime_type` para `image/webp`.
-   - Atualizar a matriz `_wp_attachment_metadata` com os novos nomes de arquivos `.webp` para as sub-sizes.
-3. **Substituição Cirúrgica no Conteúdo (`post_content`):**
-   - Nos posts e páginas mapeados na Fase 1, substituir URLs antigas pelas novas URLs `.webp`.
+   - Atualizar a matriz `_wp_attachment_metadata` preservando `width`, `height` e metadados customizados de blocos, substituindo apenas os nomes dos arquivos `.webp` para as sub-sizes.
+4. **Substituição Cirúrgica no Conteúdo (`post_content`):**
+   - Nos posts e páginas mapeados na Fase 1, substituir URLs antigas pelas novas URLs `.webp` via dicionário estrito (`strtr`).
    - Substituir referências nos atributos `src` e listas `srcset`.
-   - Manter as tags de classes nativas do WP (`wp-image-{ID}`) intactas.
+   - Manter atributos de bloco JSON (`uniqueID`, `captionStyles`), classes nativas (`wp-image-{ID}`) e classes de blocos (`kb-image*`) 100% intactas.
 
 ---
 
@@ -130,5 +134,6 @@ skills/wp-media-optimization/
 │   └── rollback.php                  # Restauração instantânea via rollback.json (quarentena/backup + DB)
 └── references/
     ├── webp-best-practices.md        # Parâmetros recomendados de qualidade e compressão
-    └── gif-animation-detection.md    # Como identificar múltiplos quadros em arquivos GIF
+    ├── gif-animation-detection.md    # Como identificar múltiplos quadros em arquivos GIF
+    └── block-builder-compatibility.md # Arquitetura in-place para Kadence, Spectra e Gutenberg Core
 ```
