@@ -87,6 +87,23 @@ function get_post( $post_id ) {
 	return $post_id;
 }
 
+class Fake_Wpdb {
+	public $posts    = 'wp_posts';
+	public $prepared = array();
+	public $queries  = array();
+
+	public function prepare( $query, ...$args ) {
+		$this->prepared[] = $args;
+		return $query;
+	}
+
+	public function get_var( $query ) {
+		$GLOBALS['events'][] = 'query';
+		$this->queries[]     = $query;
+		return 'Title';
+	}
+}
+
 }
 
 namespace InputSecuritySnippetTest {
@@ -163,6 +180,9 @@ function cases() {
 	foreach ( array( 'callback-nonce-invalid', 'callback-denied', 'callback-valid', 'callback-unmapped' ) as $case ) {
 		$cases[ $case ] = array( '06-allowlist-sensitive-positions.md', ' * Safe: the request can only pick a callback the plugin owns.', 'callback-valid.php', false );
 	}
+	foreach ( array( 'id-malformed-suffix', 'id-negative', 'id-exponent', 'id-array', 'id-overflow', 'id-zero', 'id-non-numeric', 'id-missing', 'id-capability-denied', 'id-valid' ) as $case ) {
+		$cases[ $case ] = array( '04-cast-ids.md', "// Safe: reject an ID that converts to 0 before checking the user's capability.", 'id-cast.php', false );
+	}
 	foreach ( array( 'webhook-empty-secret', 'webhook-non-string-secret', 'webhook-malformed-signature', 'webhook-signature-array', 'webhook-altered-signature', 'webhook-unreadable-body', 'webhook-valid' ) as $case ) {
 		$cases[ $case ] = array( '05-secrets.md', '// Safe: unslash only, check types and format, fail closed, compare in constant time, log nothing.', 'webhook-valid.php', true );
 	}
@@ -187,6 +207,7 @@ function run_case( $case ) {
 	$GLOBALS['stored_options']         = array();
 	$_POST                              = array();
 	$_SERVER                            = array();
+	$wpdb                               = new Fake_Wpdb();
 	$stopped                            = false;
 	$status                             = 0;
 
@@ -272,6 +293,37 @@ function run_case( $case ) {
 			break;
 		case 'callback-unmapped':
 			$_POST = array( 'task' => 'wp_delete_post', 'post_id' => '25' );
+			break;
+		case 'id-malformed-suffix':
+			$_POST = array( 'post_id' => '5abc' );
+			break;
+		case 'id-negative':
+			$_POST = array( 'post_id' => '-5' );
+			break;
+		case 'id-exponent':
+			$_POST = array( 'post_id' => '1e3' );
+			break;
+		case 'id-array':
+			$_POST = array( 'post_id' => array( '5' ) );
+			break;
+		case 'id-overflow':
+			$_POST = array( 'post_id' => '99999999999999999999' );
+			break;
+		case 'id-zero':
+			$_POST = array( 'post_id' => '0' );
+			break;
+		case 'id-non-numeric':
+			$_POST = array( 'post_id' => 'abc' );
+			break;
+		case 'id-missing':
+			$_POST = array();
+			break;
+		case 'id-capability-denied':
+			$GLOBALS['capability_allowed'] = false;
+			$_POST                         = array( 'post_id' => '25' );
+			break;
+		case 'id-valid':
+			$_POST = array( 'post_id' => '25' );
 			break;
 		case 'webhook-empty-secret':
 			$GLOBALS['stored_options']['myplugin_webhook_secret'] = '';
@@ -386,6 +438,35 @@ function run_case( $case ) {
 			break;
 		case 'url-empty-result':
 			check( $stopped && 400 === $status && empty( $GLOBALS['writes'] ), 'Empty URL sanitizer result was stored.' );
+			break;
+		case 'id-zero':
+		case 'id-non-numeric':
+		case 'id-missing':
+			check( $stopped && 400 === $status, 'An ID that converts to 0 was not rejected with 400.' );
+			check( empty( $GLOBALS['events'] ) && empty( $wpdb->queries ), 'Capability check or query ran for an ID that converts to 0.' );
+			break;
+		case 'id-capability-denied':
+			check( $stopped && 403 === $status && empty( $wpdb->queries ), 'Denied object capability did not stop the query.' );
+			check( array( array( 'capability', array( 'read_post', 25 ) ) ) === $GLOBALS['events'], 'Capability check did not run once on the converted ID.' );
+			break;
+		case 'id-malformed-suffix':
+		case 'id-negative':
+		case 'id-exponent':
+		case 'id-array':
+		case 'id-overflow':
+		case 'id-valid':
+			$expected_ids = array(
+				'id-malformed-suffix' => 5,
+				'id-negative'         => 5,
+				'id-exponent'         => 1000,
+				'id-array'            => 1,
+				'id-overflow'         => PHP_INT_MAX,
+				'id-valid'            => 25,
+			);
+			$expected_id  = $expected_ids[ $case ];
+			check( ! $stopped, 'Coerced, nonzero ID was rejected; absint() coerces and only 0 is rejected.' );
+			check( array( array( 'capability', array( 'read_post', $expected_id ) ), 'query' ) === $GLOBALS['events'], 'Capability check did not run on the converted ID before the query.' );
+			check( array( array( $expected_id ) ) === $wpdb->prepared && 1 === count( $wpdb->queries ), 'Query did not receive the converted ID through a prepared placeholder.' );
 			break;
 		case 'webhook-empty-secret':
 		case 'webhook-non-string-secret':
