@@ -99,7 +99,7 @@ Obfuscation
 - [ ] Do not allow obfuscation in the plugin code (disallow `php` functions for obfuscation such as `eval`, `create_function`, `base64_decode`, `gzinflate`, and similar techniques)
 
 Type Casting Integer IDs
-- [ ] Cast numeric IDs to positive integers with `absint()` before use, and reject `0`. A cast makes the value well-formed; it does not authorize access to that object, so check the matching capability (for example `current_user_can( 'read_post', $post_id )`) before acting on it, and use `%d` in `$wpdb->prepare()` for SQL.
+- [ ] Cast numeric IDs to positive integers with `absint()` before use, and reject `0`. A cast converts the value; it does not validate its format or authorize access to that object, so check the matching capability (for example `current_user_can( 'read_post', $post_id )`) before acting on it, and use `%d` in `$wpdb->prepare()` for SQL.
 - [ ] **TODO:** Add this rule to `security.md`:
   - **Primary location:** *Inputs: Sanitization is Not Authorization or Allowlisting* → *Validate and Sanitize Input* → **Required** (TOC: "sanitizing, validating, and allowlisting input"). Add the bullet and the code sample below.
   - **Cross-reference in** *Request Authorization and REST Endpoints* → **Required**, at the object-level capability bullet (`current_user_can( 'edit_post', $post_id )`).
