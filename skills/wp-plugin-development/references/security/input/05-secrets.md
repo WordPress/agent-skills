@@ -53,6 +53,8 @@ if ( ! hash_equals( $expected, $signature ) ) {
 }
 ```
 
+The Unsafe example shows the API token scenario: a sanitizer changes the token, it is logged, and it is compared without `hash_equals()`. The webhook secret scenario is described under Attack methodology, and the Safe example shows its defense; there is no Unsafe webhook snippet.
+
 ## Attack methodology
 
 Sensitive information disclosure through logs
