@@ -90,6 +90,47 @@ function myplugin_preview_post( $post_id ) {
 }
 ```
 
+The same map pattern applies to a class name before `new $class`:
+
+```php
+/*
+ * Unsafe: sanitize_key() keeps the name well-formed, but the request still
+ * chooses which class is created. format=wp_user_query creates a core class
+ * the plugin never meant to expose.
+ */
+$format   = sanitize_key( wp_unslash( $_POST['format'] ?? '' ) );
+$exporter = new $format();
+
+// Safe: the request can only pick a class the plugin owns.
+check_admin_referer( 'myplugin_run_export' );
+$exporters = array(
+	'csv'  => 'Myplugin_Csv_Exporter',
+	'json' => 'Myplugin_Json_Exporter',
+);
+$format    = sanitize_key( wp_unslash( $_POST['format'] ?? '' ) );
+if ( ! isset( $exporters[ $format ] ) ) {
+	wp_send_json_error( null, 400 );
+}
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_send_json_error( null, 403 );
+}
+$class_name = $exporters[ $format ];
+$exporter   = new $class_name();
+$exporter->export();
+
+class Myplugin_Csv_Exporter {
+	public function export() {
+		return 'csv';
+	}
+}
+
+class Myplugin_Json_Exporter {
+	public function export() {
+		return 'json';
+	}
+}
+```
+
 ## Attack methodology
 
 Arbitrary option update
@@ -114,4 +155,5 @@ Security bulletins:
 - OWASP A01:2021, Broken Access Control
 
 - **Request-chosen callback → arbitrary function call.** The attacker sends `task=wp_delete_post` with any post ID, and the handler calls a core function the plugin never meant to expose. Fix: a hardcoded map from request values to callbacks the plugin owns, plus a capability check.
+- **Request-chosen class → unintended object creation.** The attacker sends `format=wp_user_query`, and `new $format()` creates a core class the plugin never meant to expose. A class whose constructor has side effects runs that code. Fix: a hardcoded map from request values to classes the plugin owns, and a capability check before `new`.
 - **Valid allowlist key, no capability check → unauthorized use of a plugin callback.** The map blocks `wp_delete_post`, but a logged-in low-privilege user (for example a subscriber) can still send a key the map does accept, such as `task=export`, and run a callback they should not be allowed to run. The allowlist controls which code can be selected; it does not authorize the request. Fix: give each map entry its own required capability and call `current_user_can()` with the target before dispatching.

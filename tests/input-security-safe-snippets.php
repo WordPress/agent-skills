@@ -180,6 +180,9 @@ function cases() {
 	foreach ( array( 'callback-nonce-invalid', 'callback-denied', 'callback-valid', 'callback-unmapped' ) as $case ) {
 		$cases[ $case ] = array( '06-allowlist-sensitive-positions.md', ' * Safe: the request can only pick a callback the plugin owns.', 'callback-valid.php', false );
 	}
+	foreach ( array( 'class-nonce-invalid', 'class-capability-denied', 'class-unmapped', 'class-csv', 'class-json' ) as $case ) {
+		$cases[ $case ] = array( '06-allowlist-sensitive-positions.md', '// Safe: the request can only pick a class the plugin owns.', 'class-valid.php', false );
+	}
 	foreach ( array( 'id-malformed-suffix', 'id-negative', 'id-exponent', 'id-array', 'id-overflow', 'id-zero', 'id-non-numeric', 'id-missing', 'id-capability-denied', 'id-valid' ) as $case ) {
 		$cases[ $case ] = array( '04-cast-ids.md', "// Safe: reject an ID that converts to 0 before checking the user's capability.", 'id-cast.php', false );
 	}
@@ -234,6 +237,7 @@ function run_case( $case ) {
 		case 'url-nonce-invalid':
 		case 'option-nonce-invalid':
 		case 'callback-nonce-invalid':
+		case 'class-nonce-invalid':
 			$GLOBALS['nonce_valid'] = false;
 			$_POST                  = array( 'color' => '#abc' );
 			break;
@@ -293,6 +297,19 @@ function run_case( $case ) {
 			break;
 		case 'callback-unmapped':
 			$_POST = array( 'task' => 'wp_delete_post', 'post_id' => '25' );
+			break;
+		case 'class-capability-denied':
+			$GLOBALS['capability_allowed'] = false;
+			$_POST                         = array( 'format' => 'csv' );
+			break;
+		case 'class-unmapped':
+			$_POST = array( 'format' => 'wp_user_query' );
+			break;
+		case 'class-csv':
+			$_POST = array( 'format' => 'csv' );
+			break;
+		case 'class-json':
+			$_POST = array( 'format' => 'json' );
 			break;
 		case 'id-malformed-suffix':
 			$_POST = array( 'post_id' => '5abc' );
@@ -438,6 +455,24 @@ function run_case( $case ) {
 			break;
 		case 'url-empty-result':
 			check( $stopped && 400 === $status && empty( $GLOBALS['writes'] ), 'Empty URL sanitizer result was stored.' );
+			break;
+		case 'class-nonce-invalid':
+			check( $stopped && 403 === $status && ! isset( $exporter ), 'Invalid nonce did not stop class creation.' );
+			check( array( 'check_admin_referer' ) === $GLOBALS['events'], 'Capability check ran after nonce failure.' );
+			break;
+		case 'class-capability-denied':
+			check( $stopped && 403 === $status && ! isset( $exporter ), 'Denied capability still created a class.' );
+			check( array( array( 'capability', array( 'manage_options' ) ) ) === array_values( array_filter( $GLOBALS['events'], 'is_array' ) ), 'Class creation was not gated by manage_options.' );
+			break;
+		case 'class-unmapped':
+			check( $stopped && 400 === $status && ! isset( $exporter ), 'Unmapped class name was not rejected before creation.' );
+			check( 0 === count( array_filter( $GLOBALS['events'], 'is_array' ) ), 'Capability check ran for an unmapped class.' );
+			break;
+		case 'class-csv':
+			check( ! $stopped && $exporter instanceof Myplugin_Csv_Exporter, 'Mapped csv key did not create the owned CSV class.' );
+			break;
+		case 'class-json':
+			check( ! $stopped && $exporter instanceof Myplugin_Json_Exporter, 'Mapped json key did not create the owned JSON class.' );
 			break;
 		case 'id-zero':
 		case 'id-non-numeric':
