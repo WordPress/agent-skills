@@ -32,8 +32,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-performance** | Profiling, caching, database optimization, Server-Timing |
 | **wp-phpstan** | PHPStan static analysis for WordPress projects (config, baselines, WP-specific typing) |
 | **wp-playground** | WordPress Playground for instant local environments |
-| **studio** | WordPress Studio: site management, WP-CLI, SQLite, Playwright, environment troubleshooting |
-| **studio-xdebug** | Xdebug in WordPress Studio: step debugging, stack traces, VS Code configuration |
+| **studio** | WordPress Studio environment conflicts: ports, .local domains, hosts entries, WP-CLI shadowing, other local stacks |
 | **wpds** | WordPress Design System |
 
 ## Quick Start
