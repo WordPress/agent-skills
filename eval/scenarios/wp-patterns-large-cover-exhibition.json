@@ -1,0 +1,23 @@
+{
+  "name": "Create a full-bleed exhibition cover with oversized heading and CTA",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-patterns"],
+  "query": "Create a full-width exhibition hero pattern inspired by a museum poster: a background image with dim overlay, a very large multi-line title, short descriptive copy, and one outlined Visit button.",
+  "expected_behavior": [
+    "Step 1: Route the task to wp-patterns and confirm the target theme, text domain, asset source, and pattern slug",
+    "Step 2: Create a filesystem pattern with Title, Slug, Categories, Keywords, and Viewport Width headers",
+    "Step 3: Use a Cover block aligned full with a background image, dim or duotone treatment, and generous viewport-height spacing",
+    "Step 4: Use a short oversized heading with tight line-height and clear hierarchy",
+    "Step 5: Place supporting copy and an action-specific outlined CTA below or beside the heading",
+    "Step 6: Escape and internationalize all visible strings and attribute text",
+    "Step 7: Verify the pattern inserts without block recovery and remains readable at desktop and mobile widths"
+  ],
+  "success_criteria": [
+    "Uses a full-width Cover block with image, dim/duotone treatment, and intentional content positioning",
+    "Creates poster-like scale through a short large heading rather than generic centered hero text",
+    "Includes descriptive supporting copy and one action-specific CTA",
+    "Uses escaped i18n functions for visible text and attribute text",
+    "Uses approved/local assets or asks before inventing asset URLs",
+    "Avoids scripts, inline style tags, custom CSS classes, and query-time PHP",
+    "Verification mentions editor insertion, block parsing, and responsive readability"
+  ]
+}

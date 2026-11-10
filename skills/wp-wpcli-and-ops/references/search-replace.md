@@ -22,7 +22,7 @@ For multisite, decide whether you’re replacing:
 - across the network (`--network` or iterating `wp site list`).
 
 Read:
-- `references/multisite.md`
+- `multisite.md`
 
 ## Common flags
 

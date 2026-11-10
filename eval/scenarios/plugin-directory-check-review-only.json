@@ -1,0 +1,19 @@
+{
+  "name": "Keep a Plugin Check review read-only",
+  "skills": [
+    "wp-plugin-directory-guidelines"
+  ],
+  "query": "Review acme-reports with Plugin Check on the configured local test site. WP-CLI and Plugin Check are ready. Report issues and suggested fixes only; do not change plugin code. If checks pass, can I assume WordPress.org will approve it?",
+  "expected_behavior": [
+    "Run supported checks in the configured local environment and identify coverage.",
+    "Assess findings with rule/code, severity, location, rationale, applicability, smallest suggested fix, and behavioral impact.",
+    "Return proposals without modifying source or enabling an unrequested AI provider.",
+    "Explain that passing Plugin Check does not guarantee directory approval or functional correctness, and preserve manual guideline review."
+  ],
+  "success_criteria": [
+    "Makes no plugin code changes.",
+    "Clearly distinguishes execution results from proposed corrections.",
+    "Does not enable --ai without confirmed support and authorized provider use.",
+    "Does not promise WordPress.org approval."
+  ]
+}

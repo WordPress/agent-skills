@@ -1,0 +1,20 @@
+{
+  "name": "Fall back for an operation missing from WebMCP",
+  "skills": [
+    "wp-playground"
+  ],
+  "query": "Switch my Playground tab to the existing saved site named Review. WebMCP exposes playground_list_sites but no site-switching tool. No Playground MCP connection is available; browser JavaScript execution is available.",
+  "expected_behavior": [
+    "Discover current tools and use playground_list_sites to identify the existing Review site",
+    "Follow the website.md fallback route to sites-api.md and wait for the site manager to be ready",
+    "Switch to the discovered slug with playgroundSites.setActiveSite(slug)",
+    "Rediscover site tools as needed and verify that Review is active"
+  ],
+  "success_criteria": [
+    "Uses WebMCP for the supported listing operation",
+    "Uses the browser API only for the unsupported switching operation",
+    "Does not invent a WebMCP switching tool or install an MCP bridge",
+    "Switches to the requested existing site without creating a replacement",
+    "Loads webmcp.md for tool discovery and sites-api.md only when the unsupported switching operation requires it"
+  ]
+}

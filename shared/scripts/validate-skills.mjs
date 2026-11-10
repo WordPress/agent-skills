@@ -112,8 +112,8 @@ function main() {
       `Compatibility too long in ${path.relative(repoRoot, skillPath)} (${compatibility.length} chars)`
     );
     assert(
-      compatibility.includes("WordPress 6.9") && compatibility.includes("PHP 7.2.24"),
-      `Compatibility contract mismatch in ${path.relative(repoRoot, skillPath)} (expected WP 6.9 + PHP 7.2.24+)`
+      compatibility.includes("WordPress 7.0") && compatibility.includes("PHP 7.4.0"),
+      `Compatibility contract mismatch in ${path.relative(repoRoot, skillPath)} (expected WP 7.0 + PHP 7.4.0+)`
     );
   }
 
@@ -126,7 +126,7 @@ function main() {
   assert(report?.signals?.paths?.repoRoot, "Triage report missing signals.paths.repoRoot");
   assert(report?.tooling?.php && report?.tooling?.node && report?.tooling?.tests, "Triage report missing tooling blocks");
 
-  process.stdout.write("OK: skills frontmatter and triage report sanity checks passed.\n");
+  process.stdout.write("OK: skill metadata and triage report sanity checks passed.\n");
 }
 
 main();

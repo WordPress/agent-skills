@@ -28,14 +28,80 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-rest-api** | REST API routes/endpoints, schema, auth, and response shaping |
 | **wp-interactivity-api** | Frontend interactivity with `data-wp-*` directives and stores |
 | **wp-abilities-api** | Capability-based permissions and REST API authentication |
+| **wp-ability-development** | Design and review ability schemas, CRUD behavior, and permissions |
+| **wp-abilities-audit** | Audit a plugin's REST surface and propose Abilities API registrations |
+| **wp-abilities-verify** | Verify a plugin's Abilities API registrations against their declared annotations |
 | **wp-wpcli-and-ops** | WP-CLI commands, automation, multisite, search-replace |
 | **wp-performance** | Profiling, caching, database optimization, Server-Timing |
 | **wp-phpstan** | PHPStan static analysis for WordPress projects (config, baselines, WP-specific typing) |
-| **wp-playground** | WordPress Playground for instant local environments |
-| **studio** | WordPress Studio environment conflicts: ports, .local domains, hosts entries, WP-CLI shadowing, other local stacks |
+| **wp-playground** | WordPress Playground routing, CLI runs, browser previews, and snapshots |
 | **wpds** | WordPress Design System |
+| **wp-plugin-directory-guidelines** | WordPress Plugin Directory Guidelines |
+| **blueprint** | WordPress Playground Blueprints for declarative environment setup |
+| **wp-env** | Local WordPress development with `@wordpress/env`: setup, configuration, WP-CLI, Xdebug, troubleshooting |
+| **studio** | WordPress Studio environment conflicts: ports, .local domains, hosts entries, WP-CLI shadowing, other local stacks |
+
+## How It Works
+
+Each skill is a self-contained folder with instructions, references, and optional scripts:
+
+```
+skills/wp-block-development/
+├── SKILL.md              # Main instructions (when to use, procedure, verification)
+├── references/           # Deep-dive docs on specific topics
+│   ├── block-json.md
+│   ├── deprecations.md
+│   └── ...
+└── scripts/              # Deterministic helpers (detection, validation)
+    └── list_blocks.mjs
+```
+
+When you ask your AI assistant to work on WordPress code, it reads these skills and follows the documented procedures rather than guessing.
+
+
+## Global vs. Project Scope
+
+Skills can be installed in two scopes:
+
+**Global** — installed in your home directory (e.g. `~/.claude/skills/`, `~/.cursor/skills/`).
+- Available across **all** your projects automatically.
+- Best for individual developers who want WordPress knowledge in every repo.
+
+**Project** — installed inside a repository (e.g. `.claude/skills/`, `.github/skills/`, `.cursor/skills/`).
+- Available only within **that specific project**.
+- Can be committed to version control so the entire team benefits.
+
+You can use both at the same time. When a skill exists in both scopes, the project-level version is used.
 
 ## Quick Start
+
+The fastest way to install a skill is with a single command:
+
+```bash
+npx skills add WordPress/agent-skills --skill wp-plugin-development
+```
+
+To see all available skills:
+
+```bash
+npx skills add WordPress/agent-skills --list
+```
+
+To install multiple skills at once:
+
+```bash
+npx skills add WordPress/agent-skills --skill wp-plugin-development wp-abilities-api wp-playground
+```
+
+#### Choosing a scope
+
+`npx skills add` asks to choose the skill **project-scoped**, selecting the local scope on which the skills are installed in the local project; it can be stored at the repository (e.g. `.claude/skills/`, `.cursor/skills/`) — so the skills can be committed to version control and shared with your team.
+
+Installing **globally** makes the skill available to your user (across **all** your projects). Adding the `-g` / `--global` flag, it will install your skill with global scope:
+
+```bash
+npx skills add WordPress/agent-skills --skill wp-plugin-development --global
+```
 
 ### Install globally for Claude Code
 
@@ -76,6 +142,13 @@ This copies skills into:
 - `.claude/skills/` for Claude Code (project-level)
 - `.cursor/skills/` for Cursor (project-level)
 
+Antigravity is opt-in for project-level installs. To also copy skills into `.agents/skills/`, include `antigravity` when building and installing:
+
+```bash
+node shared/scripts/skillpack-build.mjs --clean --targets=codex,vscode,claude,cursor,antigravity
+node shared/scripts/skillpack-install.mjs --dest=../your-wp-project --targets=codex,vscode,claude,cursor,antigravity
+```
+
 ### Install globally for Cursor
 
 ```bash
@@ -83,6 +156,15 @@ node shared/scripts/skillpack-install.mjs --targets=cursor-global
 ```
 
 This installs skills to `~/.cursor/skills/` where Cursor will discover them.
+
+### Install globally for Antigravity
+
+```bash
+node shared/scripts/skillpack-build.mjs --clean --targets=antigravity
+node shared/scripts/skillpack-install.mjs --targets=antigravity-global
+```
+
+This installs skills to `~/.gemini/antigravity/skills/` where Antigravity will discover them.
 
 ### Available options
 
@@ -101,26 +183,9 @@ node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude,cur
 
 Copy any skill folder from `skills/` into your project's instructions directory for your AI assistant.
 
-## How It Works
-
-Each skill contains:
-
-```
-skills/wp-block-development/
-├── SKILL.md              # Main instructions (when to use, procedure, verification)
-├── references/           # Deep-dive docs on specific topics
-│   ├── block-json.md
-│   ├── deprecations.md
-│   └── ...
-└── scripts/              # Deterministic helpers (detection, validation)
-    └── list_blocks.mjs
-```
-
-When you ask your AI assistant to work on WordPress code, it reads these skills and follows the documented procedures rather than guessing.
-
 ## Compatibility
 
-- **WordPress 6.9+** (PHP 7.2.24+)
+- **WordPress 7.0+** (PHP 7.4.0+)
 - Works with any AI assistant that supports project-level instructions
 
 ## Contributing
@@ -136,8 +201,10 @@ Quick commands:
 node shared/scripts/scaffold-skill.mjs <skill-name> "<description>"
 
 # Validate skills
-node eval/harness/run.mjs
+node shared/scripts/validate-skills.mjs
 ```
+
+This command validates skill metadata and the project-triage report. It does not execute the scenarios under `eval/scenarios/`; those currently require manual evaluation.
 
 ## Documentation
 

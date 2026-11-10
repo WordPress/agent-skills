@@ -1,0 +1,23 @@
+{
+  "name": "Create a graphic post index with dates and large linked titles",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-patterns"],
+  "query": "Create a full-width Query Loop pattern that lists three posts with date blocks on the left, large linked post titles, strong horizontal separators, and previous/next pagination.",
+  "expected_behavior": [
+    "Step 1: Route to wp-patterns and confirm this is a Query Loop pattern, not runtime PHP",
+    "Step 2: Use core/query with core/post-template and post blocks for date and title",
+    "Step 3: Make dates and linked titles part of the visual hierarchy with block-native typography and separator borders",
+    "Step 4: Include query pagination using native pagination blocks",
+    "Step 5: Include query-no-results fallback where relevant",
+    "Step 6: Avoid get_posts(), the_title(), or other query-time PHP",
+    "Step 7: Verify inherited/non-inherited query behavior and editor parsing"
+  ],
+  "success_criteria": [
+    "Uses Query Loop, Post Template, Post Date, Post Title, and Query Pagination blocks",
+    "Large linked titles and dates create a graphic editorial index",
+    "Uses block attributes for separators, spacing, and typography",
+    "Includes no-results fallback or explains why it is not needed",
+    "Does not use query-time PHP functions",
+    "Maintains accessible link text through linked post title blocks",
+    "Verification covers query settings and pagination"
+  ]
+}

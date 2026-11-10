@@ -1,0 +1,19 @@
+{
+  "name": "Blueprint uses current schema keys",
+  "skills": ["blueprint"],
+  "query": "Create a WordPress Playground Blueprint that installs and activates the Classic Editor plugin, sets the site title, logs me in, and lands on wp-admin.",
+  "expected_behavior": [
+    "Step 1: Use the blueprint skill directly because the task is Blueprint JSON authoring",
+    "Step 2: Include the schema URL https://playground.wordpress.net/blueprint-schema.json",
+    "Step 3: Use current installPlugin syntax with pluginData, not pluginZipFile or pluginZipUrl",
+    "Step 4: Use setSiteOptions or siteOptions for the site title",
+    "Step 5: Include login behavior and landingPage /wp-admin/",
+    "Step 6: Avoid inventing unsupported top-level keys"
+  ],
+  "success_criteria": [
+    "Routes to blueprint without requiring wp-playground first",
+    "Uses pluginData with a wordpress.org/plugins resource",
+    "Does not use deprecated pluginZipFile, pluginZipUrl, themeZipFile, or themeZipUrl fields",
+    "Produces valid JSON-shaped Blueprint content"
+  ]
+}

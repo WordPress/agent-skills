@@ -1,0 +1,23 @@
+{
+  "name": "Create a two-column album poster with massive right-aligned title",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-patterns"],
+  "query": "Create a full-width album-release poster pattern with a small description and Shop Now button on the left, and a huge stacked album title and artist name right-aligned on the right.",
+  "expected_behavior": [
+    "Step 1: Route to wp-patterns and gather album title, artist, copy, CTA label, text domain, and theme presets",
+    "Step 2: Use a full-width color-field Cover or Group with a two-column flexible layout",
+    "Step 3: Put compact descriptive copy and CTA in a narrow left column",
+    "Step 4: Use massive stacked right-aligned display text in the larger column",
+    "Step 5: Use color contrast intentionally, with non-overlapping readable text",
+    "Step 6: Escape and translate all visible strings",
+    "Step 7: Verify responsive stacking and text fit"
+  ],
+  "success_criteria": [
+    "Creates asymmetry between compact copy and massive display title",
+    "Uses color contrast and alignment as deliberate design choices",
+    "CTA is action-specific and accessible",
+    "Heading/text hierarchy remains understandable in source order",
+    "Uses block-native layout controls and theme presets where possible",
+    "No scripts, inline style tags, custom CSS classes, or runtime PHP",
+    "Verification includes mobile wrapping and contrast"
+  ]
+}

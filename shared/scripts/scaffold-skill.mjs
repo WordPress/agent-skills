@@ -9,7 +9,7 @@ function usage() {
       "",
       "Notes:",
       "- <skill-name> must be lowercase unicode letters/digits with hyphens (no leading/trailing hyphen, no --).",
-      "- Creates skills/<skill-name>/SKILL.md and eval/scenarios/<skill-name>.md",
+      "- Creates skills/<skill-name>/SKILL.md and eval/scenarios/<skill-name>.json",
       "",
     ].join("\n")
   );
@@ -44,16 +44,16 @@ function main() {
   const repoRoot = process.cwd();
   const skillDir = path.join(repoRoot, "skills", skillName);
   const skillMd = path.join(skillDir, "SKILL.md");
-  const scenarioPath = path.join(repoRoot, "eval", "scenarios", `${skillName}.md`);
+  const scenarioPath = path.join(repoRoot, "eval", "scenarios", `${skillName}.json`);
 
   assert(!fs.existsSync(skillDir), `Skill directory already exists: ${path.relative(repoRoot, skillDir)}`);
   fs.mkdirSync(skillDir, { recursive: true });
 
-  const skillBody = `---\nname: ${skillName}\ndescription: ${description}\ncompatibility: Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node.\n---\n\n# ${skillName}\n\n## When to use\n\n## Inputs required\n\n## Procedure\n\n## Verification\n\n## Failure modes / debugging\n\n## Escalation\n`;
+  const skillBody = `---\nname: ${skillName}\ndescription: ${description}\ncompatibility: Targets WordPress 7.0+ (PHP 7.4.0+). Filesystem-based agent with bash + node.\n---\n\n# ${skillName}\n\n## When to use\n\n## Inputs required\n\n## Procedure\n\n## Verification\n\n## Failure modes / debugging\n\n## Escalation\n`;
   fs.writeFileSync(skillMd, skillBody, "utf8");
 
   fs.mkdirSync(path.dirname(scenarioPath), { recursive: true });
-  const scenario = `# Scenario: ${skillName}\n\n## Prompt\n\n## Expected behavior\n\n- Uses \`${skillName}\` when the prompt matches its description.\n- Follows the skill procedure and verifies results.\n`;
+  const scenario = `{\n  "name": "${skillName}",\n  "skills": ["${skillName}"],\n  "query": "",\n  "expected_behavior": [\n    "Uses ${skillName} when the prompt matches its description.",\n    "Follows the skill procedure and verifies results."\n  ],\n  "success_criteria": []\n}\n`;
   fs.writeFileSync(scenarioPath, scenario, "utf8");
 
   process.stdout.write(`OK: created ${path.relative(repoRoot, skillMd)} and ${path.relative(repoRoot, scenarioPath)}\n`);

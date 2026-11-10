@@ -1,0 +1,23 @@
+{
+  "name": "Create a cover pattern with repeated display text over image",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-patterns"],
+  "query": "Create a full-width cover pattern for a jazz collection with a background image and one short word repeated four times in gradually darker display colors.",
+  "expected_behavior": [
+    "Step 1: Route to wp-patterns and confirm image asset, repeated word, text domain, metadata, and color presets",
+    "Step 2: Use a Cover block with image, focal point, and dim or duotone treatment",
+    "Step 3: Repeat only a short readable word or phrase, not long content",
+    "Step 4: Use varied display colors or preset tones to create depth while preserving contrast",
+    "Step 5: Keep the repeated text meaningful as a poster-like visual device",
+    "Step 6: Escape and translate visible strings",
+    "Step 7: Verify readability, mobile fit, and editor parsing"
+  ],
+  "success_criteria": [
+    "Uses Cover with image and intentional overlay/focal treatment",
+    "Repeats a short display word in varied tones",
+    "Does not repeat long paragraphs or create unreadable clutter",
+    "Uses block-native typography and color choices",
+    "All visible strings are escaped and internationalized",
+    "No scripts, inline style tags, custom CSS classes, or runtime PHP",
+    "Verification includes mobile overflow and readability"
+  ]
+}

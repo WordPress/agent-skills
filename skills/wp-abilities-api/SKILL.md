@@ -1,7 +1,7 @@
 ---
 name: wp-abilities-api
 description: "Use when working with the WordPress Abilities API (wp_register_ability, wp_register_ability_category, /wp-json/wp-abilities/v1/*, @wordpress/abilities) including defining abilities, categories, meta, REST exposure, and permissions checks for clients."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
 ---
 
 # WP Abilities API
@@ -22,6 +22,8 @@ Use this skill when the task involves:
 - Where the change should live (plugin vs theme vs mu-plugin).
 
 ## Procedure
+
+Before deciding what to register, read `references/domain-vs-projection.md` — abilities live at the domain capability layer; MCP / Command Palette / REST exposure is a projection. Registration shape and exposure shape are different decisions, and conflating them forces re-registration every time a consumer's constraints change.
 
 ### 1) Confirm availability and version constraints
 
@@ -46,6 +48,14 @@ If none exist, decide whether you’re introducing Abilities API fresh (new regi
 If you need a logical grouping, register an ability category early (see `references/php-registration.md`).
 
 ### 4) Register abilities (PHP)
+
+For grouping decisions (how many abilities to register, and where to put filters vs. new ability names), read `references/grouping-heuristic.md` first — it keeps you from shipping one atomic ability per REST operation.
+
+To avoid drift between the ability and the existing UI / REST code path, see `references/shared-core-service.md` — abilities, REST handlers, CLI commands, and UI controllers should be thin adapters over a shared service. The reference also covers the metric trap (REST handlers that emit usage telemetry) and the `AGENTS.md` rule for keeping registrations in sync when underlying code paths change.
+
+For shared helper patterns when multiple execute callbacks delegate to existing REST controllers, see `references/plugin-family-patterns.md` (identify the shared-API-client vs zero-arg-controllers shape) and `references/delegate-helper-pattern.md` (one helper shape that works, and when not to use it).
+
+For standardized `WP_Error` codes that let agents reason about retry vs. escalation, see `references/error-code-vocabulary.md`.
 
 Implement the ability in PHP registration with:
 
@@ -86,6 +96,8 @@ Use the documented init hooks for Abilities API registration so they load at the
   - wrong REST base/namespace,
   - JS dependency not bundled,
   - caching (object/page caches) masking changes.
+- Execute callback returns unexpected errors or silently ignores input:
+  - `input_schema` defaults aren't being applied, pagination key drift between the ability and the backing, or `empty()`-based ID validation — see `references/input-schema-gotchas.md`.
 
 ## Escalation
 

@@ -1,0 +1,26 @@
+{
+  "name": "Produce an Abilities API audit doc for a plugin with a non-standard REST layout",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-abilities-audit", "wp-abilities-api"],
+  "query": "I'm working on a plugin checkout that currently registers zero abilities. Its REST controllers live under `includes/api/` (not the standard `includes/admin/` layout) and extend a post-type-backed base controller for a custom post type with distinct read and write capabilities. Produce a Phase-1 Abilities API audit doc at `~/notes/2026-04-20-abilities-audit-<plugin>.md` so we can hand it to engineering for implementation.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router to classify the repo, then route to wp-abilities-audit",
+    "Step 2: Run wp-project-triage to populate version signals",
+    "Step 3: Use glob-first/grep-fallback enumeration; fall through to grep because includes/admin glob returns zero hits",
+    "Step 4: Trace post-type-backed capabilities and produce a {read, write} structured capability_gate",
+    "Step 5: Apply semantic-intent grouping per wp-abilities-api/references/grouping-heuristic.md; do NOT atomize one ability per HTTP method",
+    "Step 6: Mark inherited routes with backing.inherited_from and null line numbers per audit-schema.md",
+    "Step 7: Write the audit doc to the user-provided output path, NOT into the plugin worktree",
+    "Step 8: Include at least one entry in surfaced_gaps for a high-leverage zero-arg candidate or a backing: null gap",
+    "Step 9: For each proposed ability, record the implementation-readiness fields per audit-schema.md: use_case_fit (one-sentence workflow), side_effects (array; empty list is a load-bearing fact, not a missing value), seed_data_needs (representative-data shape or null)"
+  ],
+  "success_criteria": [
+    "Routes to wp-abilities-audit skill",
+    "Output is a markdown file at the user-specified path with Last updated header, YAML block, and prose sections",
+    "capability_gate uses the structured {read, write} object form",
+    "proposed_abilities has at least 3 entries with at least one read and one write",
+    "surfaced_gaps array has at least one entry",
+    "Controller Inventory table lists every controller grep enumerated",
+    "Notes and Surprises section captures at least one judgment call",
+    "Every entry in proposed_abilities populates use_case_fit, side_effects, and seed_data_needs (the implementation-readiness fields)"
+  ]
+}

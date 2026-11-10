@@ -1,0 +1,23 @@
+{
+  "name": "Create a fullscreen color-field pattern with image and right content area",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-patterns"],
+  "query": "Create a full-width pattern with a solid color field, a large image on the left, and a right content column with italic uppercase heading, italic description, and a filled CTA.",
+  "expected_behavior": [
+    "Step 1: Route to wp-patterns and confirm asset, color presets, text domain, and pattern metadata",
+    "Step 2: Use Cover or Group with a solid background color and block-native flex/wrap layout",
+    "Step 3: Place the image and content in an asymmetric layout that stacks on mobile",
+    "Step 4: Use italic display typography and a short description without sacrificing readability",
+    "Step 5: Add a filled CTA with action-specific label",
+    "Step 6: Escape/i18n all strings and handle image alt text intentionally",
+    "Step 7: Verify mobile stacking, contrast, and editor parsing"
+  ],
+  "success_criteria": [
+    "Composition uses a large image plus a right content area over a strong color field",
+    "Typography treatment is distinctive but readable",
+    "CTA is specific and accessible",
+    "Image uses local/approved asset and appropriate alt handling",
+    "Uses block-native layout and presets where possible",
+    "Avoids scripts, inline style tags, and custom CSS classes",
+    "Verification includes responsive stacking"
+  ]
+}

@@ -15,8 +15,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: Run local eval harness
-        run: node eval/harness/run.mjs
+      - name: Validate skill metadata and triage report
+        run: node shared/scripts/validate-skills.mjs
 
       - name: Build skillpacks (Codex + VS Code)
         run: node shared/scripts/skillpack-build.mjs --clean --out=dist --targets=codex,vscode

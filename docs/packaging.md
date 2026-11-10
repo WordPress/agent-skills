@@ -17,6 +17,10 @@ Outputs:
 - `dist/claude/.claude/skills/*` (Claude Code repo layout)
 - `dist/cursor/.cursor/skills/*` (Cursor repo layout)
 
+Antigravity is opt-in. Add `--targets=codex,vscode,claude,cursor,antigravity` to also build:
+
+- `dist/antigravity/.agents/skills/*` (Antigravity repo layout)
+
 ## Install into another repo
 
 1. Build dist (above).
@@ -24,5 +28,9 @@ Outputs:
 
 - `node shared/scripts/skillpack-install.mjs --dest=../some-repo --targets=codex,vscode,claude,cursor`
 
-By default, install mode is `replace` (it replaces only the skill directories it installs).
+To include Antigravity, build it first and include it in the install targets:
 
+- `node shared/scripts/skillpack-build.mjs --clean --targets=codex,vscode,claude,cursor,antigravity`
+- `node shared/scripts/skillpack-install.mjs --dest=../some-repo --targets=codex,vscode,claude,cursor,antigravity`
+
+By default, install mode is `replace` (it replaces only the skill directories it installs).

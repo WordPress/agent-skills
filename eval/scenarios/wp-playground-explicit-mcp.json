@@ -1,0 +1,18 @@
+{
+  "name": "Honor an explicitly requested Playground MCP connection",
+  "skills": [
+    "wp-playground"
+  ],
+  "query": "Use my existing Playground MCP connection to inspect the active theme. WebMCP site tools are also available, but I want this task performed through MCP.",
+  "expected_behavior": [
+    "Read website.md and select mcp.md for the explicitly requested connection",
+    "Respect the explicitly requested MCP connection",
+    "Inspect the MCP tool schema and confirm the target site",
+    "Read and report the active theme using MCP"
+  ],
+  "success_criteria": [
+    "Does not override the explicit MCP request with the default WebMCP preference",
+    "Preserves the intended site and verifies the reported state",
+    "Loads the MCP reference without requiring WebMCP discovery"
+  ]
+}

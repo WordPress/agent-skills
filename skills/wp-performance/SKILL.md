@@ -1,7 +1,7 @@
 ---
 name: wp-performance
 description: "Use when investigating or improving WordPress performance (backend-only agent): profiling and measurement (WP-CLI profile/doctor, Server-Timing, Query Monitor via REST headers), database/query optimization, autoloaded options, object caching, cron, HTTP API calls, and safe verification."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Backend-only agent; prefers WP-CLI (doctor/profile) when available."
+compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Backend-only agent; prefers WP-CLI (doctor/profile) when available."
 ---
 
 # WP Performance (backend-only)
@@ -55,7 +55,10 @@ This detects:
 
 If you have WP-CLI access, prefer:
 
-- `wp doctor check`
+- `wp doctor check --all` (add `--spotlight` to show only warnings and errors)
+- or name the checks for a perf-focused run: `wp doctor check autoload-options-size constant-savequeries-falsy constant-wp-debug-falsy`
+
+`wp doctor check` with no check names and no `--all` exits with an error instead of running anything.
 
 It catches common production foot-guns (autoload bloat, SAVEQUERIES/WP_DEBUG, plugin counts, updates).
 
@@ -126,7 +129,7 @@ Reference: https://make.wordpress.org/core/2025/11/18/wordpress-6-9-frontend-per
 ## Verification
 
 - Baseline vs after numbers are captured (same environment, same URL/route).
-- `wp doctor check` is clean (or improved) when applicable.
+- `wp doctor check --all` is clean (or improved) when applicable.
 - No new PHP errors or warnings in logs.
 - No cache flush is required for correctness (cache flush should be last resort).
 

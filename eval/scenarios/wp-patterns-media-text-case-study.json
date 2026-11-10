@@ -1,0 +1,23 @@
+{
+  "name": "Create a sparse media-text case study pattern",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-patterns"],
+  "query": "Create a full-width case study teaser pattern with a large architectural image on the left and sparse centered copy on the right: title plus one text link.",
+  "expected_behavior": [
+    "Step 1: Route to wp-patterns and confirm target theme/plugin, image asset, title, slug, category, and text domain",
+    "Step 2: Use Media & Text or equivalent block-native layout aligned full",
+    "Step 3: Let the image carry most of the visual weight and keep the content side intentionally quiet",
+    "Step 4: Use a concise heading and an action-specific case-study link",
+    "Step 5: Provide descriptive alt text for the image if informational",
+    "Step 6: Escape and internationalize all visible strings and attributes",
+    "Step 7: Verify mobile stacking, image cropping, and block parsing"
+  ],
+  "success_criteria": [
+    "Uses Media & Text or a block-native two-column layout without custom CSS classes",
+    "Image and text have intentionally asymmetric visual weight",
+    "Includes a concise heading and descriptive link label",
+    "Image alt text is descriptive unless the image is clearly decorative",
+    "Uses theme presets or block attributes for spacing and color",
+    "No scripts, inline style tags, or raw untranslated PHP strings",
+    "Verification includes mobile stacking"
+  ]
+}

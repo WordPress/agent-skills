@@ -1,0 +1,19 @@
+{
+  "name": "Troubleshoot wp-env port conflict",
+  "skills": ["wp-env"],
+  "query": "wp-env start is failing because port 8888 is already in use. How do I fix this?",
+  "expected_behavior": [
+    "Step 1: Identify the port conflict from the error message",
+    "Step 2: Suggest using --auto-port flag to find an available port",
+    "Step 3: Alternatively, configure a custom port in .wp-env.json",
+    "Step 4: If another wp-env instance is running, stop it with wp-env stop",
+    "Step 5: Restart with wp-env start --auto-port or updated config",
+    "Step 6: Verify with wp-env status to confirm new port"
+  ],
+  "success_criteria": [
+    "Port conflict is correctly diagnosed",
+    "Solution uses --auto-port or custom port config (not killing random processes)",
+    "Environment starts successfully on a non-conflicting port",
+    "User is informed of the new URL to access WordPress"
+  ]
+}

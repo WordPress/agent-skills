@@ -1,0 +1,22 @@
+{
+  "name": "Validate a plugin name and slug against WordPress.org trademark rules",
+  "skills": ["wp-plugin-directory-guidelines"],
+  "query": "I want to submit a plugin called 'WooCommerce Pricing Rates' with slug 'woocommerce-pricing-rates'. Is this name and slug acceptable on WordPress.org?",
+  "expected_behavior": [
+    "Step 1: Cite Guideline 17 (Respect Trademarks and Copyrights) as the controlling rule",
+    "Step 2: Flag the name as FAIL because it starts with the WooCommerce trademark",
+    "Step 3: Explain the 'connector' rule — trademarks/project names are only allowed after 'for', 'with', 'using', or 'and'",
+    "Step 4: Flag the slug as FAIL because 'woocommerce-' appears in the static trademark slug list (references/naming-rules.md) and cannot begin a slug",
+    "Step 5: Suggest a compliant rename such as 'Pricing Rates for WooCommerce' with slug 'pricing-rates-for-woocommerce'",
+    "Step 6: Remind that slugs must be lowercase, hyphen-separated, and at most 50 characters",
+    "Step 7: Note related pitfalls: portmanteaus like '-Press' or 'Woo-' are also blocked, and banned terms (WP, Facebook, Insta, Gutenberg, etc.) must not appear anywhere in the name"
+  ],
+  "success_criteria": [
+    "Cites Guideline 17 explicitly",
+    "Correctly rejects 'WooCommerce Pricing Rates' because the trademark leads the name",
+    "Correctly rejects the 'woocommerce-*' slug based on the static trademark slug list",
+    "Proposes a compliant alternative with the trademark placed after a connector",
+    "Mentions slug formatting rules (lowercase, hyphens, ≤ 50 chars)",
+    "Points the user at references/naming-rules.md for the full list"
+  ]
+}
