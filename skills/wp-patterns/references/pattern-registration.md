@@ -49,7 +49,13 @@ File names are descriptive but don't affect registration — the `Slug` header i
 
 ## PHP in Pattern Files
 
-Pattern files execute PHP at registration time (not render time). This is critical:
+Since WordPress 6.5, pattern files in a theme's `/patterns` folder are registered with a `filePath`. WordPress includes the file, and runs its PHP, the first time the pattern content is requested in a request: when the inserter or the REST API lists patterns, or when a template renders a `core/pattern` block. It does not run once at `init`, and it does not run again for content that was already inserted.
+
+What this means in practice:
+
+- A pattern inserted into a post or page is copied into the post content as block markup. Whatever the PHP printed at that moment is frozen there.
+- The same file can run in different contexts (editor REST request, front-end template render), so output that depends on the current user, query or admin screen is unpredictable.
+- For live data (posts, titles, the current user), use blocks that render dynamically, such as Query Loop, Post Title or Site Title, instead of PHP output.
 
 ### Safe Functions
 
@@ -69,14 +75,14 @@ Always use:
 ### Unsafe — Do NOT Use
 
 ```php
-// WRONG: query-dependent — runs at init, not render
+// WRONG: query- or context-dependent, frozen into content on insert
 <?php $posts = get_posts(); ?>
 <?php the_title(); ?>
 <?php wp_get_current_user(); ?>
 <?php is_admin(); ?>
 ```
 
-Pattern PHP executes once when the pattern is registered (during `init`), not when the page renders. Any dynamic runtime data will be stale or unavailable.
+The output of these calls depends on the request that happens to load the pattern, and once the pattern is inserted it no longer updates. Use dynamic blocks for runtime data.
 
 ### i18n Requirements
 
@@ -134,16 +140,7 @@ add_action( 'init', function() {
 });
 ```
 
-For themes, categories can also be registered via `theme.json`:
-```json
-{
-    "patterns": {
-        "categories": [
-            { "name": "theme-slug-portfolio", "label": "Portfolio" }
-        ]
-    }
-}
-```
+`theme.json` cannot register pattern categories. Its top-level `patterns` key is an array of Pattern Directory slugs to load (`"patterns": [ "short-text-surrounded-by-round-images" ]`); an object there fails schema validation. Register custom categories in PHP as shown above.
 
 ## Unregistering Patterns
 
