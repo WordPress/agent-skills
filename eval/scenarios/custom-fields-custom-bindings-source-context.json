@@ -1,0 +1,25 @@
+{
+  "name": "Create a custom Block Bindings source that uses post context",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-custom-fields"],
+  "query": "Book posts store the page count as integer post meta. Show it as a translated, formatted label like '1,024 pages' in a Paragraph inside the Query Loop on the books archive, and make it selectable in the editor's bindings UI.",
+  "expected_behavior": [
+    "Step 1: Run triage and search for existing meta and bindings sources",
+    "Step 2: Explain that core/post-meta cannot format the value, so a custom source is needed",
+    "Step 3: Register the source on init with register_block_bindings_source() using a namespaced lowercase name, a translated label, get_value_callback, and uses_context postId and postType",
+    "Step 4: In get_value_callback read postId from $block_instance->context, check the post type, check read access like core/post-meta does, and return null when nothing should render",
+    "Step 5: Format with _n() and number_format_i18n() and escape the plain-text result with esc_html()",
+    "Step 6: Register the editor side with registerBlockBindingsSource() using the same name, getValues reading the edited entity record, and getFieldsList returning fields with type string",
+    "Step 7: Leave out setValues (read-only computed value) and explain that the bound paragraph is therefore not editable",
+    "Step 8: Verify on the archive that each post in the Query Loop shows its own value, and that the source appears in the Attributes panel"
+  ],
+  "success_criteria": [
+    "Source name matches namespace/slug in lowercase and is registered on init",
+    "Declares uses_context with postId (and postType)",
+    "Callback returns null instead of an empty or unescaped value when unavailable",
+    "Callback enforces read permissions",
+    "Uses translation functions with a translators comment and number_format_i18n()",
+    "JS registration uses the same source name and provides getValues and getFieldsList",
+    "Field type in getFieldsList is string so it is offered for Paragraph content",
+    "Mentions that Query Loop provides postId context per post"
+  ]
+}
