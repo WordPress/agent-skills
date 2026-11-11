@@ -25,7 +25,7 @@ compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Filesystem-based agent with
 
 2. **No JavaScript** — patterns are static `block markup`. For interactivity, use blocks that natively support it (Navigation, Search, Query Loop).
 
-3. **Registration-time PHP** — pattern files execute PHP once during registration, not at render. Read `references/pattern-registration.md` for safe output functions, i18n, and functions to avoid.
+3. **Static PHP output** — pattern file PHP runs when the pattern content is first loaded in a request, and its output is frozen into content on insert. Use it for i18n, escaping and asset URLs only. Read `references/pattern-registration.md` for safe output functions, i18n, and functions to avoid.
 
 4. **Valid nesting** — read `references/block-markup-reference.md` for comment syntax and nesting rules.
 
@@ -44,7 +44,7 @@ compatibility: "Targets WordPress 7.0+ (PHP 7.4.0+). Filesystem-based agent with
 3. Confirm the pattern belongs in a theme `patterns/` directory or needs manual plugin registration.
 4. If multiple themes/plugins exist, scope all changes to the requested target.
 
-If the user did not provide required inputs, infer only low-risk defaults. Ask before inventing a theme slug, text domain, asset path, custom post type, taxonomy, event date field, or theme-specific `preset`. If `theme.json` is missing or presets cannot be verified, use conservative core presets or ask before using theme-specific slugs.
+If the user did not provide required inputs, infer only low-risk defaults. Ask before inventing a theme slug, text domain, asset path, custom post type, taxonomy, event date field, or theme-specific `preset`. If `theme.json` is missing or presets cannot be verified, ask before using any preset slug. Core default presets are only available while the theme does not disable them (`defaultPalette`, `defaultFontSizes`, `defaultSpacingSizes`), see `references/design-with-tokens.md`.
 
 **Done when:** target theme/plugin root, pattern type, and registration path are confirmed.
 

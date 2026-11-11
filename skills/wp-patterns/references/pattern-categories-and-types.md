@@ -2,10 +2,11 @@
 
 ## Default Pattern Categories
 
-WordPress registers these categories by default:
+WordPress registers these categories by default (`_register_core_block_patterns_and_categories()` in `wp-includes/block-patterns.php`):
 
 | Slug | Label | Typical Content |
 |------|-------|-----------------|
+| `audio` | Audio | Audio players and podcast sections |
 | `banner` | Banner | Hero sections, full-width announcements |
 | `buttons` | Buttons | Button groups and CTA layouts |
 | `call-to-action` | Call to Action | Conversion-focused sections |
@@ -16,21 +17,23 @@ WordPress registers these categories by default:
 | `gallery` | Gallery | Image galleries and grids |
 | `header` | Header | Site header/navigation layouts |
 | `media` | Media | Image/video showcase sections |
+| `navigation` | Navigation | Site navigation designs |
 | `posts` | Posts | Blog post listing layouts |
-| `pricing` | Pricing | Pricing tables and comparison |
 | `services` | Services | Service/feature showcases |
 | `team` | Team | Team member displays |
 | `testimonials` | Testimonials | Reviews, quotes, social proof |
 | `text` | Text | Text-focused sections and articles |
 | `about` | About | About page sections |
 | `portfolio` | Portfolio | Portfolio/work showcases |
-| `newsletter` | Newsletter | Email signup sections |
 | `query` | Query | Custom post queries/loops |
+| `videos` | Videos | Video showcase sections |
+
+There is no default `pricing` or `newsletter` category. If a pattern needs one, register it first with `register_block_pattern_category()` under a theme-prefixed slug such as `theme-slug-pricing` (see `pattern-registration.md`).
 
 ### Category Selection Guidance
 
 - Use **multiple categories** when a pattern fits more than one (e.g., `banner, call-to-action`)
-- A hero section with signup form → `banner, call-to-action, newsletter`
+- A hero section with signup form → `banner, call-to-action` (plus a registered custom category such as `theme-slug-newsletter`, if the theme has one)
 - A team grid with bios → `team, about`
 - A blog layout → `posts, query`
 
