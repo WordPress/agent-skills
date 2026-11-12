@@ -14,10 +14,12 @@ This document proposes the tech stack, data model approach, API design, and key 
 - **Runtime**: Node.js (18+ LTS)
 - **Framework**: Express.js (lightweight, well-documented, battle-tested)
 - **Language**: TypeScript (type safety, refactoring confidence)
-- **Database**: PostgreSQL (15+, JSONB for flexibility, strong relational model, proven at scale)
+- **Database**: PostgreSQL (16+, JSONB for flexibility, strong relational model, proven at scale)
+- **ORM**: Drizzle (better type inference, migration control, edge-ready — recommended over Prisma)
 - **Job Queue**: Bull (Redis-backed, simple job scheduling for email, notifications)
 - **Caching**: Redis (session management, real-time updates)
 - **Search** (optional future): Elasticsearch or TypeSense (for advanced search across leads, events)
+- **Events**: EventEmitter (Node.js built-in, event registry for blocks communication)
 
 ### Frontend
 - **Framework**: React 18+ with TypeScript
@@ -29,9 +31,11 @@ This document proposes the tech stack, data model approach, API design, and key 
 - **Charting**: Recharts or Chart.js (clean dashboards, minimal dependencies)
 
 ### DevOps & Hosting
-- **Container**: Docker (Dockerfile, docker-compose locally)
-- **Hosting**: Vercel (frontend) + Heroku/Railway/Fly.io (backend) for MVP, migrate to AWS/GCP later
-- **Database Hosting**: Managed PostgreSQL (Heroku Postgres, Railway, or AWS RDS)
+- **Container**: Docker (Dockerfile, docker-compose for local dev + self-hosted deployments)
+- **Development**: docker-compose.yml with postgres:16, redis:7, api:3000, frontend:3001, migrate service
+- **Self-Hosting**: Franchisees can run `docker compose up` locally (BYOK compliance, no third-party data)
+- **Cloud Hosting** (for SaaS offering): Fly.io/Railway (backend) + Vercel (frontend) for MVP, AWS/GCP later
+- **Database Hosting**: PostgreSQL 16 (Managed on cloud, or self-hosted via Docker)
 - **CDN**: Cloudflare (DDoS protection, caching, fast delivery)
 - **Monitoring**: Sentry + Datadog (error tracking, APM)
 - **Analytics**: PostHog (open-source, privacy-first product analytics)
@@ -512,9 +516,10 @@ Shared
 
 ## Deployment Architecture
 
+### Cloud Deployment (SaaS offering)
 ```
 Frontend (Vercel)
-  ├─ React app (built static)
+  ├─ Next.js or React app (built static)
   └─ Automatic deploys on push to main
 
 API Server (Fly.io or Railway)
@@ -546,6 +551,23 @@ Payment Gateway (Stripe)
   └─ Royalty payments (optional, if you auto-pay)
 ```
 
+### Self-Hosted Deployment (docker-compose)
+```
+docker-compose.yml (one command to run entire platform):
+  ├─ postgres:16 (persistent data volume)
+  ├─ redis:7 (session + job queue)
+  ├─ app:3000 (Express API backend)
+  ├─ frontend:3001 (React/Next.js frontend, optional)
+  └─ migrate (auto-runs Drizzle migrations on startup)
+
+Features:
+  • BYOK (bring-your-own-key) for all integrations
+  • No data leaves the franchisee's machine
+  • Can run on-premises or private cloud
+  • Health checks built-in
+  • Volume persistence for database
+```
+
 ---
 
 ## Key Architectural Decisions
@@ -555,22 +577,38 @@ Payment Gateway (Stripe)
 **Rationale**: Faster to build, simpler to manage, easy to add ACID transactions.
 **Revisit**: When one vertical has >1,000 concurrent users or different scaling needs.
 
-### Decision 2: REST API vs. GraphQL
+### Decision 2: ORM: Drizzle vs. Prisma
+**Decision**: **Drizzle ORM** (recommended over Prisma).
+**Rationale**: Better type inference, explicit migration control, smaller bundle, proven by SeldonFrame.
+**Tradeoff**: Smaller community than Prisma, but still well-documented.
+**Implementation**: Follow SeldonFrame's pattern (Drizzle schema → auto-migrations → docker-migrate.sh)
+
+### Decision 3: REST API vs. GraphQL
 **Decision**: REST API (simple endpoint structure).
 **Rationale**: Easier to paginate, cache, secure. No GraphQL N+1 complexity.
 **Revisit**: If frontend needs complex nested queries or mobile bandwidth becomes issue.
 
-### Decision 3: Self-Hosted vs. Managed Hosting
-**Decision**: Managed hosting (Vercel, Fly.io, Heroku Postgres).
-**Rationale**: No ops burden, automatic scaling, included monitoring & backups.
-**Revisit**: When you have >100k users or cost becomes prohibitive.
+### Decision 4: Self-Hosted vs. Managed Hosting
+**Decision**: **Both** — Cloud (Fly.io/Vercel) for SaaS, Docker Compose for self-hosted.
+**Rationale**: Franchisees need on-premises option for compliance + data sovereignty.
+**Implementation**: Single codebase, docker-compose.yml in repo for franchisees.
+**Benefit**: BYOK (Bring Your Own Key) — no third-party data access for sensitive verticals.
 
-### Decision 4: Monolithic Backend vs. Modular
-**Decision**: Monolithic backend (single Express.js codebase) with clear module separation.
-**Rationale**: Simpler to deploy, no distributed tracing complexity, faster requests.
-**Revisit**: When you need independent scaling for one vertical or want separate teams.
+### Decision 5: Monolithic Backend vs. Modular (Blocks System)
+**Decision**: Monolithic Express.js backend + **Blocks pattern** for vertical-specific logic.
+**Rationale**: Single deployment, clean separation of concerns (franchise/catering/events blocks).
+**Implementation**: `/src/blocks/franchise/`, `/src/blocks/catering/`, `/src/blocks/events/` directories.
+**Pattern**: Blocks communicate via typed events (event registry), not direct imports.
 
-### Decision 5: Real-Time vs. Polling
+### Decision 6: Event-Driven Communication
+**Decision**: EventEmitter + event registry for block-to-block communication.
+**Rationale**: Scales better than REST calls between modules, enables loose coupling.
+**Implementation**: 
+- Blocks emit events (e.g., `franchisee.royalty_calculated`)
+- Event registry validates event schemas (TypeScript)
+- Auto-generate event types from registry (like SeldonFrame's `emit:event-registry`)
+
+### Decision 7: Real-Time vs. Polling
 **Decision**: Server-sent events (SSE) for real-time updates (notifications, calendar changes).
 **Rationale**: Simpler than WebSockets, good enough for MVP, easier to scale.
 **Revisit**: If mobile app needs true bidirectional real-time (e.g., live collaboration).

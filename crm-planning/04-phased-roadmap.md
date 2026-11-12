@@ -52,24 +52,40 @@ This document defines the MVP scope, phased releases, timeline, and go-to-market
 ## Timeline & Phases
 
 ### Phase 0: Foundation (Weeks 1-2)
-**What**: Core platform, dev environment, CI/CD pipeline
+**What**: Core platform, dev environment, CI/CD pipeline, architectural setup
 
 **Tasks**:
-- [ ] Repository setup (monorepo structure: `/backend`, `/frontend`, `/planning`)
-- [ ] Database schema creation (all 3 verticals, with constraints)
-- [ ] User auth system (register, login, JWT)
+- [ ] Repository setup (Turbo monorepo: `/packages/api`, `/packages/frontend`, `/packages/core`)
+- [ ] Docker Compose setup (postgres:16, redis:7, app, frontend, migrate service)
+- [ ] Database schema creation using **Drizzle** (all 3 verticals, with constraints)
+  - [ ] Create `packages/api/drizzle/schema.ts`
+  - [ ] Auto-generate migrations: `pnpm db:generate`
+  - [ ] Create `docker-migrate.sh` (like SeldonFrame)
+- [ ] Event registry system (EventEmitter + event schema registry)
+  - [ ] TypeScript event types auto-generation script
+  - [ ] Emit/subscribe patterns documented
+- [ ] Blocks directory structure
+  - [ ] `/packages/api/src/blocks/shared/` (auth, contacts, calendar)
+  - [ ] `/packages/api/src/blocks/events/` (stubbed for Phase 1)
+  - [ ] `/packages/api/src/blocks/catering/` (stubbed for Phase 2)
+  - [ ] `/packages/api/src/blocks/franchise/` (stubbed for Phase 3)
+- [ ] User auth system (JWT, session management via Redis)
 - [ ] Organization & permission system (franchisee, staff, organizer roles)
-- [ ] Deployment pipeline (GitHub Actions → Vercel/Fly.io)
+- [ ] API router structure (Express, organized by block)
+- [ ] Deployment pipeline (GitHub Actions → Fly.io or Railway)
 - [ ] Email templating system (SendGrid integration)
-- [ ] Notification system (in-app, email, SMS)
+- [ ] Notification system (in-app, email, SMS via SendGrid)
 - [ ] Logging & error tracking (Sentry)
+- [ ] Testing setup (Jest + Playwright configured, first smoke tests)
 
 **Deliverables**:
-- Deployed staging environment
+- Deployed staging environment (cloud + docker-compose locally)
 - Admin dashboard (user management, org management)
 - Basic API endpoints for auth & org management
+- Blocks system skeleton with event registry working
+- Docker Compose runs cleanly: `docker compose up` → app at localhost:3000
 
-**Team**: 1 full-stack engineer + DevOps person (or 1 senior engineer doing both)
+**Team**: 1 full-stack engineer + 0.5 DevOps (or 1 senior doing both)
 
 ---
 
