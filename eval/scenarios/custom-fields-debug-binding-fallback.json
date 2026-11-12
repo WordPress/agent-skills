@@ -1,0 +1,19 @@
+{
+  "name": "Debug a post meta binding that shows its fallback text",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-custom-fields"],
+  "query": "A Heading block bound to core/post-meta with key _event_venue shows 'Venue' on the front end instead of the venue. The meta is set on the post. Fix it.",
+  "expected_behavior": [
+    "Step 1: Search for the key's registration and the binding markup",
+    "Step 2: Identify that keys starting with an underscore are protected and never output by core/post-meta or listed in the bindings UI",
+    "Step 3: Check the remaining conditions: key registered with show_in_rest for the post type, post readable by the visitor, postId context available, Heading content is a bindable attribute",
+    "Step 4: Propose a public key (for example event_venue) registered with register_post_meta, with a migration for existing values",
+    "Step 5: Update the binding args.key and verify the front end and REST output"
+  ],
+  "success_criteria": [
+    "Explains the protected-key rule as the root cause",
+    "Keeps the key protected and moves public data to a new public key",
+    "Registers the replacement key with show_in_rest and single true",
+    "Includes a data migration step for existing posts",
+    "Verifies the fix on the front end"
+  ]
+}

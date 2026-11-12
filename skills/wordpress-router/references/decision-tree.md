@@ -43,6 +43,8 @@ Route by intent even if repo kind is broad (like `wp-site`):
   - Route → `wp-plugin-development`.
 - **REST endpoint / register_rest_route / permission_callback**
   - Route → `wp-rest-api`.
+- **Post/term/user meta / register_post_meta / register_meta / Block Bindings / core/post-meta / pattern overrides**
+  - Route → `wp-custom-fields` (custom REST routes stay with `wp-rest-api`, custom block code with `wp-block-development`).
 - **WP-CLI / wp-cli.yml / commands**
   - Route → `wp-wpcli-and-ops`.
 - **Build tooling / @wordpress/scripts / webpack / Vite / npm scripts**

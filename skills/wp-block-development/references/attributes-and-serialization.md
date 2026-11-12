@@ -17,6 +17,6 @@ Read the canonical guide for supported `source`/`selector`/`attribute` patterns:
 ## Common pitfalls
 
 - Changing saved HTML without a `deprecated` version breaks existing posts.
-- Using the `meta` attribute source (deprecated) causes long-term pain; avoid it.
+- Using the `meta` attribute source (deprecated) causes long-term pain; avoid it. Read meta with `useEntityProp` or connect attributes with Block Bindings (see the `wp-custom-fields` skill).
 - Choosing brittle selectors leads to attributes “not found” when markup changes slightly.
 

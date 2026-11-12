@@ -22,6 +22,7 @@
 - Use when the data is stored as meta.
 - Set `show_in_rest => true` to expose under `.meta`.
 - For `object` or `array` types, provide a JSON schema in `show_in_rest.schema`.
+- For registration arguments, editor use, and Block Bindings, see the `wp-custom-fields` skill.
 
 ## Links and embedding
 
