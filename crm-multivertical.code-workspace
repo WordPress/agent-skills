@@ -1,0 +1,82 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "files.exclude": {
+      "**/.git": true,
+      "**/node_modules": true,
+      "**/.DS_Store": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/.git": true,
+      "**/dist": true,
+      "**/build": true
+    },
+    "[markdown]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+      "editor.wordWrap": "on"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+      }
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "github.copilot",
+      "eamodio.gitlens",
+      "ms-vscode.makefile-tools",
+      "redhat.vscode-yaml"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Node: Current File",
+        "type": "node",
+        "request": "launch",
+        "program": "${file}",
+        "restart": true,
+        "console": "integratedTerminal"
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Git: Pull latest",
+        "type": "shell",
+        "command": "git pull origin $(git rev-parse --abbrev-ref HEAD)",
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        }
+      },
+      {
+        "label": "Git: Push branch",
+        "type": "shell",
+        "command": "git push origin $(git rev-parse --abbrev-ref HEAD)",
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        }
+      }
+    ]
+  }
+}

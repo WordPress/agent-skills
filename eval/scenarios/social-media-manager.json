@@ -1,0 +1,24 @@
+{
+  "name": "Sub Zero — create and draft a single Instagram post",
+  "skills": ["social-media-manager"],
+  "query": "Create a Sub Zero Ice Cream Instagram post about our new brown butter bourbon pecan flavor",
+  "expected_behavior": [
+    "Step 1: Call GET /v2/users/me/accounts to discover connected platform account IDs",
+    "Step 2: Identify the post type as single post, Instagram primary",
+    "Step 3: Write an experiential, visual-first Instagram caption using Sub Zero brand voice",
+    "Step 4: Include core brand hashtags (#SubZeroIceCream, #LiquidNitrogenIceCream, #IceCreamExperience, #CustomIceCream, #PremiumIceCream) plus contextual flavor hashtags",
+    "Step 5: Ask the user whether to generate a visual for this post",
+    "Step 6: Present the draft caption for user review before submitting to Blotato",
+    "Step 7: On approval, call POST /v2/posts with the Instagram account ID and caption",
+    "Step 8: Poll GET /v2/posts/{postSubmissionId} for status",
+    "Step 9: Append an entry to posts-log.md at repo root with date, platform, post ID, and status"
+  ],
+  "success_criteria": [
+    "Caption is ≤ 2200 characters and leads with a sensory or experiential hook",
+    "All five core brand hashtags are present in the caption",
+    "At least 3 contextual flavor hashtags are included",
+    "User is shown the draft before any API submission",
+    "POST /v2/posts is called with correct platform value 'instagram' and the account ID",
+    "posts-log.md is created or updated with the new entry"
+  ]
+}
