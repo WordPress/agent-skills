@@ -89,6 +89,13 @@ See:
   - `references/security/database/04-identifiers.md` (`ORDER BY`, table, or column names)
   - `references/security/database/05-combined-query.md` (a query with both an `IN (...)` list and a request-chosen sort)
   - `references/security/database/06-sql-imports.md` (backup or import features only)
+- Input:
+  - `references/security/input/01-nonce-input.md` (nonce handling for applicable cookie-authenticated browser state changes)
+  - `references/security/input/02-explicit-keys.md` (read and unslash only expected request keys)
+  - `references/security/input/03-validate-sanitize-type.md` (validate and sanitize values for their data type)
+  - `references/security/input/04-cast-ids.md` (ID handling examples; choose coercion and validation for the task)
+  - `references/security/input/05-secrets.md` (handle opaque secrets without changing, displaying, or logging them)
+  - `references/security/input/06-allowlist-sensitive-positions.md` (allowlist request-selected names, callbacks, and targets)
 
 ### 5) Data storage, cron, migrations (if needed)
 

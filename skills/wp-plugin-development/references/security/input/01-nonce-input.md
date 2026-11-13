@@ -1,0 +1,81 @@
+# Input: Nonce Handling
+
+**Prohibited**
+
+None.
+
+**Required**
+
+- Sanitize a nonce before passing it to `wp_verify_nonce()`: `sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) )`. `check_admin_referer()` and `check_ajax_referer()` read the request themselves.
+- Stop the request before protected work when `wp_verify_nonce()` returns `false`; a valid nonce does not replace a capability check.
+- `check_admin_referer( $action )` defaults to `_wpnonce` and stops on failure. `check_ajax_referer( $action )` defaults to `_ajax_nonce`, then `_wpnonce`, and stops by default (`$stop = true`); when `$stop` is `false`, check its return value and stop explicitly.
+
+**Exceptions:** None.
+
+## Code
+
+Shows: verify the nonce, check `manage_options`, and stop before the protected write on either failure. The separate admin and AJAX handler examples use the corresponding nonce helper before the capability check and write.
+
+```php
+/*
+ * Unsafe: the raw superglobal goes straight into wp_verify_nonce(). A missing
+ * key raises an undefined-index warning, a non-string value (an array sent as
+ * _wpnonce[]) is passed through unchecked, and PHPCS flags the unsanitized
+ * read. The result is also never checked, so the handler runs even when the
+ * nonce is invalid.
+ */
+wp_verify_nonce( $_POST['_wpnonce'], 'myplugin_save' );
+update_option( 'myplugin_color', sanitize_text_field( wp_unslash( $_POST['color'] ?? '' ) ) );
+
+// Safe: verify the nonce and capability before the protected write.
+$nonce = sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) );
+if ( ! wp_verify_nonce( $nonce, 'myplugin_save' ) ) {
+	wp_die( esc_html__( 'Invalid request.', 'myplugin' ), '', array( 'response' => 403 ) );
+}
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You are not allowed to do this.', 'myplugin' ), '', array( 'response' => 403 ) );
+}
+update_option( 'myplugin_color', sanitize_text_field( wp_unslash( $_POST['color'] ?? '' ) ) );
+```
+
+Admin form and `admin-post.php` handler:
+
+```php
+check_admin_referer( 'myplugin_save' );      // Admin forms and admin-post.php.
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You are not allowed to do this.', 'myplugin' ), '', array( 'response' => 403 ) );
+}
+update_option( 'myplugin_color', sanitize_text_field( wp_unslash( $_POST['color'] ?? '' ) ) );
+```
+
+`admin-ajax.php` handler:
+
+```php
+check_ajax_referer( 'myplugin_save' );       // admin-ajax.php handlers.
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_send_json_error( null, 403 );
+}
+update_option( 'myplugin_color', sanitize_text_field( wp_unslash( $_POST['color'] ?? '' ) ) );
+```
+
+## Attack methodology
+
+These write-ups belong to the authorization surface and stay here until that surface is split into its own files.
+
+Cross-Site Request Forgery (CSRF) caused by missing nonce verification
+
+Security bulletins:
+- CWE-352, Cross-Site Request Forgery (CSRF)
+- CWE-79, Improper Neutralization of Input During Web Page Generation (Cross-site Scripting)
+- OWASP A01:2021, Broken Access Control (Top 10)
+
+- **Ignored nonce result → CSRF → stored XSS → admin takeover.** The handler calls `wp_verify_nonce()` but never checks the return value, so the check is effectively absent. 1. The attacker builds a page with a hidden form that posts to the plugin's `admin-post.php` action, with a script payload as the `color` value. 2. They get a logged-in administrator to open the page (a link in an email or support ticket). 3. The browser sends the administrator's cookies, the handler saves the payload, and the plugin later prints it unescaped. 4. The script now runs in the administrator's session, reads any nonce on the page, and creates a new administrator or installs a plugin. The nonce was meant to stop step 2 and didn't. Fix: stop the request when verification fails (`check_admin_referer()` does this automatically), *and* escape the output.
+
+Missing authorization (broken access control) - nonce is not sufficient to enforce capability checks (authorized.)
+
+Security bulletins:
+- CWE-862, Missing Authorization
+- CWE-285, Improper Authorization
+- OWASP A01:2021, Broken Access Control
+
+- **Valid nonce, no capability check → low-privilege write.** A nonce demonstrates possession of a valid token; it does not prove request origin or that the user may perform the action. WordPress says to assume nonces can be compromised and not to rely on them for authentication, authorization, or access control. If a subscriber obtains the nonce, they can replay it against a privileged action. Fix: pair the nonce with `current_user_can()`.
