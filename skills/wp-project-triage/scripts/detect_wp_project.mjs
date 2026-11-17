@@ -289,7 +289,8 @@ function buildRecommendations({ repoRoot, primaryKind, packageManager, packageJs
 }
 
 function main() {
-  const repoRoot = process.cwd();
+  const rootArg = process.argv.find((a) => a.startsWith("--root="));
+  const repoRoot = path.resolve(rootArg ? rootArg.slice("--root=".length) : process.cwd());
 
   const wpContent = path.join(repoRoot, "wp-content");
   const pluginsDir = path.join(wpContent, "plugins");

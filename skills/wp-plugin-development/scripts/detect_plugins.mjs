@@ -86,7 +86,8 @@ function parsePluginHeader(contents) {
 }
 
 function main() {
-  const repoRoot = process.cwd();
+  const rootArg = process.argv.find((a) => a.startsWith("--root="));
+  const repoRoot = path.resolve(rootArg ? rootArg.slice("--root=".length) : process.cwd());
 
   const { results: phpFiles, truncated } = findFilesRecursive(repoRoot, (p) => p.toLowerCase().endsWith(".php"), {
     maxFiles: 5000,

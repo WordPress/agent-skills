@@ -181,7 +181,8 @@ function extractStubPackageReferences(configText) {
  * @returns {object} A stable, machine-readable inspection report.
  */
 function buildReport() {
-  const repoRoot = process.cwd();
+  const rootArg = process.argv.find((a) => a.startsWith("--root="));
+  const repoRoot = path.resolve(rootArg ? rootArg.slice("--root=".length) : process.cwd());
 
   const composerPath = path.join(repoRoot, "composer.json");
   const composer = isFile(composerPath) ? readJsonSafe(composerPath) : null;
