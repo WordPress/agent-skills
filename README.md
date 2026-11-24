@@ -28,6 +28,7 @@ Agent Skills solve this by giving AI assistants **expert-level WordPress knowled
 | **wp-rest-api** | REST API routes/endpoints, schema, auth, and response shaping |
 | **wp-interactivity-api** | Frontend interactivity with `data-wp-*` directives and stores |
 | **wp-abilities-api** | Capability-based permissions and REST API authentication |
+| **wp-ability-development** | Design and review ability schemas, CRUD behavior, and permissions |
 | **wp-abilities-audit** | Audit a plugin's REST surface and propose Abilities API registrations |
 | **wp-abilities-verify** | Verify a plugin's Abilities API registrations against their declared annotations |
 | **wp-wpcli-and-ops** | WP-CLI commands, automation, multisite, search-replace |

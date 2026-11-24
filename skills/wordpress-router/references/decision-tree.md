@@ -23,7 +23,9 @@ Route by intent even if repo kind is broad (like `wp-site`):
 
 - **Interactivity API / data-wp-* directives / @wordpress/interactivity / viewScriptModule**
   - Route → `wp-interactivity-api`.
-- **Abilities API / wp_register_ability / wp-abilities/v1 / @wordpress/abilities**
+- **Design, implement, or review an ability’s schemas, CRUD behavior, or permissions**
+  - Route → `wp-ability-development`.
+- **Abilities API registration, exposure, or consumption / wp_register_ability / wp-abilities/v1 / @wordpress/abilities**
   - Route → `wp-abilities-api`.
 - **Ambiguous WordPress Playground requests**
   - Route → `wp-playground`, then follow its routing wrapper.

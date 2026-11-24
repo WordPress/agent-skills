@@ -1,0 +1,17 @@
+{
+  "name": "Review a notes ability family before release",
+  "skills": ["wp-ability-development"],
+  "query": "Review the ability contracts for my WordPress notes plugin before release. `acme/note-read` takes optional `id`, `slug`, `status`, and `author` fields at the top level. It returns a note if given `id` or `slug`, and a list otherwise. The editor needs single-note lookup by ID or slug, and the dashboard needs a list that can filter by status and author together. Both results expose `content_raw` and `content_rendered`. `acme/note-update` requires sending the whole note even for a title change. The permission callbacks check access, and the execution code relies on those callbacks. What would you change about the contracts and their implementation?",
+  "expected_behavior": [
+    "Propose focused lookup and collection contracts for the editor and dashboard.",
+    "Show how the input schemas express supported selectors, filter combinations, and partial edits.",
+    "Review the resource representation and permission checks across the family."
+  ],
+  "success_criteria": [
+    "`acme/note-get` returns a single note on success. `acme/note-query` returns the same collection shape for zero, one, or many matches.",
+    "The lookup selector accepts exactly one of ID and slug. The query groups status and author in one filter object and describes how both filters apply together.",
+    "Query items and single-note results share the same nested `content.raw` and `content.rendered` representation.",
+    "A title-only update accepts the note identifier and new title. The write applies only supplied fields and gives clearing an explicit meaning where supported.",
+    "The permission callback supports preflight, and execution checks authorization before reading protected data or applying changes."
+  ]
+}
