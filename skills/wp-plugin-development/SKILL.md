@@ -69,15 +69,33 @@ See:
 
 ### 4) Security baseline (always)
 
-Before shipping:
+Before shipping, work through the checklist in `references/security.md` for every area the change touches. Baseline:
 
-- Validate/sanitize input early; escape output late.
-- Use nonces to prevent CSRF *and* capability checks for authorization.
+- Validate/sanitize input early; escape output late (including shortcode, dynamic block, and filter output).
+- Use nonces to prevent CSRF *and* capability checks for authorization; give every REST route and ability a real `permission_callback` (`__return_true` only for intentionally public routes).
 - Avoid directly trusting `$_POST` / `$_GET`; use `wp_unslash()` and specific keys.
+- Sanitization is not allowlisting: request values that select option/meta/table names, file paths, callbacks, or capabilities must match a fixed allowlist.
 - Use `$wpdb->prepare()` for SQL; avoid building SQL with string concatenation.
+- No arbitrary code execution, executable uploads, or file writes outside a plugin directory in uploads; never `unserialize()` untrusted data.
+- Assess findings as chains: a missing capability check plus unescaped output plus a file write is a site takeover, not three minor issues.
+- Document external services in the readme; don't change other plugins, themes, or updates silently.
 
 See:
-- `references/security.md`
+- `references/security.md` (checklist and cross-cutting rules; read first)
+- Database:
+  - `references/security/database/01-use-wpdb.md` (any code that talks to the database)
+  - `references/security/database/02-prepare-values.md` (any query with a dynamic value)
+  - `references/security/database/03-dynamic-lists.md` (`IN (...)` lists)
+  - `references/security/database/04-identifiers.md` (`ORDER BY`, table, or column names)
+  - `references/security/database/05-combined-query.md` (a query with both an `IN (...)` list and a request-chosen sort)
+  - `references/security/database/06-sql-imports.md` (backup or import features only)
+- Input:
+  - `references/security/input/01-nonce-input.md` (nonce handling for applicable cookie-authenticated browser state changes)
+  - `references/security/input/02-explicit-keys.md` (read and unslash only expected request keys)
+  - `references/security/input/03-validate-sanitize-type.md` (validate and sanitize values for their data type)
+  - `references/security/input/04-cast-ids.md` (ID handling examples; choose coercion and validation for the task)
+  - `references/security/input/05-secrets.md` (handle opaque secrets without changing, displaying, or logging them)
+  - `references/security/input/06-allowlist-sensitive-positions.md` (allowlist request-selected names, callbacks, and targets)
 
 ### 5) Data storage, cron, migrations (if needed)
 
@@ -103,6 +121,7 @@ See:
   - settings not registered, wrong option group, missing capability, nonce failure
 - Security regressions:
   - nonce present but missing capability checks; or sanitized input not escaped on output
+  - sanitized request value used as an option/table name, path, or callback without an allowlist
 
 See:
 - `references/debugging.md`

@@ -1,0 +1,20 @@
+{
+  "name": "Map request values to owned classes before instantiating",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-plugin-development"],
+  "query": "This plugin runs new $format() with a class name taken from $_POST['format'] after sanitize_key(). Fix it so the request cannot create classes the plugin does not own, and only authorized users can run an export.",
+  "expected_behavior": [
+    "Step 1: Explain that sanitize_key() keeps the name well-formed but does not stop the request from choosing which class is created",
+    "Step 2: Replace the dynamic class name with a hardcoded map from request values to classes the plugin owns",
+    "Step 3: Verify the nonce before the protected work",
+    "Step 4: Reject a request value that is not a key in the map with a 400 response before any capability check or instantiation",
+    "Step 5: Check the capability, such as manage_options, and return 403 before instantiating the mapped class",
+    "Step 6: Instantiate only the mapped class and keep every class and method in the example defined"
+  ],
+  "success_criteria": [
+    "A request value outside the map is rejected without creating any class",
+    "An invalid nonce and a denied capability both stop before instantiation",
+    "Only the owned, mapped classes can be created",
+    "The nonce and capability checks do not replace the allowlist, and the allowlist does not replace them",
+    "The example calls no undefined function or class"
+  ]
+}

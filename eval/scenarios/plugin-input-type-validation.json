@@ -1,0 +1,31 @@
+{
+  "name": "Validate WordPress input types and sanitizer results",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-plugin-development"],
+  "query": "This WordPress plugin has a browser/admin POST handler that stores a submitted color, URL, strict boolean flag, and list of text values as options. The handler sanitizes inputs but does not check their types or sanitizer return values. Fix the handler so invalid nonce or denied manage_options capability stops the write, and array-valued URLs/colors, empty or invalid colors, unrecognized booleans, and non-string list elements are rejected.",
+  "expected_behavior": [
+    "Step 1: Identify the browser/admin POST option-write handler and the values it stores",
+    "Step 2: Verify the request nonce and manage_options capability before the protected write",
+    "Step 3: Simulate an invalid nonce, a valid nonce with denied manage_options capability, and an authorized request; assert that each failure path stops without calling update_option() and the authorized path calls it exactly once",
+    "Step 3a: Independently exercise those three paths for each browser/admin POST handler documented in directives 02 and 03",
+    "Step 4: Read only expected request keys and unslash each value before type checks and sanitization",
+    "Step 5: Check the color is a string before sanitize_hex_color() and reject both empty-string and null results when a color is required",
+    "Step 6: For strict boolean input, distinguish REST coercion from validation and reject a null FILTER_NULL_ON_FAILURE result",
+    "Step 7: Check the list is an array and every element is a string before array_map(); validate nested shape before map_deep()",
+    "Step 8: Check the unslashed URL is a string before esc_url_raw() and reject an empty sanitizer result",
+    "Step 9: Explain URL storage sanitation does not establish an absolute URL, allowed host, or SSRF protection; redirects and network requests require context-appropriate validation",
+    "Step 10: Explain absint() conversion of columns is not application-specific range/count validation"
+  ],
+  "success_criteria": [
+    "The browser/admin option write checks nonce and manage_options before any protected write",
+    "For the evaluated handler and both directive 02 and 03 handlers independently, invalid nonce and denied capability do not write; the authorized path writes exactly once",
+    "No array or object reaches a string-only sanitizer",
+    "Empty and malformed required colors are rejected instead of stored",
+    "Invalid boolean text is rejected rather than silently coerced to true",
+    "Non-string list entries are rejected before sanitization",
+    "Sanitizer results are checked according to each function's contract",
+    "Array-valued URL input is rejected before esc_url_raw(), and an empty result is not stored",
+    "URL storage sanitation is not presented as host validation or an SSRF defense",
+    "Both directive 02 and 03 browser/admin POST excerpts check nonce and capability before writes",
+    "Column-count conversion is not described as complete application-specific validation"
+  ]
+}

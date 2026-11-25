@@ -1,0 +1,21 @@
+{
+  "name": "Cast numeric IDs, reject zero, then authorize the object",
+  "skills": ["wordpress-router", "wp-project-triage", "wp-plugin-development"],
+  "query": "This plugin reads a post ID from $_POST with sanitize_text_field() and interpolates it into a SQL query. Fix it so malformed IDs cannot inject SQL and a user cannot read a post they are not allowed to see.",
+  "expected_behavior": [
+    "Step 1: Replace sanitize_text_field() with absint( wp_unslash( $_POST['post_id'] ?? '' ) )",
+    "Step 2: Explain that absint() is coercion, not validation: '5abc' and '-5' become 5, '1e3' becomes 1000, an array becomes 1, and a digit string above PHP_INT_MAX becomes PHP_INT_MAX",
+    "Step 3: Reject only an ID that converts to 0 (for example '0', 'abc', or a missing value) with a 400 response before any capability check or query",
+    "Step 4: Check the object-level capability, such as current_user_can( 'read_post', $post_id ), on the converted ID and return 403 on failure before the query runs",
+    "Step 5: Pass the converted ID through a %d placeholder in $wpdb->prepare()",
+    "Step 6: Do not claim that a cast makes the value well-formed or authorizes access to the object"
+  ],
+  "success_criteria": [
+    "Malformed numeric input is coerced, not rejected, and the explanation says so",
+    "An ID that converts to 0 returns 400 without a capability check or query",
+    "A capability failure returns 403 without a query",
+    "The query uses a %d placeholder with the converted ID",
+    "The capability check runs on the converted ID, before the query",
+    "No scenario text says casting validates or authorizes the ID"
+  ]
+}
