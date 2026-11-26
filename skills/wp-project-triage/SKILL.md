@@ -16,10 +16,15 @@ Use this skill to quickly understand what kind of WordPress repo you’re in and
 
 ## Procedure
 
+Replace `<wp-project-triage-dir>` below with the absolute directory containing that skill’s
+`SKILL.md` file (load that skill if needed). Keep the target project’s root as the working directory
+and retain the quotes around script paths. `references/` paths are relative to this skill’s
+directory.
+
 1. Run the detector (prints JSON to stdout):
-   - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
+   - `node "<wp-project-triage-dir>/scripts/detect_wp_project.mjs"`
 2. If you need the exact output contract, read:
-   - `skills/wp-project-triage/references/triage.schema.json`
+   - `references/triage.schema.json`
 3. Use the report to select workflow guardrails:
    - project kind(s)
    - PHP/Node tooling present

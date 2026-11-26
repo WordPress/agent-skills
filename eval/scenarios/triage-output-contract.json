@@ -3,7 +3,7 @@
   "skills": ["wp-project-triage"],
   "query": "Run the WordPress project triage and summarize what kind of repo this is and what commands to run first.",
   "expected_behavior": [
-    "Step 1: Run triage script: node skills/wp-project-triage/scripts/detect_wp_project.mjs",
+    "Step 1: Run triage script: resolve the installed wp-project-triage skill directory, then run its scripts/detect_wp_project.mjs by quoted absolute path while keeping the target project root as cwd",
     "Step 2: Parse JSON output from script",
     "Step 3: Report project.kind and project.primary fields",
     "Step 4: Report signals with discovered paths and key indicators",

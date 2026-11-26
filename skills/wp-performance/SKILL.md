@@ -28,6 +28,10 @@ This skill assumes the agent cannot use a browser UI. Prefer WP-CLI, logs, and H
 
 ## Procedure
 
+Replace `<wp-performance-dir>` below with the absolute directory containing that skill’s `SKILL.md`
+file (load that skill if needed). Keep the target project’s root as the working directory and retain
+the quotes around script paths. `references/` paths are relative to this skill’s directory.
+
 ### 0) Guardrails: measure first, avoid risky ops
 
 1. Confirm whether you may run write operations (plugin installs, config changes, cache flush).
@@ -42,7 +46,7 @@ Read:
 
 Run:
 
-- `node skills/wp-performance/scripts/perf_inspect.mjs --path=<path> [--url=<url>]`
+- `node "<wp-performance-dir>/scripts/perf_inspect.mjs" --path="<path>" [--url="<url>"]`
 
 This detects:
 
