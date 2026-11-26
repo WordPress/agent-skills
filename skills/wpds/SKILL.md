@@ -1,14 +1,17 @@
 ---
 name: wpds
 description: "Use when building UIs leveraging the WordPress Design System (WPDS) and its components, tokens, patterns, etc."
-compatibility: "Requires WPDS MCP server configured and running. Targets WordPress 7.0+ (PHP 7.4.0+)."
+compatibility: "Requires the WPDS MCP server (@wordpress/design-system-mcp, Node.js 22.13.0+) configured and running. Targets WordPress 7.0+ (PHP 7.4.0+)."
 ---
 
 # WordPress Design System (WPDS)
 
 ## Prerequisites
 
-This skill works best with the **WPDS MCP server** installed. The MCP provides access to WordPress Design System documentation and resources, such as components and DS token lists.
+This skill requires the **WPDS MCP server** ([`@wordpress/design-system-mcp`](https://github.com/WordPress/gutenberg/tree/trunk/packages/design-system-mcp), Node.js 22.13.0+; supersedes the archived `Automattic/wpds-mcp` repository), which provides access to WordPress Design System patterns, component documentation, and design token references.
+
+- **Setup:** Read `references/mcp-setup.md` for Claude Code, OpenAI Codex, Cursor, VS Code, and Claude Desktop setup instructions (runs via `npx -y --ignore-scripts --min-release-age=2 @wordpress/design-system-mcp@latest`).
+- **Missing server:** If no WPDS MCP tools are available in the current session, share the setup steps in `references/mcp-setup.md` before proceeding instead of guessing outdated component APIs.
 
 The following terms should be treated as synonyms:
 - "WordPress" and "WP";
@@ -28,15 +31,16 @@ Use this skill when the user mentions:
 
 ### Use the WPDS MCP server to access WPDS-related documentation
 
-- Use the WPDS MCP server to retrieve the canonical, authoritative documentation:
-  - reference site (`wpds://pages`)
-  - list of available components (`wpds://components`) and specific component information (`wpds://components/:name`)
-  - list of available tokens (`wpds://design-tokens`)
-- DO NOT search the web for canonical documentation about the WordPress Design System. If asked by the user, push back and ask for confirmation, warning them that the MCP server is the best place to provide information
+- Use the `@wordpress/design-system-mcp` tools to retrieve the canonical, authoritative documentation:
+  - `get_patterns` and `get_pattern_details`: check WPDS interaction patterns first when building an interface or user flow.
+  - `get_components` and `get_component_details`: discover components across `@wordpress/ui`, `@wordpress/components`, and `@wordpress/admin-ui` and retrieve props, usage examples, and import statements.
+  - `get_design_tokens`: retrieve `--wpds-*` CSS custom properties from `@wordpress/theme` for styling not covered by component props.
+- If connected to an older archived `Automattic/wpds-mcp` instance exposing `wpds://` resources (`wpds://pages`, `wpds://components`, `wpds://components/:name`, `wpds://design-tokens`) instead of the tools above, use the available resources and recommend migrating to `@wordpress/design-system-mcp`.
+- DO NOT search the web for canonical documentation about the WordPress Design System. If asked by the user, push back and ask for confirmation, warning them that the MCP server is the best place to provide information.
 
 ### Required documentation
 
-Before working on any WPDS-related tasks, make sure you read relevant documentation on the reference site. This documentation should take the absolute precedence when evaluating the best course of action for any given tasks.
+Before working on any WPDS-related tasks, retrieve the relevant pattern, component, and design token documentation via the WPDS MCP server. This documentation should take absolute precedence when evaluating the best course of action for any given task.
 
 ### Boundaries
 

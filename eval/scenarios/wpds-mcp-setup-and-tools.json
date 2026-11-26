@@ -1,0 +1,17 @@
+{
+  "name": "WPDS MCP setup and tool discovery",
+  "skills": ["wpds"],
+  "query": "I want to build a confirmation modal using the WordPress Design System. How do I set up the WPDS MCP server, and which MCP tools should you call before writing the UI?",
+  "expected_behavior": [
+    "Identify @wordpress/design-system-mcp (requiring Node.js 22.13.0+) as the official WPDS MCP server and note that Automattic/wpds-mcp is archived.",
+    "Provide client setup instructions from references/mcp-setup.md (claude mcp add, codex mcp add, or mcp.json using npx -y --ignore-scripts --min-release-age=2 @wordpress/design-system-mcp@latest).",
+    "Do not search the web for canonical WPDS documentation; query the MCP server instead.",
+    "Call get_patterns (and get_pattern_details if a pattern matches, e.g. destructive-actions) before choosing components, then call get_component_details (and get_components if needed) and get_design_tokens for custom styling."
+  ],
+  "success_criteria": [
+    "References @wordpress/design-system-mcp and Node.js 22.13.0+ setup instructions",
+    "Notes that Automattic/wpds-mcp is archived and superseded",
+    "Uses get_patterns, get_pattern_details, get_components, get_component_details, and get_design_tokens rather than legacy wpds:// URIs alone",
+    "Refuses or avoids unapproved web search for canonical WPDS docs"
+  ]
+}
