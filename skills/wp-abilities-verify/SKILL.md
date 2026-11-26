@@ -1,6 +1,6 @@
 ---
 name: wp-abilities-verify
-description: "Verify a WordPress plugin's Abilities API registrations: enumerate abilities, check that callback behavior matches each annotation's claim (the adversarial readonly-but-writes detection), validate permissions and schemas, and validate audit documents produced by wp-abilities-audit."
+description: "Verify a WordPress plugin's Abilities API registrations and exported MCP tools: enumerate abilities, check that callback behavior matches each annotation's claim (the adversarial readonly-but-writes detection), validate permissions and schemas, inspect live MCP tools/list and tool calls when exposed over MCP, and validate audit documents produced by wp-abilities-audit."
 compatibility: "Targets WordPress 7.0+ plugins (PHP 7.4.0+). Requires a runnable environment (wp-env, docker-based dev stack, or equivalent) for runtime mode; static mode runs entirely from the plugin checkout with no env. Filesystem-based agent with bash + node."
 ---
 
@@ -15,8 +15,10 @@ they introspect. This skill catches those lies by reading the callback
 body and comparing what it does against what the annotation claims.
 
 The skill also validates audit docs produced by `wp-abilities-audit`,
-checks permission gates and schema hygiene, and optionally executes
-each ability against a live environment.
+checks permission gates and schema hygiene, optionally executes
+each ability against a live environment, and verifies exported MCP
+tools against `tools/list` and representative MCP calls when abilities
+are exposed over MCP.
 
 ## When to use
 
@@ -24,26 +26,35 @@ each ability against a live environment.
   lands.
 - As a health-check on an already-shipped plugin (catch regressions
   where a refactor turned a readonly ability into a writing one).
+- When abilities are exposed over MCP and you need to verify what an
+  MCP client discovers in `tools/list` and observes from live calls.
 - To validate an audit document before handing it to an implementer.
 
 ## Two modes
 
 - **Static mode** — runs from the plugin checkout. No env. Enumerates
   via source inspection, runs the adversarial correctness check, runs
-  schema and permission lints, and validates audit docs.
+  schema and permission lints, and validates audit docs. Static review
+  does not verify any exported MCP tools; record MCP checks as
+  unverified.
 - **Runtime mode** — requires a running env. Does everything static
   does PLUS: `wp_get_abilities()` for authoritative enumeration,
   executes each ability with curated inputs, confirms permission
-  roundtrip against real users, and runs a twin-invocation heuristic
+  roundtrip against real users, runs a twin-invocation heuristic
   on `idempotent: true` abilities to flag candidates for review
   (return-value equality is a signal, not a verdict — core defines
-  idempotent as "no additional effect on the environment").
+  idempotent as "no additional effect on the environment"), and, when
+  an MCP endpoint is available, verifies exported tools via
+  `tools/list` and representative `tools/call` requests.
 
 Both modes produce the same structured report format.
 
 A static-mode PASS means "no obvious-shape violations," not "verified
-write-free." For high-stakes plugins, run runtime mode before landing
-— it catches bootstrap-order, permission-roundtrip, and idempotency
+write-free." Likewise, a successful direct `WP_Ability::execute()` call
+verifies the PHP ability, not the exported MCP tool — if MCP checks
+cannot be run on the intended endpoint, report them as unverified. For
+high-stakes plugins, run runtime mode before landing — it catches
+bootstrap-order, permission-roundtrip, MCP projection, and idempotency
 issues that static can't. See `references/annotation-correctness.md`
 for the static blind spots.
 
@@ -147,6 +158,24 @@ Cross-reference `../wp-abilities-api/references/error-code-vocabulary.md`.
 Inspect each callback's `WP_Error` returns; non-vocabulary codes →
 WARN.
 
+### 8. Exported MCP tools (when exposed over MCP)
+
+Read `references/mcp-verification.md`. For abilities exposed over MCP:
+
+- Inspect `tools/list` on the intended MCP endpoint from a clean client
+  session. Verify the expected operations are discoverable in the
+  required form (individual tools when needed rather than hidden behind
+  a generic executor) and that their names, descriptions, schemas, and
+  hints match the registered ability contract.
+- Exercise representative calls in a disposable test environment. Compare
+  the response and resulting state with the tool description and hints;
+  specifically verify that a tool marked non-destructive does not
+  overwrite or remove existing state, and include denied calls where
+  permissions matter.
+- Report any MCP checks that could not be run as `UNVERIFIED`. A static
+  review or a successful direct `WP_Ability::execute()` call verifies
+  the PHP ability, not the exported MCP tool.
+
 ## Verification
 
 The run produces a structured markdown report at the user-specified
@@ -174,10 +203,16 @@ Last updated: <YYYY-MM-DD HH:MM>
 ## Schema lints
 
 ## Error-code vocabulary
+
+## MCP tool verification
+| Tool / Ability | tools/list contract | Call & state check | Denied-call check | Status |
+|---|---|---|---|---|
 ```
 
-Every ability is OK, WARN, or FAIL. A single FAIL → top-line FAIL;
-WARNs without FAILs → WARN; otherwise PASS.
+Every ability is `OK`, `WARN`, `FAIL`, or (for unrun MCP checks)
+`UNVERIFIED`. A single `FAIL` → top-line `FAIL`; `WARN`s without
+`FAIL`s → `WARN`; otherwise `PASS`. Never report unrun MCP checks as
+`OK` or `PASS` on the basis of static review or direct ability calls.
 
 ## Failure modes / debugging
 
@@ -194,6 +229,10 @@ WARNs without FAILs → WARN; otherwise PASS.
 - **Runtime enumeration smaller than static** — registration hook
   isn't firing. Check init hook timing, activation state, autoloader
   order.
+- **MCP endpoint unavailable or direct-only run** — record all unrun
+  checks under `## MCP tool verification` as `UNVERIFIED` instead of
+  inferring MCP tool behavior from static checks or `wp_get_ability()`
+  calls.
 
 ## Escalation
 

@@ -1,0 +1,19 @@
+{
+  "name": "Design MCP-ready ability names, side-effect annotations, and open-world distinction",
+  "skills": ["wp-ability-development"],
+  "query": "We are designing WordPress abilities that will be exposed to MCP clients: (1) a generic `acme/manage-content` executor taking `action: create_draft | overwrite_post | delete_post | search_public_web`, (2) `acme/publish-post` which updates post status and fires a hook that sends subscriber email notifications, and (3) `acme/search-web` which queries a public web search API without modifying local or remote data. How should we structure the abilities, classify their side effects, and configure `meta.annotations` including `open_world`?",
+  "expected_behavior": [
+    "Recommend splitting the generic executor into separate abilities with clear names, focused schemas, and descriptions when clients need individual MCP tools",
+    "Classify side effects across all execution paths, including fired hooks and delegated calls",
+    "Contrast an additive write such as creating a draft (`destructive: false`) with overwriting or deleting existing state (`destructive: true`), and explicitly call out irreversible side effects such as sending subscriber notifications",
+    "Explain that `readonly` and open-world are independent (the public web search ability can be both `readonly: true` and open-world)",
+    "Reference Core #66799 (`https://core.trac.wordpress.org/ticket/66799`) without presenting `open_world` as an active core `meta.annotations` key before it lands"
+  ],
+  "success_criteria": [
+    "Replaces the generic executor with separate, individually callable abilities having clear names, focused schemas, and descriptions",
+    "Accounts for side effects in hooks and delegated calls when setting `readonly`, `destructive`, and `idempotent`",
+    "Distinguishes additive writes (draft creation) from state-overwriting/deleting writes and flags irreversible side effects (subscriber notifications)",
+    "States that read-only and open-world are independent using the public web search case",
+    "Links Core #66799 while noting `open_world` is not yet shipped in core `meta.annotations`"
+  ]
+}
