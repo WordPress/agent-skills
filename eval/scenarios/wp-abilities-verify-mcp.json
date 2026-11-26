@@ -1,0 +1,19 @@
+{
+  "name": "Verify MCP-exposed abilities via tools/list, live calls, and honest unverified reporting",
+  "skills": ["wp-abilities-verify"],
+  "query": "Our plugin registers three MCP-exposed abilities (`acme/get-note`, `acme/create-draft`, and `acme/archive-note`) with `create-draft` marked non-destructive. We already ran static review and direct `wp_get_ability()->execute()` calls via WP-CLI, and `acme/archive-note` cannot be tested over MCP right now. How should `wp-abilities-verify` verify the exported MCP tools and report the result?",
+  "expected_behavior": [
+    "Inspect `tools/list` on the intended MCP endpoint to confirm operations are discoverable in the required form and match ability names, descriptions, schemas, and hints",
+    "Exercise representative MCP `tools/call` requests in a disposable test environment and compare responses and resulting state against descriptions and hints",
+    "Verify specifically that `acme/create-draft` (marked non-destructive) creates new state without overwriting or removing existing state",
+    "Exercise denied MCP calls with unprivileged/unauthenticated callers where permissions matter",
+    "Report `acme/archive-note` (and any unrun MCP checks) as unverified rather than treating static review or direct `wp_get_ability()->execute()` calls as MCP verification"
+  ],
+  "success_criteria": [
+    "Requires inspecting `tools/list` on the intended endpoint for discoverability, form, names, descriptions, schemas, and hints",
+    "Exercises live MCP calls in a test environment and checks both responses and resulting state",
+    "Explicitly checks that a non-destructive tool does not overwrite or remove existing state",
+    "Includes denied-call permission testing over MCP",
+    "Reports unexecuted MCP checks as UNVERIFIED and does not equate static review or direct ability calls with verifying the exported MCP tool"
+  ]
+}

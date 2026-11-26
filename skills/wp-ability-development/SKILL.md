@@ -64,6 +64,7 @@ Choose a stable result type and structure for every successful call. A collectio
 
 Prefer `{object}-{action}` within the namespace so related abilities sort together. Use separate `query` and `get` abilities for collections and single-record lookups. Use `create`, `update`, and `delete` for the corresponding writes.
 
+- Give each independently callable operation a clear name, a focused schema, and a description of what it reads or changes. When a client needs operations exposed as individual tools, register separate abilities rather than hiding multiple operations behind a generic executor (such as an action-dispatch parameter).
 - Use the same names, types, meanings, and nesting for shared fields across the family, including writable fields in `create` and `update`. For example, if `post-query` and `post-get` both expose raw content, use `content.raw` in both results.
 - Group a list ability’s filters in one input object such as `where`. Describe how the filters combine so callers know whether all conditions must match, any can match, or another rule applies.
 - Prefer partial updates for ordinary edits. Require the target and accept the fields the caller wants to change. For example, a title edit can send the post ID and new title. The caller can make the edit without sending back a copy of the body that may be stale.
@@ -72,11 +73,12 @@ Prefer `{object}-{action}` within the namespace so related abilities sort togeth
 
 ### Describe side effects with annotations
 
-Set `readonly`, `destructive`, and `idempotent` in `meta.annotations` for each ability. Base the values on what happens during execution, including effects from hooks and services it calls.
+Set `readonly`, `destructive`, and `idempotent` in `meta.annotations` for each ability. Classify side effects across all supported execution paths — including WordPress hooks fired during execution, downstream listeners, and delegated calls to helpers or external services.
 
-- `readonly: true` means execution leaves its environment unchanged.
-- `destructive: true` means execution may remove or overwrite existing state. Use `destructive: false` when any writes are purely additive.
-- `idempotent: true` means repeating the call with the same input has no additional effect. For example, a title update that sends a notification every time has an additional effect even when the title already matches.
+- `readonly: true` means execution leaves its environment unchanged across every supported path.
+- `destructive: false` applies only when writes are purely additive, such as creating a new draft post without modifying existing records. Set `destructive: true` when any path may overwrite or delete existing state.
+- `idempotent: true` means repeating the call with the same input has no additional effect. Call out irreversible side effects explicitly in the ability description and annotations — for example, sending subscriber notifications, dispatching emails, or firing external webhooks — because a call that triggers them has an irreversible additional effect even when stored records already match.
+- Keep `readonly` and open-world separate: `readonly` describes whether execution mutates state, whereas open-world describes whether execution interacts with external entities outside the site. A public web search can be both `readonly: true` and open-world. WordPress core tracks adding an `open_world` annotation in [Core #66799](https://core.trac.wordpress.org/ticket/66799); do not present or rely on `open_world` as an active core `meta.annotations` key before that ticket lands.
 
 For help checking these claims against the implementation, see [wp-abilities-verify](../wp-abilities-verify/SKILL.md).
 
@@ -92,6 +94,7 @@ REST and MCP can expose permission error messages to callers. Keep protected dat
 
 - Exercise the normal invocation path with a representative request, invalid input, and denied access where applicable. Check the returned shape against the schema.
 - For queries, check zero, one, and multiple matches. For partial updates, try a single-field change and check the stored values as well as the response. Verify how omission and explicit clearing behave.
+- When an ability is exposed over MCP, verify what clients see in `tools/list` and test exported tool calls with [wp-abilities-verify](../wp-abilities-verify/SKILL.md); do not treat a direct PHP ability call as verification of the MCP tool.
 - For changes to a published ability, check representative calls that rely on its existing contract. In a review, tie each finding to a caller-visible consequence and a concrete correction.
 
 ## Failure modes / debugging
