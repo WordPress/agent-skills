@@ -6,6 +6,7 @@ This repo currently includes:
 - `wp-project-triage`
 - `wp-block-development`
 - `wp-block-themes`
+- `wp-docs`
 - `wp-plugin-development`
 - `wp-rest-api`
 - `wp-interactivity-api`
