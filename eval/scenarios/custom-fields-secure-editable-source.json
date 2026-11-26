@@ -1,0 +1,27 @@
+{
+  "name": "Keep an internal field private and make a bound value editable inline",
+  "skills": [
+    "wordpress-router",
+    "wp-project-triage",
+    "wp-custom-fields"
+  ],
+  "query": "Our plugin stores an internal review note per book in post meta. Editors may see and edit it in the block editor; it must never reach visitors or contributors. Also show the book's price from a custom bindings source in a paragraph, editable inline by users who can edit that book.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router and wp-project-triage, then search the plugin for existing meta registrations and bindings",
+    "Step 2: Store the note under a protected key, never bind it with core/post-meta, and if it is exposed to REST for the editor, remove it from REST responses for users who cannot edit that book",
+    "Step 3: Register both keys with type, single, sanitize_callback, and an auth_callback that checks the specific book (edit_post for the price, a stricter per-book rule for the note)",
+    "Step 4: Register the price source on init with uses_context postId and postType; the callback checks read access, escapes plain text, and returns null when there is no price",
+    "Step 5: Register the editor side of the source with getValues, getFieldsList, setValues that writes the meta through the edited entity record, and canUserEditValue that checks whether the user can update that book",
+    "Step 6: Verify REST and front end as an anonymous visitor and as a contributor, and inline editing in the editor with and without permission"
+  ],
+  "success_criteria": [
+    "Anonymous and contributor REST requests for a book (single and collection) do not return the note value",
+    "A paragraph bound to the note, placed by a contributor in a Query Loop or post, does not print the note on the front end or in the preview",
+    "A user who can edit the book reads and updates the note in the block editor, and the value is saved",
+    "Access to the note is checked per book (object capability, not a global edit_posts check) and is stricter than edit_post where the prompt requires it: contributors never see the note, not even on their own drafts",
+    "Permission checks for the price use edit_post on the specific book, not a global capability such as edit_posts",
+    "The price paragraph is editable inline for a user who can edit the book, and the edited price is saved to post meta",
+    "The price paragraph is not editable for a book the user cannot edit (for example inside a Query Loop listing another author's book), and a REST write of the price by that user is refused",
+    "A book without a price shows the paragraph's saved fallback text on the front end, and the solution explains why"
+  ]
+}

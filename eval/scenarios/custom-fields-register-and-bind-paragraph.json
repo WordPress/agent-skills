@@ -1,0 +1,29 @@
+{
+  "name": "Register a custom field and show it with a Paragraph binding",
+  "skills": [
+    "wordpress-router",
+    "wp-project-triage",
+    "wp-custom-fields"
+  ],
+  "query": "My plugin registers a 'book' post type. Add an ISBN field that editors can edit in the block editor and show it on the single book template inside a normal Paragraph block, without writing a custom block.",
+  "expected_behavior": [
+    "Step 1: Run wordpress-router and wp-project-triage to locate the plugin",
+    "Step 2: Search the plugin for existing meta registrations and bindings",
+    "Step 3: Confirm the post type has show_in_rest true and supports custom-fields (add it if missing)",
+    "Step 4: Register the key with register_post_meta() on init for the book post type: type string, single true, default, label, sanitize_callback, auth_callback, show_in_rest true",
+    "Step 5: Use a key without a leading underscore so core/post-meta can output it",
+    "Step 6: Add a Paragraph with metadata.bindings.content set to source core/post-meta and args.key set to the ISBN key, with fallback text",
+    "Step 7: Verify the key appears in the post type's REST schema and that the front end prints the meta value instead of the fallback"
+  ],
+  "success_criteria": [
+    "Uses register_post_meta() (or register_meta() with object_subtype) scoped to the post type",
+    "Sets single true and show_in_rest true",
+    "Provides sanitize_callback and an auth_callback that checks edit_post for the post",
+    "Does not use a protected (underscore-prefixed) key for the bound field",
+    "Ensures custom-fields support on the custom post type",
+    "Binding markup uses source core/post-meta with args.key and targets the content attribute",
+    "Does not create a custom block for this task",
+    "Includes REST or front-end verification",
+    "Explains that posts without a value render an empty paragraph, not the fallback text"
+  ]
+}
