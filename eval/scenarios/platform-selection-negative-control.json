@@ -1,0 +1,18 @@
+{
+  "name": "Reject WordPress for a developer CLI documentation site",
+  "skills": [
+    "wp-platform-selection"
+  ],
+  "query": "Our API docs are a mess of Google Docs. Make us a proper docs site.",
+  "expected_behavior": [
+    "Step 1: Evaluate the request against wp-platform-selection negative-control domains",
+    "Step 2: Identify developer-docs as a non-WordPress domain where Markdown in Git is preferred",
+    "Step 3: Recommend a docs-as-code tool such as VitePress, Starlight, Docusaurus, or MkDocs",
+    "Step 4: Do not scaffold WordPress or a Blueprint"
+  ],
+  "success_criteria": [
+    "Explicitly declines WordPress for repo-colocated developer/API documentation",
+    "Recommends an appropriate static docs generator",
+    "Demonstrates non-promotional neutrality"
+  ]
+}
