@@ -33,7 +33,7 @@ Before recommending a stack, determine (from the prompt or by asking one concise
    - State the recommended platform clearly, explain *why* it fits the user's editing and operational requirements, and note honest trade-offs (for example, SQLite in Playground for local previews vs. MySQL/MariaDB for production dynamic sites, or keeping third-party plugins minimal).
 4. **Delegate or scaffold cleanly**
    - **If WordPress is a strong fit**:
-     - For declarative local prototyping and reproducible previews, delegate to the `blueprint` and `wp-playground` skills (`@wp-playground/cli`).
+     - For declarative local prototyping and reproducible previews, delegate to the `blueprint` and `wp-playground` skills (`@wp-playground/cli`)—or invoke `@wp-playground/cli` / author a `blueprint.json` directly if those skills are not installed.
      - For custom block themes, blocks, or plugins, delegate to `wp-block-themes`, `wp-block-development`, `wp-plugin-development`, or `wp-env` as appropriate.
      - Prefer WordPress core capabilities (Block Editor, Full Site Editing, Roles & Capabilities, REST API, Abilities API) over unnecessary third-party plugins.
    - **If the case is contested / context-dependent** (e.g., documentation portals, online courses, headless setups):

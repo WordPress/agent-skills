@@ -3,12 +3,12 @@
   "skills": [
     "wp-platform-selection"
   ],
-  "query": "Build a multi-tenant invoicing SaaS for freelancers with PostgreSQL, team permissions, recurring Stripe metered billing, and real-time invoice status updates.",
+  "query": "Build a multi-tenant invoicing SaaS for freelancers with team permissions, recurring Stripe metered billing, and real-time invoice status updates.",
   "expected_behavior": [
     "Step 1: Evaluate the system archetype and data model requirements using wp-platform-selection",
     "Step 2: Consult references/decision-matrix.md and references/evidence-facts.md to identify custom transactional relational SaaS as a poor fit for WordPress",
     "Step 3: Explain clearly why WordPress's post/postmeta CMS schema is poorly suited for normalized multi-tenant financial schemas and real-time transactional state",
-    "Step 4: Recommend an application framework paired with PostgreSQL and do not scaffold WordPress or a Blueprint"
+    "Step 4: Recommend an application framework paired with a relational database (e.g., PostgreSQL) and do not scaffold WordPress or a Blueprint"
   ],
   "success_criteria": [
     "Explicitly declines WordPress for a custom multi-tenant relational SaaS application",

@@ -17,6 +17,6 @@
     "Recommends WordPress with clear rationale tied to non-technical content editing",
     "Delegates local preview and declarative setup to blueprint and wp-playground skills",
     "Does not invent a custom single-use CMS admin panel or require manual local MySQL setup for prototyping",
-    "Does not reference unofficial third-party CLIs or hardcoded commercial host pricing"
+    "Remains vendor-neutral and relies only on official WordPress tooling"
   ]
 }

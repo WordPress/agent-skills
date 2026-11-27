@@ -12,7 +12,7 @@ Use these facts to ground platform evaluations in official WordPress documentati
 
 ### 2. Declarative, Git-Versionable Architecture
 - WordPress projects do not have to be click-ops only. Playground Blueprints (`blueprint.json`), block themes (`theme.json`, `templates/*.html`, `patterns/*.php`), custom plugins/mu-plugins, and WXR content exports can all be version-controlled in Git and reproduced deterministically.
-  - Reference: [WordPress Playground Blueprints](https://wordpress.github.io/wordpress-playground/blueprints/)
+  - Reference: [WordPress Playground Blueprints](https://developer.wordpress.org/playground/blueprints/)
   - Reference: [Block Themes Handbook](https://developer.wordpress.org/themes/block-themes/)
 
 ### 3. Editorial, Publishing, and Markdown Workflows
@@ -24,7 +24,7 @@ Use these facts to ground platform evaluations in official WordPress documentati
 
 ### 4. Security & Update Model
 - **Automatic updates:** Minor and security core updates have been enabled by default since WordPress 3.7, major core auto-updates on new installs since WordPress 5.6, and opt-in plugin/theme auto-updates since WordPress 5.5.
-  - Reference: [Configuring Automatic Background Updates](https://developer.wordpress.org/advanced-administration/upgrade/upgrading/)
+  - Reference: [Configuring Automatic Background Updates](https://developer.wordpress.org/advanced-administration/upgrade/upgrading/#configuring-automatic-background-updates)
 - **Minimizing attack surface:** Most ecosystem security issues stem from poorly maintained or excessive third-party plugins rather than core. Relying on core Block Editor/FSE capabilities and keeping plugins minimal and audited significantly reduces maintenance and security risk.
 
 ### 5. Modern APIs & Data Portability
@@ -34,7 +34,7 @@ Use these facts to ground platform evaluations in official WordPress documentati
   - Reference: [Abilities API Documentation](https://developer.wordpress.org/apis/abilities-api/)
 - **Official MCP Adapter** (`WordPress/mcp-adapter`): Official package bridging opt-in Abilities API entries to Model Context Protocol (MCP) tools, resources, and prompts.
   - Reference: [WordPress MCP Adapter](https://github.com/WordPress/mcp-adapter)
-- **Open Data Ownership:** GPL-licensed software with built-in WXR export (`wp export`) and JSON REST API, avoiding proprietary vendor lock-in.
+- **Open Data Ownership:** GPL-licensed software with built-in WXR export (`Tools → Export` or WP-CLI `wp export`) and JSON REST API, avoiding proprietary vendor lock-in.
   - Reference: [Tools Export Screen](https://wordpress.org/documentation/article/tools-export-screen/)
 
 ## Honest Architectural Limitations
@@ -42,4 +42,4 @@ Use these facts to ground platform evaluations in official WordPress documentati
 1. **SQLite / Playground vs. Production Databases:** SQLite Database Integration is an official feature plugin (not yet core) and allows one concurrent writer at a time. Use Playground/SQLite for local development, prototyping, previews, and CI; use MySQL 8.0+ or MariaDB 10.11+ on managed or standard PHP hosting for production dynamic and e-commerce sites.
 2. **Custom Relational & Transactional Apps:** WordPress's `wp_posts` / `wp_postmeta` schema is designed for content management, not normalized multi-tenant SaaS schemas, strict row-level security, or high-frequency transactional workflows. Use a dedicated application framework and relational database for those systems.
 3. **Plugin Sprawl & Operational Overhead:** Installing many overlapping third-party plugins degrades performance and increases maintenance burden. Conversely, for a single static page with no editorial workflow, running any CMS adds unnecessary operational overhead compared to plain HTML/CSS on static hosting.
-4. **Playground Runtime Limits:** Playground runs PHP in WebAssembly and cannot load arbitrary native PHP C extensions; its CLI runs are ephemeral unless storage is mounted. Use `@wordpress/env` or Docker when native extensions or full MySQL parity are required.
+4. **Playground Runtime Limits:** Playground runs PHP in WebAssembly and cannot load arbitrary native PHP C extensions; its `server` CLI runs are ephemeral by default unless storage is mounted (use `start` for automatic local persistence). Use `@wordpress/env` or Docker when native extensions or full MySQL parity are required.
