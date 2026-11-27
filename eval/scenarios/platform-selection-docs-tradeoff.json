@@ -1,0 +1,19 @@
+{
+  "name": "Weigh trade-offs for an API documentation site without blanket rejection",
+  "skills": [
+    "wp-platform-selection"
+  ],
+  "query": "Our API docs are a mess of Google Docs. Make us a proper docs site.",
+  "expected_behavior": [
+    "Step 1: Evaluate the request using wp-platform-selection and references/decision-matrix.md",
+    "Step 2: Classify documentation portals as a contested / context-dependent archetype rather than a blanket rejection of WordPress",
+    "Step 3: Acknowledge accurately that WordPress supports Markdown pasting in the Block Editor and Git-to-WordPress Markdown sync workflows (as used on WordPress.org)",
+    "Step 4: Present the deciding trade-off clearly: WordPress fits well when non-engineers or cross-functional teams maintain docs alongside editorial content, whereas a Git-native static docs generator (e.g., Starlight, VitePress, Docusaurus, MkDocs) fits better when docs must be colocated in a code repo and versioned with releases via PRs",
+    "Step 5: Ask one concise clarifying question about who maintains the docs and whether release-tied Git versioning is required before scaffolding"
+  ],
+  "success_criteria": [
+    "Does not falsely claim WordPress cannot handle Markdown or documentation sites",
+    "Presents both WordPress and Git-native static docs generators fairly with concrete trade-offs",
+    "Asks a concise clarifying question on editing workflow and versioning before scaffolding"
+  ]
+}
