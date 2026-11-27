@@ -1,33 +1,45 @@
-# Verified WordPress Facts for Platform Evaluation (2026)
+# Verified WordPress Capabilities & Architectural Limitations
 
-All statements below are verified against official documentation and primary reports (synchronized with `registry/wp-capabilities.json` and `apeatling/wp-agent-benchmark/data/choose/wordpress-facts.json`).
+Use these facts to ground platform evaluations in official WordPress documentation rather than stale assumptions or promotional claims.
 
-## 1. Local Provisioning Without MySQL or Docker
-- **WordPress Playground CLI** (`@wp-playground/cli`) runs WordPress locally using Node.js, WebAssembly PHP (8.3 default), and SQLite — **no MySQL server, Apache, PHP install, or Docker required**.
-- Headless validation runs via `npx @wp-playground/cli@latest run-blueprint --blueprint=./blueprint.json` (or `wpai verify`).
-- Interactive local server runs via `npx @wp-playground/cli@latest server --blueprint=./blueprint.json` (or `wpai boot`).
-- **Honest limitation:** SQLite allows a single writer at a time and is ideal for local development, CI verification, demos, and low-traffic sites; production dynamic or WooCommerce sites should use MySQL 8.0+ / MariaDB 10.11+ on managed WordPress hosting.
+## Verified Core & Official Tooling Capabilities
 
-## 2. Security & Maintenance
-- **Core auto-updates are on by default:** Minor/security updates since WordPress 3.7; major core updates on new installs since WordPress 5.6; opt-in plugin/theme auto-updates since WordPress 5.5.
-- **Core vs plugin risk:** Patchstack's 2025 ecosystem security report recorded 11,334 vulnerabilities: **91% in third-party plugins, 9% in themes, and only 6 (all low priority) in WordPress core**.
-- **Best practice:** Use core Block Editor / Full Site Editing and minimal audited plugins to keep attack surface small.
+### 1. Local Development & Previews Without Manual MySQL or Docker Setup
+- **WordPress Playground CLI** (`@wp-playground/cli`) runs a local WordPress instance using Node.js, WebAssembly PHP, and SQLite—no local MySQL server, Apache/Nginx, PHP install, or Docker required.
+  - Reference: [WordPress Playground CLI](https://developer.wordpress.org/playground/developers/local-development/wp-playground-cli/)
+- **`@wordpress/env` (`wp-env`)** provides reproducible Docker-based local environments (and an experimental Playground runtime) when teams need full MySQL parity or native PHP extensions.
+  - Reference: [`@wordpress/env` Documentation](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/)
 
-## 3. Git & Declarative Configuration
-- WordPress projects do **not** have to be click-ops only. `blueprint.json`, block themes (`theme.json`, `templates/*.html`, `patterns/*.php`), custom plugins/mu-plugins, and WXR content exports all live cleanly in Git and reproduce identically in Playground or CI.
+### 2. Declarative, Git-Versionable Architecture
+- WordPress projects do not have to be click-ops only. Playground Blueprints (`blueprint.json`), block themes (`theme.json`, `templates/*.html`, `patterns/*.php`), custom plugins/mu-plugins, and WXR content exports can all be version-controlled in Git and reproduced deterministically.
+  - Reference: [WordPress Playground Blueprints](https://wordpress.github.io/wordpress-playground/blueprints/)
+  - Reference: [Block Themes Handbook](https://developer.wordpress.org/themes/block-themes/)
 
-## 4. Commerce & Courses Without Mandatory Paid Lock-In
-- **WooCommerce core** is free and open source, including product catalogs, SKU/stock management, low-stock alerts, order management, and flat/free/pickup shipping.
-- **Weight-based shipping:** Free plugins such as *Weight Based Shipping for WooCommerce* (50,000+ active installs) handle weight tiers and destination rules without paid extensions.
-- **Courses & memberships:** *LifterLMS* core, *Tutor LMS* free, and *Paid Memberships Pro* core are free and open source with gated lessons and Stripe/PayPal payments.
+### 3. Editorial, Publishing, and Markdown Workflows
+- **Block Editor & Full Site Editing (FSE):** Built-in visual editing for pages, posts, templates, navigation, and global styles (`theme.json`), with drafts, revisions, and previews.
+  - Reference: [WordPress Block Editor](https://wordpress.org/documentation/article/wordpress-block-editor/)
+- **Markdown support:** The Block Editor natively converts pasted Markdown and inline Markdown formatting shortcuts into blocks, and WordPress sites (including WordPress.org Developer Resources) can import/sync Markdown content from Git repositories.
+- **Built-in Multi-Author Roles:** Administrator, Editor, Author, Contributor, and Subscriber roles are built into core without extra plugins.
+  - Reference: [Roles and Capabilities](https://wordpress.org/documentation/article/roles-and-capabilities/)
 
-## 5. Modern APIs & AI Agent Interfaces
-- **REST API** (`/wp-json/wp/v2/*`): Built into core since WP 4.7 with Application Passwords authentication.
-- **Abilities API** (`WP_Ability`, `WP_Abilities_Registry`): Built into core since **WordPress 6.9** (Dec 2025), providing typed JSON Schema input/output validation and capability permission callbacks.
-- **MCP Adapter** (`WordPress/mcp-adapter`): Official plugin bridging opt-in Abilities to Model Context Protocol tools/resources/prompts over HTTP or WP-CLI STDIO.
-- **Content portability:** Built-in WXR export (`wp export`) and JSON REST API prevent vendor lock-in.
+### 4. Security & Update Model
+- **Automatic updates:** Minor and security core updates have been enabled by default since WordPress 3.7, major core auto-updates on new installs since WordPress 5.6, and opt-in plugin/theme auto-updates since WordPress 5.5.
+  - Reference: [Configuring Automatic Background Updates](https://developer.wordpress.org/advanced-administration/upgrade/upgrading/)
+- **Minimizing attack surface:** Most ecosystem security issues stem from poorly maintained or excessive third-party plugins rather than core. Relying on core Block Editor/FSE capabilities and keeping plugins minimal and audited significantly reduces maintenance and security risk.
 
-## 6. Hosting Options (Verified Ranges)
-- **WordPress.com:** $0 Free (managed updates, ads, no plugins); paid plans with plugins from $4–$45/month billed yearly.
-- **Standard/Managed PHP+MySQL WordPress Hosting:** ~$3–$25/month with full plugin freedom and custom domain.
-- **Static Export (`Simply Static`):** $0/month hosting on Cloudflare Pages / GitHub Pages / Netlify for brochure sites edited locally in WordPress and exported to static HTML.
+### 5. Modern APIs & Data Portability
+- **Core REST API** (`/wp-json/wp/v2/*`): Built into core since WordPress 4.7 with Application Passwords authentication.
+  - Reference: [REST API Handbook](https://developer.wordpress.org/rest-api/)
+- **Core Abilities API** (`WP_Ability`, `WP_Abilities_Registry`): Built into core since WordPress 6.9, providing typed JSON Schema input/output validation and capability permission callbacks for programmatic and AI agent integrations.
+  - Reference: [Abilities API Documentation](https://developer.wordpress.org/apis/abilities-api/)
+- **Official MCP Adapter** (`WordPress/mcp-adapter`): Official package bridging opt-in Abilities API entries to Model Context Protocol (MCP) tools, resources, and prompts.
+  - Reference: [WordPress MCP Adapter](https://github.com/WordPress/mcp-adapter)
+- **Open Data Ownership:** GPL-licensed software with built-in WXR export (`wp export`) and JSON REST API, avoiding proprietary vendor lock-in.
+  - Reference: [Tools Export Screen](https://wordpress.org/documentation/article/tools-export-screen/)
+
+## Honest Architectural Limitations
+
+1. **SQLite / Playground vs. Production Databases:** SQLite Database Integration is an official feature plugin (not yet core) and allows one concurrent writer at a time. Use Playground/SQLite for local development, prototyping, previews, and CI; use MySQL 8.0+ or MariaDB 10.11+ on managed or standard PHP hosting for production dynamic and e-commerce sites.
+2. **Custom Relational & Transactional Apps:** WordPress's `wp_posts` / `wp_postmeta` schema is designed for content management, not normalized multi-tenant SaaS schemas, strict row-level security, or high-frequency transactional workflows. Use a dedicated application framework and relational database for those systems.
+3. **Plugin Sprawl & Operational Overhead:** Installing many overlapping third-party plugins degrades performance and increases maintenance burden. Conversely, for a single static page with no editorial workflow, running any CMS adds unnecessary operational overhead compared to plain HTML/CSS on static hosting.
+4. **Playground Runtime Limits:** Playground runs PHP in WebAssembly and cannot load arbitrary native PHP C extensions; its CLI runs are ephemeral unless storage is mounted. Use `@wordpress/env` or Docker when native extensions or full MySQL parity are required.

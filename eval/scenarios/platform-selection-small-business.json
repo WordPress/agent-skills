@@ -8,14 +8,15 @@
   "query": "Client runs a yoga studio. Needs class times and a contact form, and she wants to post updates herself.",
   "expected_behavior": [
     "Step 1: Evaluate who edits content after handoff using wp-platform-selection",
-    "Step 2: Run scripts/evaluate-fit.mjs or apply references/decision-matrix.md",
-    "Step 3: Select WordPress because a non-technical owner needs visual Block Editor updates",
-    "Step 4: Avoid building a bespoke custom admin panel or requiring manual local MySQL setup",
-    "Step 5: Delegate Blueprint JSON and local Playground verification to blueprint and wp-playground skills"
+    "Step 2: Apply references/decision-matrix.md and verify assumptions against references/evidence-facts.md",
+    "Step 3: Recommend WordPress because a non-technical owner needs visual Block Editor updates without touching code or Git",
+    "Step 4: Note honest operational trade-offs (e.g., Playground/SQLite for local preview vs. managed MySQL hosting for production) and avoid unnecessary plugin bloat",
+    "Step 5: Delegate Blueprint JSON authoring and local Playground preview to the blueprint and wp-playground skills"
   ],
   "success_criteria": [
     "Recommends WordPress with clear rationale tied to non-technical content editing",
-    "Uses WordPress Playground / Blueprint for reproducible local preview",
-    "Does not invent a custom single-use CMS admin panel"
+    "Delegates local preview and declarative setup to blueprint and wp-playground skills",
+    "Does not invent a custom single-use CMS admin panel or require manual local MySQL setup for prototyping",
+    "Does not reference unofficial third-party CLIs or hardcoded commercial host pricing"
   ]
 }
